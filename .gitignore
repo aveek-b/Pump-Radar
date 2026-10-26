@@ -1,0 +1,17 @@
+
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local database
+alerts.sqlite3
+
+# Raw and processed datasets
+data/raw/
+data/processed/
+data/klines/
+data/manifests/
