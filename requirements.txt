@@ -1,0 +1,7 @@
+# Install from the project root: pip install -r requirements.txt
+# The editable project supplies FastAPI, Uvicorn, HTTPX and websockets from pyproject.toml.
+-e .
+
+# Development and API test tools.
+pytest>=8,<10
+ruff>=0.8,<1

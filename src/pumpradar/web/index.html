@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PumpRadar · Demo</title>
+  <style>
+    :root { color-scheme: dark; font: 16px/1.5 system-ui, sans-serif; background: #0c1220; color: #edf3ff; }
+    body { margin: 0 auto; max-width: 1100px; padding: 32px 20px; }
+    header { display: flex; justify-content: space-between; align-items: start; gap: 18px; border-bottom: 1px solid #26344e; padding-bottom: 24px; }
+    h1 { margin: 0; font-size: 2rem; letter-spacing: -.04em; } h2 { margin: 0 0 14px; font-size: 1.1rem; }
+    p { color: #aab8d0; margin: 5px 0; }
+    .tag { border: 1px solid #8e7033; color: #f6d88a; padding: 6px 10px; border-radius: 999px; white-space: nowrap; font-size: .8rem; }
+    .notice { margin: 20px 0; padding: 13px 16px; border-radius: 10px; background: #1d2941; border-left: 3px solid #f1bf5f; }
+    .grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); gap: 18px; }
+    .card { background: #151e30; border: 1px solid #2b3a54; border-radius: 14px; padding: 20px; min-width: 0; }
+    .meta { color: #aab8d0; font-size: .85rem; margin-bottom: 12px; }
+    table { border-collapse: collapse; width: 100%; } th, td { text-align: left; padding: 10px 6px; border-bottom: 1px solid #29374d; }
+    th { color: #93a6c6; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; }
+    .score { font-variant-numeric: tabular-nums; font-weight: 700; color: #75ddc3; }
+    .muted { color: #8ea1bb; } .alert { border-bottom: 1px solid #29374d; padding: 12px 0; }
+    .alert strong { color: #f3ce7a; } .alert small { display: block; color: #8ea1bb; }
+    .empty { padding: 20px 0; color: #8ea1bb; }
+    a { color: #a5c7ff; } @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } header { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <header><div><h1>PumpRadar</h1><p>BTC pair radar · closed 1-minute bars</p></div><span class="tag">DEMO SCORER</span></header>
+  <div class="notice">Scores are a volume heuristic for testing the platform. A score of 0 means the latest BTC volume did not exceed the coin's earlier median. Scores are not calibrated probabilities, verified warnings, or trading signals.</div>
+  <main class="grid">
+    <section class="card"><h2>Current minute ranking</h2><div class="meta" id="minute">Waiting for bars</div>
+      <table><thead><tr><th>Rank</th><th>Coin</th><th>Volume vs median</th><th>Buy share</th><th>Demo score</th></tr></thead><tbody id="coins"></tbody></table>
+      <p class="empty" id="no-coins">No bars yet. Use the API or start the live feeder.</p>
+    </section>
+    <section class="card"><h2>Recent alerts</h2><div class="meta" id="connection">Connecting to alert stream…</div><div id="alerts"></div>
+      <p class="empty" id="no-alerts">No alerts yet.</p>
+    </section>
+  </main>
+  <p style="margin-top:24px">Developer API: <a href="/docs">/docs</a> · New alerts update through Server-Sent Events.</p>
+  <script>
+    const coins = document.querySelector('#coins');
+    const alerts = document.querySelector('#alerts');
+    const seen = new Set();
+    const time = value => value ? new Date(value).toLocaleString() : 'Waiting for bars';
+    function cell(row, text, className = '') {
+      const td = row.insertCell(); td.textContent = text; td.className = className; return td;
+    }
+    async function refreshRadar() {
+      try {
+        const response = await fetch('/radar'); if (!response.ok) throw Error(response.status);
+        const data = await response.json();
+        document.querySelector('#minute').textContent = data.minute ? `As of ${time(data.minute)} · ${data.coins.length} coins reporting` : 'Waiting for bars';
+        coins.replaceChildren();
+        data.coins.forEach((coin, index) => {
+          const row = coins.insertRow(); cell(row, String(index + 1)); cell(row, coin.symbol);
+          cell(row, coin.relative_volume === null ? 'Warming up' : `${coin.relative_volume.toFixed(2)}×`, 'muted');
+          cell(row, `${(coin.buy_share * 100).toFixed(0)}%`, 'muted');
+          cell(row, coin.score === null ? '—' : coin.score.toFixed(3), 'score');
+        });
+        document.querySelector('#no-coins').hidden = data.coins.length > 0;
+      } catch { document.querySelector('#minute').textContent = 'API unavailable'; }
+    }
+    function showAlert(alert) {
+      const key = `${alert.symbol}:${alert.close_time}`; if (seen.has(key)) return;
+      seen.add(key);
+      const item = document.createElement('div'); item.className = 'alert';
+      const title = document.createElement('strong'); title.textContent = `${alert.symbol} · ${alert.score.toFixed(3)}`;
+      const when = document.createElement('small'); when.textContent = time(alert.close_time);
+      item.append(title, when); alerts.prepend(item);
+      while (alerts.children.length > 20) alerts.lastChild.remove();
+      document.querySelector('#no-alerts').hidden = true;
+    }
+    async function loadAlerts() {
+      try { const r = await fetch('/alerts'); const d = await r.json();
+        d.alerts.slice().reverse().forEach(showAlert); } catch { /* SSE may still connect. */ }
+    }
+    const events = new EventSource('/events');
+    events.addEventListener('alert', event => { showAlert(JSON.parse(event.data)); refreshRadar(); });
+    events.onopen = () => document.querySelector('#connection').textContent = 'Alert stream connected';
+    events.onerror = () => document.querySelector('#connection').textContent = 'Reconnecting to alert stream…';
+    refreshRadar(); loadAlerts(); setInterval(refreshRadar, 5000);
+  </script>
+</body>
+</html>
