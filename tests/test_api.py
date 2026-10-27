@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 from fastapi.testclient import TestClient
 
+from api.main import app as guide_app
 from pumpradar.api import app
 
 
@@ -65,3 +66,11 @@ def test_dashboard_is_served():
     response = TestClient(app).get("/")
     assert response.status_code == 200
     assert "Current minute ranking" in response.text
+
+
+def test_guide_entrypoint_exposes_typed_demo_contract():
+    assert guide_app is app
+    schema = guide_app.openapi()
+    assert schema["paths"]["/radar"]["get"]["responses"]["200"]["content"][
+        "application/json"
+    ]["schema"]["$ref"] == "#/components/schemas/RadarResponse"

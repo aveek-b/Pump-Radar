@@ -1,0 +1,1715 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PumpRadar platform starter",
+    "version": "0.4.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bars": {
+      "post": {
+        "summary": "Ingest Bar",
+        "operationId": "ingest_bar_bars_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BarInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoScore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/batches": {
+      "post": {
+        "summary": "Ingest Batch",
+        "description": "Publish one minute of closed bars as an exchange-wide scoring frame.",
+        "operationId": "ingest_batch_batches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/radar": {
+      "get": {
+        "summary": "Get Radar",
+        "operationId": "get_radar_radar_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RadarResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/alerts": {
+      "get": {
+        "summary": "Get Alerts",
+        "operationId": "get_alerts_alerts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "summary": "Alert Events",
+        "description": "SSE alert feed. New subscribers receive future alerts; /alerts supplies history.",
+        "operationId": "alert_events_events_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/replay": {
+      "post": {
+        "summary": "Replay",
+        "description": "Replay closed bars in a fresh state; never mix replay with live state.",
+        "operationId": "replay_replay_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/markets": {
+      "get": {
+        "summary": "Markets",
+        "operationId": "markets_markets_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/coin/{pair}": {
+      "get": {
+        "summary": "Coin",
+        "operationId": "coin_coin__pair__get",
+        "parameters": [
+          {
+            "name": "pair",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pair"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoinResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown pair"
+          },
+          "503": {
+            "description": "Real engine handoff pending"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/replay/events": {
+      "get": {
+        "summary": "Replay Events",
+        "operationId": "replay_events_replay_events_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayEventsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/replay/{event_id}": {
+      "get": {
+        "summary": "Replay Event",
+        "operationId": "replay_event_replay__event_id__get",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Event Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown or unavailable event"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/honesty": {
+      "get": {
+        "summary": "Honesty",
+        "operationId": "honesty_honesty_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HonestyResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stream": {
+      "get": {
+        "summary": "Stream",
+        "operationId": "stream_stream_get",
+        "responses": {
+          "200": {
+            "description": "SSE named events: prices (2 s), tick (10 s in mock mode). Initial snapshots sent on connection; reconnect gets the latest snapshot. Payload schemas are PricesEvent and RadarTick. Non-mock sends comments only.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-event-schemas": {
+              "prices": {
+                "$ref": "#/components/schemas/PricesEvent"
+              },
+              "tick": {
+                "$ref": "#/components/schemas/RadarTick"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertRecord": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "close_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Close Time"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "status": {
+            "type": "string",
+            "const": "demo_stub",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "close_time",
+          "score",
+          "status"
+        ],
+        "title": "AlertRecord"
+      },
+      "AlertsResponse": {
+        "properties": {
+          "scorer": {
+            "type": "string",
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer"
+          },
+          "alerts": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/AlertRecord"
+                },
+                {
+                  "$ref": "#/components/schemas/RiskAlert"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Alerts"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock",
+            "default": false
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice",
+            "default": "Demo heuristic alerts; no measured false-alert guarantee."
+          }
+        },
+        "type": "object",
+        "required": [
+          "scorer",
+          "alerts"
+        ],
+        "title": "AlertsResponse"
+      },
+      "BarInput": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "close_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Close Time"
+          },
+          "close": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Close"
+          },
+          "volume_btc": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Volume Btc"
+          },
+          "taker_buy_btc": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Taker Buy Btc"
+          },
+          "trade_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Trade Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "close_time",
+          "close",
+          "volume_btc",
+          "taker_buy_btc",
+          "trade_count"
+        ],
+        "title": "BarInput"
+      },
+      "BatchInput": {
+        "properties": {
+          "bars": {
+            "items": {
+              "$ref": "#/components/schemas/BarInput"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Bars"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bars"
+        ],
+        "title": "BatchInput"
+      },
+      "BatchResponse": {
+        "properties": {
+          "minute": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Minute"
+          },
+          "coins": {
+            "items": {
+              "$ref": "#/components/schemas/DemoScore"
+            },
+            "type": "array",
+            "title": "Coins"
+          }
+        },
+        "type": "object",
+        "required": [
+          "minute",
+          "coins"
+        ],
+        "title": "BatchResponse"
+      },
+      "Candle": {
+        "properties": {
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Time"
+          },
+          "open": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Open"
+          },
+          "high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High"
+          },
+          "low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low"
+          },
+          "close": {
+            "type": "number",
+            "title": "Close"
+          },
+          "volume_quote": {
+            "type": "number",
+            "title": "Volume Quote"
+          }
+        },
+        "type": "object",
+        "required": [
+          "time",
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume_quote"
+        ],
+        "title": "Candle"
+      },
+      "CoinResponse": {
+        "properties": {
+          "scorer": {
+            "type": "string",
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          },
+          "pair": {
+            "type": "string",
+            "title": "Pair"
+          },
+          "market": {
+            "$ref": "#/components/schemas/Market"
+          },
+          "current": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CoinRisk"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bars": {
+            "items": {
+              "$ref": "#/components/schemas/Candle"
+            },
+            "type": "array",
+            "title": "Bars"
+          },
+          "risk_series": {
+            "items": {
+              "$ref": "#/components/schemas/RiskPoint"
+            },
+            "type": "array",
+            "title": "Risk Series"
+          },
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/RiskAlert"
+            },
+            "type": "array",
+            "title": "Alerts"
+          },
+          "drivers": {
+            "items": {
+              "$ref": "#/components/schemas/Driver"
+            },
+            "type": "array",
+            "title": "Drivers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scorer",
+          "mock",
+          "notice",
+          "pair",
+          "market",
+          "current",
+          "bars",
+          "risk_series",
+          "alerts",
+          "drivers"
+        ],
+        "title": "CoinResponse"
+      },
+      "CoinRisk": {
+        "properties": {
+          "pair": {
+            "title": "Pair",
+            "type": "string"
+          },
+          "tier": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Tier",
+            "type": "string"
+          },
+          "risk": {
+            "additionalProperties": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            "propertyNames": {
+              "enum": [
+                "1",
+                "3",
+                "5",
+                "10",
+                "30",
+                "60"
+              ]
+            },
+            "title": "Risk",
+            "type": "object"
+          },
+          "level": {
+            "enum": [
+              "Normal",
+              "Watch",
+              "Alert"
+            ],
+            "title": "Level",
+            "type": "string"
+          },
+          "alert": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RiskAlert"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sparkline": {
+            "items": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            "title": "Sparkline",
+            "type": "array"
+          }
+        },
+        "required": [
+          "pair",
+          "tier",
+          "risk",
+          "level",
+          "alert",
+          "sparkline"
+        ],
+        "title": "CoinRisk",
+        "type": "object"
+      },
+      "DemoScore": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "close_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Close Time"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "relative_volume": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relative Volume"
+          },
+          "buy_share": {
+            "type": "number",
+            "title": "Buy Share"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "warming_up",
+              "demo_stub"
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "close_time",
+          "score",
+          "relative_volume",
+          "buy_share",
+          "status"
+        ],
+        "title": "DemoScore"
+      },
+      "Driver": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "Driver"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status"
+          },
+          "scorer": {
+            "type": "string",
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock",
+            "default": false
+          },
+          "model_loaded": {
+            "type": "boolean",
+            "title": "Model Loaded",
+            "default": false
+          },
+          "market_feed": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "not_connected"
+            ],
+            "title": "Market Feed",
+            "default": "not_connected"
+          },
+          "price_interval_seconds": {
+            "type": "integer",
+            "title": "Price Interval Seconds",
+            "default": 2
+          },
+          "score_interval_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Interval Seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "scorer"
+        ],
+        "title": "HealthResponse"
+      },
+      "HonestyResponse": {
+        "properties": {
+          "scorer": {
+            "type": "string",
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          },
+          "status": {
+            "type": "string",
+            "const": "unavailable",
+            "title": "Status"
+          },
+          "precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precision"
+          },
+          "recall": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recall"
+          },
+          "median_lead_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Lead Minutes"
+          },
+          "hit_at_5": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hit At 5"
+          },
+          "false_alerts_per_hour": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "False Alerts Per Hour"
+          },
+          "alert_budget_per_hour": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alert Budget Per Hour"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scorer",
+          "mock",
+          "notice",
+          "status",
+          "limitations"
+        ],
+        "title": "HonestyResponse"
+      },
+      "Market": {
+        "properties": {
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "price": {
+            "exclusiveMinimum": 0,
+            "title": "Price",
+            "type": "number"
+          },
+          "change_24h_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change 24H Pct"
+          },
+          "volume_24h_quote": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume 24H Quote"
+          },
+          "quote_asset": {
+            "title": "Quote Asset",
+            "type": "string"
+          },
+          "scored": {
+            "title": "Scored",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "symbol",
+          "price",
+          "change_24h_pct",
+          "volume_24h_quote",
+          "quote_asset",
+          "scored"
+        ],
+        "title": "Market",
+        "type": "object"
+      },
+      "MarketsResponse": {
+        "properties": {
+          "scorer": {
+            "type": "string",
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "markets": {
+            "items": {
+              "$ref": "#/components/schemas/Market"
+            },
+            "type": "array",
+            "title": "Markets"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scorer",
+          "mock",
+          "notice",
+          "as_of",
+          "markets"
+        ],
+        "title": "MarketsResponse"
+      },
+      "RadarResponse": {
+        "properties": {
+          "scorer": {
+            "type": "string",
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer"
+          },
+          "minute": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minute"
+          },
+          "coins": {
+            "items": {
+              "$ref": "#/components/schemas/DemoScore"
+            },
+            "type": "array",
+            "title": "Coins"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock",
+            "default": false
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice",
+            "default": "Demo heuristic only; no trained risk model is loaded."
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/CoinRisk"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "sequence": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sequence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scorer",
+          "minute",
+          "coins"
+        ],
+        "title": "RadarResponse"
+      },
+      "RadarTick": {
+        "properties": {
+          "scorer": {
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer",
+            "type": "string"
+          },
+          "mock": {
+            "title": "Mock",
+            "type": "boolean"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Version"
+          },
+          "notice": {
+            "title": "Notice",
+            "type": "string"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/CoinRisk"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "newAlerts": {
+            "items": {
+              "$ref": "#/components/schemas/RiskAlert"
+            },
+            "title": "Newalerts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "scorer",
+          "mock",
+          "notice",
+          "sequence",
+          "as_of",
+          "rows",
+          "newAlerts"
+        ],
+        "title": "RadarTick",
+        "type": "object"
+      },
+      "ReplayDetailResponse": {
+        "properties": {
+          "scorer": {
+            "type": "string",
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          },
+          "event": {
+            "$ref": "#/components/schemas/ReplayEvent"
+          },
+          "frames": {
+            "items": {
+              "$ref": "#/components/schemas/RadarTick"
+            },
+            "type": "array",
+            "title": "Frames"
+          },
+          "bars": {
+            "items": {
+              "$ref": "#/components/schemas/Candle"
+            },
+            "type": "array",
+            "title": "Bars"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scorer",
+          "mock",
+          "notice",
+          "event",
+          "frames",
+          "bars"
+        ],
+        "title": "ReplayDetailResponse"
+      },
+      "ReplayEvent": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "pair": {
+            "type": "string",
+            "title": "Pair"
+          },
+          "t_onset": {
+            "type": "string",
+            "format": "date-time",
+            "title": "T Onset"
+          },
+          "t_telegram": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "T Telegram"
+          },
+          "era": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "test"
+            ],
+            "title": "Era"
+          },
+          "first_alert_lead_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Alert Lead Minutes"
+          },
+          "rank_at_onset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank At Onset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "pair",
+          "t_onset",
+          "t_telegram",
+          "era",
+          "first_alert_lead_minutes",
+          "rank_at_onset"
+        ],
+        "title": "ReplayEvent"
+      },
+      "ReplayEventsResponse": {
+        "properties": {
+          "scorer": {
+            "type": "string",
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ReplayEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scorer",
+          "mock",
+          "notice",
+          "events"
+        ],
+        "title": "ReplayEventsResponse"
+      },
+      "ReplayInput": {
+        "properties": {
+          "bars": {
+            "items": {
+              "$ref": "#/components/schemas/BarInput"
+            },
+            "type": "array",
+            "title": "Bars"
+          },
+          "onset_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Onset Time"
+          },
+          "threshold": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Threshold",
+            "default": 0.8
+          }
+        },
+        "type": "object",
+        "required": [
+          "bars"
+        ],
+        "title": "ReplayInput"
+      },
+      "ReplayResponse": {
+        "properties": {
+          "scorer": {
+            "type": "string",
+            "const": "demo_stub",
+            "title": "Scorer"
+          },
+          "frames": {
+            "items": {
+              "$ref": "#/components/schemas/DemoScore"
+            },
+            "type": "array",
+            "title": "Frames"
+          },
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/DemoScore"
+            },
+            "type": "array",
+            "title": "Alerts"
+          },
+          "first_pre_onset_alert": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DemoScore"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lead_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lead Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scorer",
+          "frames",
+          "alerts",
+          "first_pre_onset_alert",
+          "lead_minutes"
+        ],
+        "title": "ReplayResponse"
+      },
+      "RiskAlert": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "pair": {
+            "title": "Pair",
+            "type": "string"
+          },
+          "time": {
+            "format": "date-time",
+            "title": "Time",
+            "type": "string"
+          },
+          "horizon": {
+            "enum": [
+              "1",
+              "3",
+              "5",
+              "10",
+              "30",
+              "60"
+            ],
+            "title": "Horizon",
+            "type": "string"
+          },
+          "risk": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Risk",
+            "type": "number"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "mock": {
+            "title": "Mock",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "pair",
+          "time",
+          "horizon",
+          "risk",
+          "reasons",
+          "mock"
+        ],
+        "title": "RiskAlert",
+        "type": "object"
+      },
+      "RiskPoint": {
+        "properties": {
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Time"
+          },
+          "risk": {
+            "additionalProperties": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0
+            },
+            "propertyNames": {
+              "enum": [
+                "1",
+                "3",
+                "5",
+                "10",
+                "30",
+                "60"
+              ]
+            },
+            "type": "object",
+            "title": "Risk"
+          }
+        },
+        "type": "object",
+        "required": [
+          "time",
+          "risk"
+        ],
+        "title": "RiskPoint"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "PricesEvent": {
+        "properties": {
+          "scorer": {
+            "enum": [
+              "demo_stub",
+              "mock"
+            ],
+            "title": "Scorer",
+            "type": "string"
+          },
+          "mock": {
+            "title": "Mock",
+            "type": "boolean"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Version"
+          },
+          "notice": {
+            "title": "Notice",
+            "type": "string"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "markets": {
+            "items": {
+              "$ref": "#/components/schemas/Market"
+            },
+            "title": "Markets",
+            "type": "array"
+          }
+        },
+        "required": [
+          "scorer",
+          "mock",
+          "notice",
+          "sequence",
+          "as_of",
+          "markets"
+        ],
+        "title": "PricesEvent",
+        "type": "object"
+      }
+    }
+  }
+}

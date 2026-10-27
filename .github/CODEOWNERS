@@ -1,0 +1,13 @@
+# Replace the placeholders with the verified GitHub usernames before enabling CODEOWNERS.
+# Keep Hannah's API engine rule after the wider api/ rule, since the last match wins.
+# src/pumpradar/events.py    @hannah-username
+# src/pumpradar/download.py  @hannah-username
+# src/pumpradar/features.py  @hannah-username
+# src/pumpradar/splits.py    @kaashvidas
+# src/pumpradar/metrics.py   @kaashvidas
+# src/pumpradar/exp_a.py     @kaashvidas
+# src/pumpradar/exp_b.py     @kaashvidas
+# api/                       @aveek-username
+# api/engine/                @hannah-username
+# web/                       @aveek-username
+# deploy/                    @aveek-username

@@ -1,0 +1,31 @@
+# Large or local data
+# Legacy nested checkout retained locally while Windows holds it open.
+/pumpradar/
+data/
+*.parquet
+*.zip
+models/*.joblib
+models/*.pkl
+*.sqlite3*
+*.sqlite
+*.db
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.tmp/
+*.egg-info/
+dist/
+.env
+.env.*
+!.env.example
+
+# Frontend and notebooks
+node_modules/
+web/dist/
+web/*.tsbuildinfo
+deploy/state/
+.ipynb_checkpoints/

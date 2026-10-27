@@ -1,56 +1,124 @@
-# PumpRadar platform slice
+# PumpRadar
 
-This implements Aveek's **platform** workstream from the build guide: a same-origin dashboard, minute-bar API, public Binance closed-candle feeder, exchange-minute batching, SQLite alert log, Server-Sent Events (SSE), and replay through the same `Radar.ingest` code. The scorer is still a **demo heuristic**, not a trained pump probability, calibrated alert, or trading signal.
+Team scaffold for the **26 October 2026 compressed build guide (v2)**. It keeps the earlier working API demo while giving Kaashvi, Hannah and Aveek separate folders for the three-day research and platform work. The guide's React + FastAPI product is still in progress; the current five-bar volume heuristic is a wiring test, not the evaluated model.
 
-Requires Python 3.12. From this directory:
+## Set up
 
-```bash
-pip install -r requirements.txt
-python -m uvicorn pumpradar.api:app --reload
-```
-
-On Windows Git Bash after creating a `.venv`, use `./.venv/Scripts/python.exe` instead of `python`. Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) for the dashboard and `/docs` for the API. The API binds to localhost by default.
-
-## Feed live public candles
-
-In a **second terminal** in the project directory, start with a small set of BTC pairs:
+Clone the shared repository once. The folder containing this README, `api/`,
+`web/` and `pyproject.toml` is the only project root:
 
 ```bash
-python -m pumpradar.live --symbols ETHBTC,BNBBTC
+git clone https://github.com/aveek-b/Pump-Radar.git
+cd Pump-Radar
+python -m pip install uv==0.13.5
+python -m uv sync --locked --extra dev
+cd web
+npm ci
+cd ..
 ```
 
-After verifying the connection and local scoring, use `--all-btc` to discover all currently trading BTC spot pairs. The feeder fetches five recently completed minute bars per symbol for warmup, connects to Binance's public market-data stream, ignores unfinished candles, and sends one minute at a time to `/batches`. It waits up to three seconds for the selected symbols and retries unacknowledged batches after reconnecting. A missing coin is absent from that minute's ranking. The feed requires network access to `data-api.binance.vision` and `data-stream.binance.vision` from your machine; it needs no API key.
+Use Python 3.12 (selected by `.python-version`; uv can provision it) and Node
+22.14.0 (`.nvmrc`). Install Node before running npm. `uv.lock` and
+`web/package-lock.json` pin the platform dependencies used by CI. Run these
+commands after pulling dependency changes; do not share `.venv` or `node_modules`.
 
-To check every discovered pair across three completed minutes, run `python -m pumpradar.live --all-btc --verify-minutes 3` with the API running. The terminal prints `coverage <minute>: received/expected pairs; missing: ...` for each frame and exits with code 0 only when all three frames included every pair. A nonzero exit means at least one minute missed a pair or the five-minute verification timeout elapsed. The current BTC pair count is discovered at runtime, so it need not equal the historical estimate of 130. Compare `/radar` at the reported minute with the received count. An empty or sparse pair may fail this strict completeness check; investigate its missing candles before claiming full coverage.
+The broader `requirements.txt` is an optional research setup with unpinned ML
+packages. It is not required for the platform or CI; research dependencies and
+artifacts still need agreement with their owners.
 
-Run with `--no-warmup` if the local API already has recent bars. Stop the feeder with Ctrl+C. The dashboard refreshes the latest minute every five seconds and receives new alerts over `/events`.
-
-## Manual and replay API
-
-`POST /bars` accepts one closed UTC minute bar. A coin needs five **earlier accepted bars** before it receives a demo score. Submit consecutive minutes in increasing order. `POST /batches` accepts `{"bars": [...]}` for multiple coins with the same close time; identical batch retries succeed without double scoring. `GET /radar` returns only the latest minute's coins, and `GET /alerts` reads up to 100 persisted alerts.
-
-The demo score is `clip((current BTC volume / earlier median BTC volume − 1) / 9, 0, 1) × taker-buy share`. Zero is common during ordinary minutes: volume at or below the median yields 0 regardless of buy share. The dashboard shows both parts of the calculation; this is not a pump probability.
-
-Example bar:
-
-```json
-{"symbol":"FOOBTC","close_time":"2020-01-01T00:00:00+00:00","close":0.00001,"volume_btc":1.2,"taker_buy_btc":0.9,"trade_count":42}
-```
-
-`POST /replay` accepts `{ "bars": [...], "onset_time": "2020-01-01T00:10:00+00:00" }`. Replay sorts the bars by time, creates fresh state, and reports a first pre-onset alert and lead time when one exists. It does not alter live state or persist replay alerts.
-
-## Development
+Run the backend and frontend in separate terminals:
 
 ```bash
-python -m pytest
-python -m ruff check .
+python -m uv run --locked --extra dev python -m uvicorn api.main:app --reload
 ```
 
-Set `PUMPRADAR_DB` to an SQLite file path if you want alerts outside the project directory. The default is `alerts.sqlite3` in the server's working directory. Scores and warmup history remain in memory; restarting the API clears those, while alert records stay in SQLite. Run one API worker because this slice has in-process state.
+```bash
+cd web
+npm run dev
+```
 
-### Next integration
+Open `http://localhost:5173/` for React and `http://127.0.0.1:8000/docs` for the
+API. Start both terminals from the project root. In this original local checkout,
+that is `D:\FME Project\pumpradar`, with no second nested `pumpradar` directory.
 
-- Replace `Radar.ingest`'s volume heuristic with the team's **one shared feature module** and trained hazard model. The feature and scoring path must remain identical in replay and live use.
-- Add historical archive warmup and gap recovery, a 24-hour baseline, liquidity-tier thresholds and a tested false-alert budget. The current five-bar median and fixed 0.8 threshold are for wiring the platform only.
-- Implement trade-based features, candlestick and risk-curve views, event selection and the full two-hour replay after research data contracts settle.
-- Measure 5-second latency and 48-hour stability before claiming the build guide's platform acceptance criteria. Live Binance connectivity has not been exercised by the local unit tests.
+## B1 mock preview
+
+B1 now provides a typed API contract, deterministic mock mode and a minimal
+streaming React radar. From this directory, start the mock backend in PowerShell:
+
+```powershell
+$env:PUMPRADAR_MOCK = '1'
+python -m uv run --locked --extra dev python -m uvicorn api.main:app --reload
+```
+
+In a second terminal, run `cd web` then `npm run dev`. Open `http://localhost:5173/`
+to see 60 labeled synthetic coins, prices about every 2 seconds and scoring ticks
+every 10 seconds. The fixture timestamps are synthetic, not market time.
+Use `curl.exe -N http://127.0.0.1:8000/stream` to inspect SSE directly.
+Set `PUMPRADAR_MOCK=0` and restart for the retained manual/live-feeder demo.
+
+The B1 endpoints are `/markets`, `/radar`, `/coin/{pair}`, `/alerts`, `/stream`,
+`/replay/events`, `/replay/{event_id}`, `/honesty`, and `/health`.
+[Contract notes](api/CONTRACT.md) record provisional handoff choices and non-mock
+behavior. Synthetic replay is not held-out evidence; evaluation metrics remain
+null. Coin, Replay, Honesty and Method browser pages remain placeholders.
+Next Aveek milestone: F2 Radar/Markets UI.
+
+## Ownership and file handoffs
+
+| Owner | Paths | Next handoff |
+| --- | --- | --- |
+| Hannah | `src/pumpradar/events.py`, `download.py`, `features.py`; `api/engine/` | Event table, archive bars, shared `compute_features`, REST ingestor and real scorer |
+| Kaashvi | `src/pumpradar/splits.py`, `metrics.py`, `exp_a.py`, `exp_b.py`; `models/`, `results/` | Grouped evaluation, model dictionary, threshold and ordered features |
+| Aveek | `api/main.py`, `api/schemas.py`, `api/routes/`, `web/`, `deploy/` | Final API contract, frontend routes and deployment |
+
+`data/raw/` and `data/processed/` are excluded from Git. `replay/` awaits Hannah's held-out JSON files; `paper/` and `notebooks/` are ready for team work. Do not commit raw archives, Parquet, SQLite state or frozen model binaries.
+
+The Pydantic shapes are in `api/schemas.py`; `api/main.py` exposes both B1 and the retained demo. After contract changes, run `python -m api.export_openapi` and `cd web && npm run typegen` to refresh `api/openapi.json` and `web/src/api/types.ts`. Confirm the provisional choices in `api/CONTRACT.md` with Hannah and Kaashvi before real-engine integration. The React Radar consumes both the mock REST/SSE contract and the original demo ranking.
+
+## Existing demo, retained for integration
+
+- `src/pumpradar/engine.py` scores a coin after five earlier closed bars using relative BTC volume and taker-buy share. A score of zero is common and is **not** a 0% pump probability.
+- `src/pumpradar/api.py` implements `/bars`, `/batches`, `/radar`, `/alerts`, `/events`, `/replay` and `/health`; `api/main.py` is the guide-compatible entry point. The small static dashboard at port 8000 remains available while React is built.
+- `src/pumpradar/live.py` is the earlier public Binance **WebSocket kline** feeder. Run `python -m pumpradar.live --symbols ETHBTC,BNBBTC` for a small demo or `--all-btc --verify-minutes 3` for strict minute coverage. The compressed guide assigns Hannah a **REST polling** ingestor in `api/engine/ingest.py`; do not treat the demo feeder as that deliverable.
+- SQLite alert records persist in `alerts.sqlite3` (or `PUMPRADAR_DB`); scores and bar history remain in one process's memory. Replay receives bars in the request and stays separate from live state until `replay/index.json` and event files arrive.
+
+The fixed demo threshold of 0.8 has no measured false-alert guarantee. Do not label any current score a calibrated probability or paper result. The final scorer must call the same `pumpradar.features.compute_features` function used offline, load Kaashvi's frozen model and threshold, and report model provenance.
+
+## Collaboration and deployment
+
+The remote is `https://github.com/aveek-b/Pump-Radar`. Each teammate starts a
+work block from updated `main`, then creates a branch for one task:
+
+```bash
+git switch main
+git pull --ff-only
+git switch -c feat/your-task
+```
+
+Before opening a PR, run from the root:
+
+```bash
+python -m uv run --locked --extra dev python -m pytest -q
+python -m uv run --locked --extra dev python -m ruff check .
+python -m uv run --locked --extra dev python -m api.export_openapi
+cd web
+npm run typegen
+npm run build
+cd ..
+git diff --check
+```
+
+Commit regenerated `api/openapi.json` and `web/src/api/types.ts` with API changes.
+CI runs the locked platform setup on Linux and Windows, verifies generated files
+are current, and builds the frontend. CI results on GitHub are pending the push.
+Review changes with the consuming teammate before merging shared interfaces.
+Keep research artifacts outside Git; record their filenames and schemas in the
+handoff docs. Keep mock data labeled and measured claims tied to result artifacts.
+
+`.github/CODEOWNERS` remains commented until the team's GitHub handles are verified.
+Repository administrators should enable PR review and passing CI requirements on
+`main`; local files cannot enable those settings. `deploy/` contains local starters;
+public HTTPS, frontend hosting and real-model deployment remain to be done.
+
+Before publishing, record the data licence and limitations, demonstrate a held-out replay, and compare measured alert rate to the paper's stated budget. Research tool. Not financial advice. No trades are placed.

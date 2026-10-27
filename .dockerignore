@@ -1,0 +1,14 @@
+.git
+.venv
+data
+web/node_modules
+web/dist
+web/*.tsbuildinfo
+dist
+*.parquet
+*.zip
+*.joblib
+alerts.sqlite3*
+__pycache__
+.pytest_cache
+.ruff_cache

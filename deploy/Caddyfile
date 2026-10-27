@@ -1,0 +1,4 @@
+# Local HTTP smoke test only. Configure a real hostname and HTTPS before public deployment.
+:80 {
+    reverse_proxy api:8000
+}

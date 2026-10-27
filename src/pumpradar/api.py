@@ -8,12 +8,24 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
-from pydantic import BaseModel, Field
 
+from api.mock import NOTICE, mock_data
+from api.routes.platform import mock_enabled, register_platform
+from api.schemas import (
+    AlertsResponse,
+    BarInput,
+    BatchInput,
+    BatchResponse,
+    DemoScore,
+    HealthResponse,
+    RadarResponse,
+    ReplayInput,
+    ReplayResponse,
+)
 from pumpradar.engine import Bar, Radar
 from pumpradar.storage import AlertStore
 
-app = FastAPI(title="PumpRadar platform starter", version="0.3.0")
+app = FastAPI(title="PumpRadar platform starter", version="0.4.0")
 radar = Radar()
 store = AlertStore(os.getenv("PUMPRADAR_DB", "alerts.sqlite3"))
 subscribers: set[asyncio.Queue] = set()
@@ -22,28 +34,6 @@ subscribers: set[asyncio.Queue] = set()
 @app.get("/", include_in_schema=False)
 def dashboard() -> FileResponse:
     return FileResponse(Path(__file__).parent / "web" / "index.html")
-
-
-class BarInput(BaseModel):
-    symbol: str
-    close_time: datetime
-    close: float = Field(gt=0)
-    volume_btc: float = Field(ge=0)
-    taker_buy_btc: float = Field(ge=0)
-    trade_count: int = Field(ge=0)
-
-    def as_bar(self) -> Bar:
-        return Bar(**self.model_dump())
-
-
-class ReplayInput(BaseModel):
-    bars: list[BarInput]
-    onset_time: datetime | None = None
-    threshold: float = Field(default=0.8, ge=0, le=1)
-
-
-class BatchInput(BaseModel):
-    bars: list[BarInput] = Field(min_length=1)
 
 
 def score_and_publish(bar: Bar) -> dict:
@@ -56,12 +46,15 @@ def score_and_publish(bar: Bar) -> dict:
     return result
 
 
-@app.get("/health")
+@app.get("/health", response_model=HealthResponse)
 def health() -> dict:
+    if mock_enabled():
+        return {"status": "ok", "scorer": "mock", "mock": True, "market_feed": "mock",
+                "score_interval_seconds": 10}
     return {"status": "ok", "scorer": "demo_stub"}
 
 
-@app.post("/bars")
+@app.post("/bars", response_model=DemoScore)
 async def ingest_bar(payload: BarInput) -> dict:
     try:
         return score_and_publish(payload.as_bar())
@@ -69,7 +62,7 @@ async def ingest_bar(payload: BarInput) -> dict:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@app.post("/batches")
+@app.post("/batches", response_model=BatchResponse)
 async def ingest_batch(payload: BatchInput) -> dict:
     """Publish one minute of closed bars as an exchange-wide scoring frame."""
     try:
@@ -95,14 +88,21 @@ async def ingest_batch(payload: BatchInput) -> dict:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@app.get("/radar")
+@app.get("/radar", response_model=RadarResponse)
 def get_radar() -> dict:
+    if mock_enabled():
+        tick = mock_data.tick(mock_data.score_sequence())
+        return {"scorer": "mock", "mock": True, "minute": tick.as_of,
+                "coins": [], "rows": tick.rows, "notice": NOTICE, "sequence": tick.sequence}
     coins = radar.ranking()
     return {"scorer": "demo_stub", "minute": coins[0]["close_time"] if coins else None, "coins": coins}
 
 
-@app.get("/alerts")
+@app.get("/alerts", response_model=AlertsResponse)
 def get_alerts() -> dict:
+    if mock_enabled():
+        return {"scorer": "mock", "mock": True, "notice": NOTICE,
+                "alerts": mock_data.tick(mock_data.score_sequence()).newAlerts}
     return {"scorer": "demo_stub", "alerts": store.recent()}
 
 
@@ -127,7 +127,7 @@ async def alert_events() -> StreamingResponse:
     return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
 
 
-@app.post("/replay")
+@app.post("/replay", response_model=ReplayResponse)
 def replay(payload: ReplayInput) -> dict:
     """Replay closed bars in a fresh state; never mix replay with live state."""
     engine = Radar(threshold=payload.threshold)
@@ -155,3 +155,5 @@ def replay(payload: ReplayInput) -> dict:
         ),
     }
 
+
+register_platform(app)
