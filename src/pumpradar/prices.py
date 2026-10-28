@@ -154,3 +154,77 @@ class LiveUniverseCache:
                 self._coins = await fetch_live_universe()
                 self._fetched_at = time.monotonic()
             return self._coins
+
+
+# Candle range presets: (Binance kline interval, number of candles). Chosen
+# so each preset's candle count stays well under Binance's 1000-per-call
+# limit (one request, no pagination) while giving a reasonable resolution
+# for its span: hourly detail over a week, 4-hourly over a month, daily
+# over a year.
+CANDLE_RANGES = {
+    "week": ("1h", 168),
+    "month": ("4h", 180),
+    "year": ("1d", 365),
+}
+
+
+@dataclass(frozen=True)
+class Candle:
+    open_time: str
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+    quote_volume: float
+
+
+async def fetch_candles(symbol: str, range_key: str, client: httpx.AsyncClient | None = None) -> list[Candle]:
+    """Real historical OHLC candles for one symbol from Binance's public
+    klines endpoint (no API key). range_key must be one of CANDLE_RANGES's
+    keys ("week", "month", "year"). Raises ValueError for an unknown
+    range_key rather than silently defaulting.
+    """
+    if range_key not in CANDLE_RANGES:
+        raise ValueError(f"range_key must be one of {sorted(CANDLE_RANGES)}, got {range_key!r}")
+    interval, limit = CANDLE_RANGES[range_key]
+
+    owns_client = client is None
+    client = client or httpx.AsyncClient()
+    try:
+        response = await client.get(
+            f"{MARKET_API}/klines",
+            params={"symbol": symbol, "interval": interval, "limit": limit},
+            timeout=20,
+        )
+        response.raise_for_status()
+        rows = response.json()
+    finally:
+        if owns_client:
+            await client.aclose()
+
+    return [
+        Candle(
+            open_time=datetime.fromtimestamp(row[0] / 1000, UTC).isoformat(),
+            open=float(row[1]),
+            high=float(row[2]),
+            low=float(row[3]),
+            close=float(row[4]),
+            volume=float(row[5]),
+            quote_volume=float(row[7]),
+        )
+        for row in rows
+    ]
+
+
+def simple_moving_average(closes: list[float], window: int) -> list[float | None]:
+    """SMA at each index, None where there isn't yet a full window of
+    history -- never a guessed/partial average presented as the real thing.
+    """
+    out: list[float | None] = []
+    for i in range(len(closes)):
+        if i + 1 < window:
+            out.append(None)
+        else:
+            out.append(sum(closes[i + 1 - window : i + 1]) / window)
+    return out

@@ -33,14 +33,17 @@ use `/api` to avoid collisions with browser routes such as `/replay`.
 
 The updated data branch is merged into `origin/main` and now includes shared
 `features.py` alongside event preparation, archive downloads/validation and onset
-detection. This platform branch has not merged the updated main; its real engine,
-frozen model and held-out replay files are still unavailable locally.
+detection. Hannah's newer feature-engineering branch adds a cross-sectional
+dataset builder, but neither it nor main supplies a frozen live scoring adapter.
+This platform branch has not merged the updated main.
 Preserve its documented zero-IQR/missing-data onset limitations when integrating.
 
 Kaashvi's fetched branch at `a434e86` provides an Experiment A audit, committed
 results/figures and a live price-universe module. The platform now displays these
-in a separate historical audit and unscored All Markets feed. It does not supply
-Experiment B, frozen model/threshold/features, or held-out replay files.
+in a separate historical audit and unscored All Markets feed. Newer main supplies
+Experiment B research metrics and public candlestick history; the React platform
+now displays those separately from live scoring. Its replay data is price-only,
+without evaluated per-minute risk frames for this contract.
 
 Agree the pending contract choices before real-engine integration, including
 model-ready provenance, evaluated Honesty status and the distinction between a

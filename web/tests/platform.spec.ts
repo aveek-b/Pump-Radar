@@ -38,6 +38,8 @@ test('markets distinguish unscored coins and filters have an empty state', async
   await expect(page.getByText('No markets match.', { exact: false })).toBeVisible()
   await page.getByRole('link', { name: 'Honesty', exact: true }).click()
   await expect(page.getByText('Not measured yet.', { exact: false })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Historical Experiment B · cross-sectional ranking' })).toBeVisible()
+  await expect(page.getByText('linear svm', { exact: false }).first()).toBeVisible()
 })
 
 test('real price snapshots appear in Radar and Honesty without inventing risk scores', async ({ page }) => {
@@ -68,6 +70,15 @@ test('real price snapshots appear in Radar and Honesty without inventing risk sc
     hit_at_5: null, false_alerts_per_hour: null, alert_budget_per_hour: null,
     limitations: ['No cross-sectional model loaded.'],
   } }))
+  await page.route('**/api/coin/ETHUSDT*', route => route.fulfill({ json: {
+    scorer: 'demo_stub', mock: false, model_version: null,
+    notice: 'Public Binance price history. The research risk model is not loaded.',
+    pair: 'ETHUSDT', market: { symbol: 'ETHUSDT', quote_asset: 'USDT', price: 3200, change_24h_pct: -0.4, volume_24h_quote: 500_000, scored: false },
+    current: null, bars: [
+      { time: '2026-10-28T00:00:00Z', open: 3150, high: 3220, low: 3100, close: 3200, volume_quote: 1000 },
+      { time: '2026-10-28T04:00:00Z', open: 3200, high: 3250, low: 3180, close: 3210, volume_quote: 1200 },
+    ], risk_series: [], alerts: [], drivers: [],
+  } }))
   await page.goto('/')
   await expect(page.getByText('Public price watch', { exact: false })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'BTCUSDT' })).toBeVisible()
@@ -75,6 +86,10 @@ test('real price snapshots appear in Radar and Honesty without inventing risk sc
   await expect(page.locator('.feed-banner')).toContainText('research risk model is not loaded')
   await page.getByRole('button', { name: 'All markets' }).click()
   await expect(page.getByRole('cell', { name: 'ETHUSDT' })).toBeVisible()
+  await page.getByRole('link', { name: 'ETHUSDT' }).click()
+  await expect(page.getByText('2 bars,', { exact: false })).toBeVisible()
+  await page.getByLabel('Price history range').selectOption('month')
+  await expect(page.getByText('Public price history · month')).toBeVisible()
   await page.getByRole('link', { name: 'Honesty', exact: true }).click()
   await expect(page.getByText('Public markets with prices')).toBeVisible()
   await expect(page.getByText('Real prices and 24-hour market statistics', { exact: false })).toBeVisible()

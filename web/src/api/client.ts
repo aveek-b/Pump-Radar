@@ -23,9 +23,10 @@ async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
 
 export const getRadar = (signal?: AbortSignal) => get<RadarResponse>('/radar', signal)
 export const getMarkets = (signal?: AbortSignal) => get<Schema['MarketsResponse']>('/markets', signal)
-export const getCoin = (pair: string, signal?: AbortSignal) => get<Schema['CoinResponse']>(`/coin/${encodeURIComponent(pair)}`, signal)
+export const getCoin = (pair: string, range: 'week' | 'month' | 'year' = 'week', signal?: AbortSignal) => get<Schema['CoinResponse']>(`/coin/${encodeURIComponent(pair)}?range=${range}`, signal)
 export const getReplayEvents = (signal?: AbortSignal) => get<Schema['ReplayEventsResponse']>('/replay/events', signal)
 export const getReplay = (id: string, signal?: AbortSignal) => get<Schema['ReplayDetailResponse']>(`/replay/${encodeURIComponent(id)}`, signal)
 export const getHonesty = (signal?: AbortSignal) => get<Schema['HonestyResponse']>('/honesty', signal)
 export const getExperimentA = (signal?: AbortSignal) => get<Schema['ExperimentAResponse']>('/research/experiment-a', signal)
+export const getExperimentB = (signal?: AbortSignal) => get<Schema['ExperimentBResponse']>('/research/experiment-b', signal)
 export const experimentAFigure = (name: 'inflation_by_horizon.png' | 'prevalence_by_horizon.png') => `${base}/research/experiment-a/figures/${name}`

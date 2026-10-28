@@ -228,6 +228,24 @@
         }
       }
     },
+    "/research/experiment-b": {
+      "get": {
+        "summary": "Experiment B",
+        "operationId": "experiment_b_research_experiment_b_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentBResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/research/experiment-a/figures/{name}": {
       "get": {
         "summary": "Experiment A Figure",
@@ -275,6 +293,16 @@
             "schema": {
               "type": "string",
               "title": "Pair"
+            }
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "week",
+              "title": "Range"
             }
           }
         ],
@@ -1028,6 +1056,123 @@
           "limitations"
         ],
         "title": "ExperimentAResponse"
+      },
+      "ExperimentBPoint": {
+        "properties": {
+          "horizon_min": {
+            "type": "integer",
+            "title": "Horizon Min"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "test_ap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Ap"
+          },
+          "test_prevalence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Prevalence"
+          },
+          "hit_at_5": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hit At 5"
+          },
+          "n_test_events": {
+            "type": "integer",
+            "title": "N Test Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "horizon_min",
+          "model",
+          "test_ap",
+          "test_prevalence",
+          "hit_at_5",
+          "n_test_events"
+        ],
+        "title": "ExperimentBPoint"
+      },
+      "ExperimentBResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "historical_experiment_b",
+            "title": "Status",
+            "default": "historical_experiment_b"
+          },
+          "source_commit": {
+            "type": "string",
+            "title": "Source Commit"
+          },
+          "source_artifacts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Artifacts"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          },
+          "selected_model": {
+            "type": "string",
+            "title": "Selected Model"
+          },
+          "selection_horizon_min": {
+            "type": "integer",
+            "title": "Selection Horizon Min"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/ExperimentBPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_commit",
+          "source_artifacts",
+          "notice",
+          "selected_model",
+          "selection_horizon_min",
+          "points",
+          "limitations"
+        ],
+        "title": "ExperimentBResponse"
       },
       "FeatureImportance": {
         "properties": {

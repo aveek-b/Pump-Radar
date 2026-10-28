@@ -77,7 +77,7 @@ def test_non_mock_routes_report_pending_integration(client, monkeypatch):
     assert client.get("/markets").json()["markets"] == []
     assert client.get("/replay/events").json()["events"] == []
     assert client.get("/replay/mock-example").status_code == 404
-    assert client.get("/coin/MOCK001BTC").status_code == 503
+    assert client.get("/coin/MOCK001BTC").status_code == 404
     assert not client.get("/health").json()["mock"]
     assert not client.get("/honesty").json()["mock"]
 

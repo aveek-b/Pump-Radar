@@ -166,6 +166,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/research/experiment-b": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Experiment B */
+        get: operations["experiment_b_research_experiment_b_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/research/experiment-a/figures/{name}": {
         parameters: {
             query?: never;
@@ -480,6 +497,44 @@ export interface components {
             importance_by_feature_set: {
                 [key: string]: components["schemas"]["FeatureImportance"][];
             };
+            /** Limitations */
+            limitations: string[];
+        };
+        /** ExperimentBPoint */
+        ExperimentBPoint: {
+            /** Horizon Min */
+            horizon_min: number;
+            /** Model */
+            model: string;
+            /** Test Ap */
+            test_ap: number | null;
+            /** Test Prevalence */
+            test_prevalence: number | null;
+            /** Hit At 5 */
+            hit_at_5: number | null;
+            /** N Test Events */
+            n_test_events: number;
+        };
+        /** ExperimentBResponse */
+        ExperimentBResponse: {
+            /**
+             * Status
+             * @default historical_experiment_b
+             * @constant
+             */
+            status: "historical_experiment_b";
+            /** Source Commit */
+            source_commit: string;
+            /** Source Artifacts */
+            source_artifacts: string[];
+            /** Notice */
+            notice: string;
+            /** Selected Model */
+            selected_model: string;
+            /** Selection Horizon Min */
+            selection_horizon_min: number;
+            /** Points */
+            points: components["schemas"]["ExperimentBPoint"][];
             /** Limitations */
             limitations: string[];
         };
@@ -1042,6 +1097,26 @@ export interface operations {
             };
         };
     };
+    experiment_b_research_experiment_b_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExperimentBResponse"];
+                };
+            };
+        };
+    };
     experiment_a_figure_research_experiment_a_figures__name__get: {
         parameters: {
             query?: never;
@@ -1080,7 +1155,9 @@ export interface operations {
     };
     coin_coin__pair__get: {
         parameters: {
-            query?: never;
+            query?: {
+                range?: string;
+            };
             header?: never;
             path: {
                 pair: string;

@@ -6,7 +6,7 @@ Team scaffold for the **26 October 2026 compressed build guide (v2)**. It keeps 
 
 These steps open the current React dashboard with **synthetic preview data**.
 Radar, All Markets, Coin, Replay, Honesty and Method are available; the trained
-model and measured evaluation results are still awaiting team handoffs.
+live model and its deployment evaluation are still awaiting team handoffs.
 No market-data download or live feeder is needed for this preview.
 
 ### 1. Check the prerequisites
@@ -54,7 +54,7 @@ below and substitute its path for `D:\FME Project\pumpradar`.
 ```powershell
 Set-Location 'D:\FME Project\pumpradar'
 $env:PUMPRADAR_MOCK = '1'
-uv run --locked --extra dev python -m uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
+uv run --locked --extra dev python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
 
 Leave this terminal running. Wait for `Application startup complete`. Set the
@@ -65,7 +65,7 @@ If dependencies are already synced, you can also start the backend directly:
 
 ```powershell
 $env:PUMPRADAR_MOCK = '1'
-.\.venv\Scripts\python.exe -m uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
+.\.venv\Scripts\python.exe -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
 
 ### 4. Terminal 2: start the frontend
@@ -117,6 +117,7 @@ steps 3–5 unless dependencies changed.
 | Access denied removing `.venv\Scripts` | Stop this project's servers/debugger, close terminals using its environment, and reopen PowerShell without activating it. Run `uv sync --locked --extra dev` from the root. The project pins Python 3.12; an old 3.13 environment prompts `uv` to replace it. If still locked, restart VS Code before retrying. |
 | No coins, or `mock: False` | Stop the backend, set `$env:PUMPRADAR_MOCK = '1'` in its terminal, then restart it. |
 | API unavailable or feed reconnecting | Keep Terminal 1 running on port 8000; check `/health` and its terminal output. |
+| `Reconnecting` and no data, although both terminals are open | Open `http://127.0.0.1:8000/health`. If it hangs or does not show `status: ok`, stop the backend with Ctrl+C and restart it using the command in step 3. Then refresh `http://127.0.0.1:5173/`. The frontend can stay open while the backend restarts. |
 | Port 8000 or 5173 is already in use | Stop the previous instance with Ctrl+C in its terminal, then rerun the corresponding startup command. |
 | `npm.ps1` cannot run because scripts are disabled | Use `npm.cmd ci` and `npm.cmd run dev` in PowerShell. |
 
@@ -193,9 +194,9 @@ data and missing evaluation results explicit.
 - Replay: event list, 1x/4x/16x playback, scrubber, onset marker and per-frame ranks.
   Playback reveals only data through the cursor. The current example is synthetic;
   first-alert lead, rank-at-onset and catch-rate results remain unavailable.
-- Honesty and Method: unavailable metrics stay unavailable; the Method page describes
-  the planned protocol and displays Kaashvi's measured Experiment A audit and figures
-  with source provenance. There is still no Experiment B result or final paper link.
+- Honesty and Method: live metrics stay unavailable; both pages display Kaashvi's
+  measured historical Experiments A and B with source provenance. Method also shows
+  Experiment A figures. There is still no frozen live model or final paper link.
 - Responsive layout, light-theme toggle, keyboard focus and feed-down status are
   included. Alert counts describe this browser session only, not measured error rates.
 
@@ -215,6 +216,13 @@ a pump-risk ranking. Honesty shows the count and timestamp of public priced mark
 separately from its still-unavailable model precision and alert-budget metrics.
 The retained demo heuristic appears only when manually ingested bars or the old
 feeder supplies them.
+
+Click a live market to view public Binance candlesticks on its Coin page. The
+range selector offers week (hourly), month (4-hour), and year (daily) history.
+These charts contain prices only; they do not imply a model score or alert.
+The Honesty and Method pages also show held-out Experiment B research AP and
+Hit@5 from `origin/main` commit `389fe61`, separate from the unavailable live
+model metrics. The research candidate is not a deployable frozen model.
 
 To check a real-price session, restart the backend with `$env:PUMPRADAR_MOCK = '0'`
 and open `http://127.0.0.1:8000/markets`. Its `markets` list should contain
@@ -242,18 +250,23 @@ preparation, archive validation, onset detection and shared `features.py`. Its R
 zero-IQR and missing-data fallback timestamps; these must not be treated as confirmed
 market onsets. The labeled-feature CSV is stored through Git LFS.
 
-The fetched main has `compute_features`, but this platform branch has not yet merged
-it. The real API engine and held-out replay JSON are still unavailable here.
-Its research work remains owned by Hannah.
+The fetched main has `compute_features`, but this platform branch has not merged
+it. Hannah's newer `feat/feature-engineering` branch adds a cross-sectional build
+script and tests; it is not merged into main. The React API still has no frozen
+model or validated live feature/scoring adapter. Research work remains owned by
+Hannah and Kaashvi.
 
 On 29 October, the fetched `origin/feat/kaashvi-models-notebook` branch at
 `a434e86` supplied a completed **Experiment A leakage audit**, its results JSON and
 two figures, plus a public Binance price-universe module. These exact artifacts and
 the price module were copied into this platform branch, and their source commit is
 reported by `/research/experiment-a`. Experiment A uses Sapienza 25-second chunks;
-its AP values are not live pump probabilities. The branch does not include the
-Experiment B cross-sectional model, frozen model dictionary, ordered live features,
-calibrated threshold, alert-budget validation or held-out replay files. Its older
+its AP values are not live pump probabilities. Newer `origin/main` includes
+Experiment B result JSON and a validation-selected research candidate; this
+platform branch displays those historical results separately. Neither source
+includes a frozen live model, calibrated alert threshold or validated live
+feature/scoring adapter. Main also has past-event price-only replay data, but it
+does not supply evaluated per-minute risk frames for the React replay contract. Its older
 `src/pumpradar/api.py` routes were not merged because they use the retained demo
 heuristic and a different `/honesty` response shape.
 

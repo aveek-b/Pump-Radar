@@ -16,6 +16,7 @@ from api.mock import PAIRS, PROVENANCE, mock_data
 from api.schemas import (
     CoinResponse,
     ExperimentAResponse,
+    ExperimentBResponse,
     HonestyResponse,
     MarketsResponse,
     PricesEvent,
@@ -23,7 +24,7 @@ from api.schemas import (
     ReplayDetailResponse,
     ReplayEventsResponse,
 )
-from pumpradar.prices import LiveUniverseCache
+from pumpradar.prices import LiveUniverseCache, fetch_candles
 
 router = APIRouter()
 live_universe = LiveUniverseCache()
@@ -95,7 +96,7 @@ def experiment_a_data() -> ExperimentAResponse:
         points=points,
         importance_by_feature_set=importance,
         limitations=[
-            "Experiment B, Hit@5, alert-budget threshold and calibration have not been delivered.",
+            "Experiment B is reported separately; no live alert-budget threshold or calibration has been delivered.",
             "The 25-second Sapienza feature set is not the live minute-bar feature contract.",
             "Full-feature results depend strongly on time-of-day encoding; its generality is unresolved.",
         ],
@@ -105,6 +106,48 @@ def experiment_a_data() -> ExperimentAResponse:
 @router.get("/research/experiment-a", response_model=ExperimentAResponse)
 def experiment_a():
     return experiment_a_data()
+
+
+@lru_cache(maxsize=1)
+def experiment_b_data() -> ExperimentBResponse:
+    """Expose committed held-out research measurements, separate from live scoring."""
+    try:
+        records = json.loads((RESULTS / "metrics_B_tuned.json").read_text(encoding="utf-8"))["records"]
+        hits = json.loads((RESULTS / "hit_at_k_B.json").read_text(encoding="utf-8"))
+        candidate = json.loads((RESULTS / "deployment_candidate_B.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError, KeyError) as exc:
+        raise HTTPException(503, "Experiment B artifacts are unavailable.") from exc
+    hit_by_key = {(r["horizon_min"], r["model"]): r for r in hits if r["k"] == 5}
+    points = []
+    for row in records:
+        if row["split"] != "test" or row["protocol"] != "era_honest":
+            continue
+        hit = hit_by_key.get((row["horizon_min"], row["model"]))
+        points.append({
+            "horizon_min": row["horizon_min"], "model": row["model"],
+            "test_ap": row.get("ap"), "test_prevalence": row.get("prevalence"),
+            "hit_at_5": hit.get("hit_rate") if hit else None,
+            "n_test_events": row["n_events"],
+        })
+    return ExperimentBResponse(
+        source_commit="389fe61",
+        source_artifacts=["results/metrics_B_tuned.json", "results/hit_at_k_B.json",
+                          "results/deployment_candidate_B.json", "results/tuning_B_h10.json"],
+        notice="Historical, era-held-out cross-sectional Experiment B. AP and Hit@5 evaluate research ranking; they are not live dashboard risk scores.",
+        selected_model=candidate["deployment_candidate"],
+        selection_horizon_min=candidate["horizon_min"],
+        points=points,
+        limitations=[
+            "The selected model is a research candidate; no frozen model or live inference pipeline is loaded.",
+            "Hit@5 is an event ranking measure, not the current dashboard's alert catch rate.",
+            "No calibrated live alert threshold, false-alert budget, or measured live latency is available.",
+        ],
+    )
+
+
+@router.get("/research/experiment-b", response_model=ExperimentBResponse)
+def experiment_b():
+    return experiment_b_data()
 
 
 @router.get("/research/experiment-a/figures/{name}", response_class=FileResponse,
@@ -121,9 +164,32 @@ def experiment_a_figure(name: str):
 @router.get("/coin/{pair}", response_model=CoinResponse,
             responses={404: {"description": "Unknown pair"},
                        503: {"description": "Real engine handoff pending"}})
-def coin(pair: str):
+async def coin(pair: str, range: str = "week"):
     if not mock_enabled():
-        raise HTTPException(503, "Coin contract awaits the real engine; use the demo /radar.")
+        if range not in {"week", "month", "year"}:
+            raise HTTPException(422, "Range must be week, month, or year.")
+        try:
+            coins = await live_universe.get()
+            market = next((coin for coin in coins if coin.symbol == pair), None)
+            if market is None:
+                raise HTTPException(404, "Unknown live pair")
+            candles = await fetch_candles(pair, range)
+        except (HTTPError, ValueError, KeyError) as exc:
+            raise HTTPException(503, "Public coin history is unavailable; retry later.") from exc
+        return CoinResponse(
+            scorer="demo_stub", mock=False, model_version=None,
+            notice="Public Binance price history. The research risk model is not loaded; no scores or alerts are shown.",
+            pair=pair,
+            market={"symbol": market.symbol, "price": market.price,
+                    "change_24h_pct": market.change_24h_pct,
+                    "volume_24h_quote": market.quote_volume_24h,
+                    "quote_asset": market.quote_asset, "scored": False},
+            current=None,
+            bars=[{"time": candle.open_time, "open": candle.open, "high": candle.high,
+                   "low": candle.low, "close": candle.close,
+                   "volume_quote": candle.quote_volume} for candle in candles],
+            risk_series=[], alerts=[], drivers=[],
+        )
     if pair not in PAIRS:
         raise HTTPException(404, "Unknown scored pair")
     price_sequence = mock_data.price_sequence()
@@ -147,7 +213,7 @@ def replay_event(event_id: str):
 @router.get("/honesty", response_model=HonestyResponse)
 def honesty():
     return HonestyResponse(**(PROVENANCE if mock_enabled() else DEMO), status="unavailable",
-                           limitations=["No frozen cross-sectional model or deployment evaluation is loaded. Historical Experiment A is reported separately.",
+                           limitations=["No frozen cross-sectional model or live deployment evaluation is loaded. Historical Experiments A and B are reported separately.",
                                         "Mock values and demo heuristics are not probabilities.",
                                         "Held-out replay and false-alert budgets are unmeasured."])
 

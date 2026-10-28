@@ -1,14 +1,15 @@
 """Verify research artifacts are displayed as a historical audit, never live scores."""
 
+import asyncio
 import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from httpx import HTTPError
+from httpx import AsyncClient, HTTPError, MockTransport, Response
 
 from api.main import app
 from api.routes import platform
-from pumpradar.prices import CoinPrice
+from pumpradar.prices import Candle, CoinPrice, fetch_candles
 
 RESULTS = Path(__file__).resolve().parents[1] / "results"
 
@@ -69,3 +70,63 @@ def test_live_market_failure_is_explicit(monkeypatch):
         response = client.get("/markets")
     assert response.status_code == 503
     assert "unavailable" in response.json()["detail"]
+
+
+def test_experiment_b_matches_committed_held_out_artifacts():
+    with TestClient(app) as client:
+        result = client.get("/research/experiment-b")
+        honesty = client.get("/honesty").json()
+    assert result.status_code == 200
+    body = result.json()
+    source = json.loads((RESULTS / "metrics_B_tuned.json").read_text(encoding="utf-8"))
+    candidate = json.loads((RESULTS / "deployment_candidate_B.json").read_text(encoding="utf-8"))
+    measured = next(r for r in source["records"] if r["horizon_min"] == 10
+                    and r["model"] == candidate["deployment_candidate"])
+    point = next(p for p in body["points"] if p["horizon_min"] == 10
+                 and p["model"] == candidate["deployment_candidate"])
+    assert body["status"] == "historical_experiment_b"
+    assert body["selected_model"] == candidate["deployment_candidate"]
+    assert len(body["points"]) == 36
+    assert point["test_ap"] == measured["ap"]
+    assert point["hit_at_5"] is not None
+    assert honesty["hit_at_5"] is None
+
+
+def test_real_coin_returns_public_candles_without_model_scores(monkeypatch):
+    monkeypatch.setenv("PUMPRADAR_MOCK", "0")
+
+    async def fake_universe():
+        return [CoinPrice("LTC", "USDT", "LTCUSDT", 57, .5, 2000,
+                          "2026-10-28T13:54:59+00:00", btc_symbol="LTCBTC")]
+
+    async def fake_candles(symbol, range_key):
+        assert symbol == "LTCUSDT" and range_key == "month"
+        return [Candle("2026-10-28T13:00:00+00:00", 56, 58, 55, 57, 100, 5700)]
+
+    monkeypatch.setattr(platform.live_universe, "get", fake_universe)
+    monkeypatch.setattr(platform, "fetch_candles", fake_candles)
+    with TestClient(app) as client:
+        result = client.get("/coin/LTCUSDT?range=month")
+        missing = client.get("/coin/UNKNOWN")
+        invalid = client.get("/coin/LTCUSDT?range=decade")
+    assert result.status_code == 200
+    body = result.json()
+    assert body["market"]["scored"] is False
+    assert body["bars"][0]["close"] == 57
+    assert body["bars"][0]["volume_quote"] == 5700
+    assert body["current"] is None and body["risk_series"] == []
+    assert missing.status_code == 404 and invalid.status_code == 422
+
+
+def test_binance_candle_adapter_uses_exact_quote_volume():
+    def respond(request):
+        assert request.url.params["interval"] == "4h"
+        return Response(200, json=[[0, "56", "58", "55", "57", "100", 0, "6123.45"]])
+
+    async def load():
+        async with AsyncClient(transport=MockTransport(respond)) as client:
+            return await fetch_candles("LTCUSDT", "month", client)
+
+    candles = asyncio.run(load())
+    assert candles[0].volume == 100
+    assert candles[0].quote_volume == 6123.45

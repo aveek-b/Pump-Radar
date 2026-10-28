@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { experimentAFigure, getExperimentA, getHonesty, getMarkets } from '../api/client'
+import { experimentAFigure, getExperimentA, getExperimentB, getHonesty, getMarkets } from '../api/client'
 import { ErrorState, Loading, Notice, number, percent, utc } from '../components/ui'
 
 function AuditTable() {
@@ -26,6 +26,24 @@ function AuditTable() {
   </section>
 }
 
+function ExperimentBTable() {
+  const query = useQuery({ queryKey: ['experiment-b'], queryFn: ({ signal }) => getExperimentB(signal) })
+  const [horizon, setHorizon] = useState(10)
+  if (query.isPending) return <Loading />
+  if (query.error) return <ErrorState error={query.error} retry={() => void query.refetch()} />
+  const result = query.data
+  const points = result.points.filter(p => p.horizon_min === horizon).sort((a, b) => (b.test_ap ?? -1) - (a.test_ap ?? -1))
+  return <section className="panel padded">
+    <h2>Historical Experiment B · cross-sectional ranking</h2>
+    <p>{result.notice}</p>
+    <p>Validation selected <strong>{result.selected_model.replaceAll('_', ' ')}</strong> at {result.selection_horizon_min} minutes. The table shows held-out test results for all evaluated models.</p>
+    <label>Warning horizon <select aria-label="Experiment B horizon" value={horizon} onChange={e => setHorizon(Number(e.target.value))}>{[1, 3, 5, 10, 30, 60].map(h => <option key={h} value={h}>{h} min</option>)}</select></label>
+    <div className="table-wrap"><table><thead><tr><th>Model</th><th>Test AP</th><th>Prevalence</th><th>Hit@5</th><th>Test events</th></tr></thead><tbody>{points.map(p => <tr key={p.model}><td>{p.model.replaceAll('_', ' ')}{p.model === result.selected_model && horizon === result.selection_horizon_min ? ' · selected' : ''}</td><td>{p.test_ap?.toFixed(5) ?? 'Unavailable'}</td><td>{percent(p.test_prevalence)}</td><td>{percent(p.hit_at_5)}</td><td>{p.n_test_events}</td></tr>)}</tbody></table></div>
+    <p className="muted">Source: commit {result.source_commit} · {result.source_artifacts.join(', ')}</p>
+    <ul>{result.limitations.map(item => <li key={item}>{item}</li>)}</ul>
+  </section>
+}
+
 export function HonestyPage() {
   const query = useQuery({ queryKey: ['honesty'], queryFn: ({ signal }) => getHonesty(signal) })
   const markets = useQuery({ queryKey: ['markets'], queryFn: ({ signal }) => getMarkets(signal), refetchInterval: 30_000 })
@@ -36,6 +54,7 @@ export function HonestyPage() {
       <div className="summary"><div><span>Live-model precision</span><strong>{percent(data.precision)}</strong></div><div><span>Live-model recall</span><strong>{percent(data.recall)}</strong></div><div><span>Median warning lead (minutes)</span><strong>{number(data.median_lead_minutes)}</strong></div><div><span>Cross-sectional Hit@5</span><strong>{percent(data.hit_at_5)}</strong></div></div>
       <section className="panel padded"><h2>False alerts per hour vs budget</h2>{data.false_alerts_per_hour == null || data.alert_budget_per_hour == null ? <p>Not measured yet. Synthetic alerts and session counts are not evidence of a false-alert guarantee.</p> : <><p>Measured: {number(data.false_alerts_per_hour)} / hour · Budget: {number(data.alert_budget_per_hour)} / hour</p><meter aria-label="Measured false alerts per hour" min={0} max={Math.max(1, data.false_alerts_per_hour, data.alert_budget_per_hour)} value={data.false_alerts_per_hour} /></>}</section>
       <AuditTable />
+      <ExperimentBTable />
       <section className="panel padded"><h2>Market coverage and model status</h2>{markets.isPending ? <Loading /> : markets.error ? <ErrorState error={markets.error} retry={() => void markets.refetch()} /> : <><div className="summary"><div><span>{markets.data.mock ? 'Synthetic fixture markets' : 'Public markets with prices'}</span><strong>{markets.data.markets.length}</strong></div><div><span>Markets scored by research model</span><strong>{markets.data.mock ? 'Unavailable in mock mode' : '0'}</strong></div><div><span>{markets.data.mock ? 'Synthetic price time' : 'Price snapshot time'}</span><strong className="timestamp">{utc(markets.data.as_of)}</strong></div></div><p>{markets.data.mock ? 'The 60 scored mock pairs are fixtures, not live model coverage.' : 'Real prices and 24-hour market statistics are available in All Markets. The live cross-sectional scorer is not loaded, so no live pump-risk ranking or model evaluation exists.'}</p></>}</section>
       <section className="panel padded"><h2>Current limitations</h2><ul>{data.limitations.map(item => <li key={item}>{item}</li>)}</ul></section>
     </>}
@@ -45,7 +64,8 @@ export function HonestyPage() {
 export function MethodPage() {
   const audit = useQuery({ queryKey: ['experiment-a'], queryFn: ({ signal }) => getExperimentA(signal) })
   return <><div className="eyebrow">RESEARCH DESIGN</div><h1>Method</h1><p className="intro">How early can we detect unusual activity, and which coin should we examine?</p>
-    <div className="notice"><strong>RESEARCH STATUS</strong> Experiment A’s historical leakage audit is measured. The cross-sectional Experiment B model, alert budget and held-out replay are not integrated.</div>
+    <div className="notice"><strong>RESEARCH STATUS</strong> Experiments A and B have historical results. No frozen model, calibrated alert budget, or live scoring pipeline is integrated.</div>
+    <ExperimentBTable />
     <section className="panel padded prose"><h2>Start the clock at market onset</h2><p>The planned live features compare buying volume, total volume, trade count and returns with each coin’s earlier baseline and with other coins at the same minute. Warning lead is measured before market onset, which can precede a Telegram announcement. Cases without a confirmed onset retain their uncertainty.</p>
       <h2>Keep whole events together</h2><p>Experiment A compares random splits with an event-grouped chronological split and a 24-hour gap. Its Sapienza chunk features are separate from the planned live minute-bar features. The future cross-sectional experiment ranks coins together at horizons of 1, 3, 5, 10, 30 and 60 minutes.</p>
       <h2>Evaluate at an alert budget</h2><p>The final threshold must come from validation data. Held-out reporting will include precision, recall, warning lead, Hit@5 and false alerts per hour. Current mock scores and the retained volume heuristic have no calibrated probability interpretation.</p>

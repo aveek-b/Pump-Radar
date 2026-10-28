@@ -1,0 +1,56 @@
+{
+  "chosen": {
+    "logreg": {
+      "C": 10.0
+    },
+    "knn": {
+      "n_neighbors": 15
+    },
+    "decision_tree": {
+      "max_depth": 3
+    },
+    "random_forest": {
+      "max_depth": 6
+    },
+    "linear_svm": {
+      "C": 10.0
+    },
+    "lightgbm": {
+      "num_leaves": 31,
+      "max_depth": 8
+    }
+  },
+  "trials": {
+    "logreg": {
+      "C=0.1": 0.0020985257699866412,
+      "C=1.0": 0.002109991830394239,
+      "C=10.0": 0.00211163894415378
+    },
+    "knn": {
+      "n_neighbors=5": 0.0012713401856562767,
+      "n_neighbors=15": 0.0013744063004316365
+    },
+    "decision_tree": {
+      "max_depth=3": 0.0018935653721366208,
+      "max_depth=6": 0.0013976248834805347
+    },
+    "random_forest": {
+      "max_depth=6": 0.0017849625728650767,
+      "max_depth=10": 0.0016737778297155601
+    },
+    "linear_svm": {
+      "C=0.1": 0.002121861235804449,
+      "C=1.0": 0.0021234619329363763,
+      "C=10.0": 0.0021236222312674686
+    },
+    "lightgbm": {
+      "num_leaves=15, max_depth=6": 0.0013827530989500537,
+      "num_leaves=15, max_depth=8": 0.001560750900957527,
+      "num_leaves=31, max_depth=6": 0.001644813104472111,
+      "num_leaves=31, max_depth=8": 0.0017628523854085916
+    }
+  },
+  "horizon_min": 10,
+  "n_train_events": 72,
+  "n_val_events": 19
+}

@@ -153,6 +153,26 @@ class ExperimentAResponse(BaseModel):
     limitations: list[str]
 
 
+class ExperimentBPoint(BaseModel):
+    horizon_min: int
+    model: str
+    test_ap: float | None
+    test_prevalence: float | None
+    hit_at_5: float | None
+    n_test_events: int
+
+
+class ExperimentBResponse(BaseModel):
+    status: Literal["historical_experiment_b"] = "historical_experiment_b"
+    source_commit: str
+    source_artifacts: list[str]
+    notice: str
+    selected_model: str
+    selection_horizon_min: int
+    points: list[ExperimentBPoint]
+    limitations: list[str]
+
+
 class BarInput(BaseModel):
     symbol: str
     close_time: datetime

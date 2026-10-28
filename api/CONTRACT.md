@@ -32,6 +32,10 @@ the live feature, frozen-model and threshold handoffs remain unavailable.
   Unknown/unscored pairs return 404. Candle and risk history cover six hours;
   historical synthetic risk points are illustrative, not a recorded tick history.
   The final risk point matches the current frame. Real explanations remain later work.
+  Outside mock mode it returns real public Binance OHLC candles for a known live
+  display pair. `range=week|month|year` selects 1-hour, 4-hour or daily bars.
+  The response keeps `current`, risk series, alerts and drivers empty; a missing
+  pair returns 404 and an unavailable Binance history returns 503.
 - Mock tiers cycle through low/medium/high. Mock levels use 10-minute risk and
   illustrative cutoffs 0.4 (Watch) and 0.8 (Alert), **not** Kaashvi's thresholds.
   One rotating synthetic alert per tick exercises transport; B3 entry detection
@@ -52,6 +56,11 @@ the live feature, frozen-model and threshold handoffs remain unavailable.
   `/research/experiment-a/figures/{name}` with an explicit filename allowlist.
   The audit contains no calibrated risk, live precision/recall or alert budget;
   those `/honesty` fields remain null.
+- `/research/experiment-b` reports Kaashvi's committed era-held-out test AP,
+  prevalence and Hit@5 across six horizons and six models. The response also
+  names the validation-selected 10-minute research candidate and source
+  artifacts from `origin/main` commit `389fe61`. These figures do not populate
+  `/honesty` or turn on live scoring.
 
 ## Stream protocol and lifecycle
 
@@ -70,7 +79,8 @@ the sleep; the browser closes EventSource on unmount.
 Without mock mode, `/stream` sends explanatory keepalive comments only; `/events`
 still delivers demo alerts. `/markets` returns live price snapshots when Binance
 is reachable; `/replay/events` returns a labeled empty result. Coin detail returns
-503, and replay detail returns 404 until integration.
+public price history when Binance is reachable; replay detail returns 404 until
+the replay adapter and evaluated scoring artifacts are integrated.
 No synthetic market/model data silently appears in non-mock mode.
 
 `POST /bars`, `POST /batches`, `POST /replay`, the static dashboard and `/events`
@@ -87,9 +97,9 @@ and artifact formats before B4/F4/F5. These types propose an adapter boundary;
 they do not change Section 3.2 Parquet/model/replay handoffs or imply artifacts exist.
 
 The frontend now renders Radar/Markets, Coin and Replay against these fixtures.
-Honesty displays missing live metrics alongside the measured historical Experiment A
-table. Method shows the two measured Experiment A figures and describes the planned
-cross-sectional protocol. Browser requests use a local `/api` proxy prefix.
+Honesty displays missing live metrics alongside measured historical Experiments A
+and B. Method shows the two measured Experiment A figures and the Experiment B
+research table. Browser requests use a local `/api` proxy prefix.
 Replay null lead values are displayed as unavailable, not inferred misses; aggregate
 catch rate needs an explicit evaluation/miss convention agreed with the researchers.
 The stream is shared across pages, suppresses snapshot notifications on reconnect,

@@ -1,0 +1,12 @@
+{
+  "val_ap_by_model": {
+    "logreg": 0.00211163894415378,
+    "knn": 0.0013744063004316365,
+    "decision_tree": 0.0018935653721366208,
+    "random_forest": 0.0017849625728650767,
+    "linear_svm": 0.0021236222312674686,
+    "lightgbm": 0.0017628523854085916
+  },
+  "deployment_candidate": "linear_svm",
+  "horizon_min": 10
+}

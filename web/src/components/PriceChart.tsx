@@ -23,8 +23,11 @@ export function PriceChart({ bars, risks, alerts, horizon, onset }: {
     })
     // Never invent OHLC values when an artifact only supplies a close.
     candles.setData(bars.filter(b => b.open != null && b.high != null && b.low != null).map(b => ({ time: time(b.time), open: b.open!, high: b.high!, low: b.low!, close: b.close })))
-    const line = chart.addSeries(LineSeries, { color: '#ed9f60', priceScaleId: 'left', title: `Risk ${horizon}m`, priceFormat: { type: 'percent' } })
-    line.setData(risks.filter(p => p.risk[horizon] != null).map(p => ({ time: time(p.time), value: p.risk[horizon]! * 100 })))
+    const riskPoints = risks.filter(p => p.risk[horizon] != null)
+    if (riskPoints.length) {
+      const line = chart.addSeries(LineSeries, { color: '#ed9f60', priceScaleId: 'left', title: `Risk ${horizon}m`, priceFormat: { type: 'percent' } })
+      line.setData(riskPoints.map(p => ({ time: time(p.time), value: p.risk[horizon]! * 100 })))
+    }
     const candleTimes = new Set(bars.map(b => time(b.time)))
     createSeriesMarkers(candles, alerts.map(a => ({ time: Math.floor(time(a.time) / 60) * 60 as UTCTimestamp, position: 'aboveBar' as const, color: '#f17878', shape: 'arrowDown' as const, text: 'Alert' })).filter(m => candleTimes.has(m.time)).sort((a, b) => a.time - b.time))
     chart.timeScale().fitContent()
@@ -40,5 +43,5 @@ export function PriceChart({ bars, risks, alerts, horizon, onset }: {
     positionOnset()
     return () => { observer.disconnect(); chart.remove() }
   }, [bars, risks, alerts, horizon, onset])
-  return <figure className="chart-figure"><div className="chart-container"><div ref={host} className="chart" role="img" aria-label={`Candlestick price chart and ${horizon}-minute risk series`} />{onset && <div ref={marker} className="onset-marker"><span>Onset</span></div>}</div><figcaption>Price: right scale · risk: left scale · times in UTC. {bars.length} bars, {utc(bars[0]?.time)} to {utc(bars.at(-1)?.time)}. <a href="https://www.tradingview.com/" target="_blank" rel="noreferrer">Charts by TradingView</a></figcaption></figure>
+  return <figure className="chart-figure"><div className="chart-container"><div ref={host} className="chart" role="img" aria-label={risks.length ? `Candlestick price chart and ${horizon}-minute risk series` : 'Candlestick price chart'} />{onset && <div ref={marker} className="onset-marker"><span>Onset</span></div>}</div><figcaption>Price: right scale{risks.length ? ' · risk: left scale' : ''} · times in UTC. {bars.length} bars, {utc(bars[0]?.time)} to {utc(bars.at(-1)?.time)}. <a href="https://www.tradingview.com/" target="_blank" rel="noreferrer">Charts by TradingView</a></figcaption></figure>
 }
