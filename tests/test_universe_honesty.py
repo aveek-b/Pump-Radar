@@ -48,6 +48,8 @@ def test_universe_separates_price_from_scoring(monkeypatch):
     # test suite missed and an end-to-end run against the real API caught.
     assert by_base["LTC"]["scoring_status"] == "warming_up"
     assert by_base["LTC"]["quote_asset"] == "USDT"
+    assert by_base["LTC"]["btc_symbol"] == "LTCBTC"  # lets the dashboard cross-reference /scores/live
+    assert by_base["DOGE"]["btc_symbol"] is None
 
     # Every coin still gets a real price regardless of scoring coverage.
     assert all(c["price"] > 0 for c in body["coins"])

@@ -351,6 +351,7 @@ async def get_universe() -> dict:
             "base_asset": coin.base_asset,
             "quote_asset": coin.quote_asset,
             "symbol": coin.symbol,
+            "btc_symbol": coin.btc_symbol,  # lets callers cross-reference GET /scores/live by pair
             "price": coin.price,
             "change_24h_pct": coin.change_24h_pct,
             "price_as_of": coin.price_as_of,

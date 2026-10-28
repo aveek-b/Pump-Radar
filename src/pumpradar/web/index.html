@@ -47,6 +47,10 @@
     .stale-banner.show { display: block; }
     .skeleton { opacity: .4; }
     footer.disclaimer { margin: 28px 0 10px; color: #6e7f9c; font-size: .78rem; border-top: 1px solid #26344e; padding-top: 14px; }
+    #toast-stack { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 1000; }
+    .toast { background: #1d2941; border-left: 3px solid #f28b82; color: #edf3ff; padding: 12px 16px; border-radius: 8px; font-size: .85rem; box-shadow: 0 4px 16px rgba(0,0,0,.4); max-width: 340px; animation: toast-in .2s ease-out; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    tr.alert-row { background: #2a1818; }
     #universe-rows tr { cursor: pointer; } #universe-rows tr:hover { background: #17213a; }
     .coin-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
     .coin-header h2 { margin: 0; } .coin-price { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -89,9 +93,12 @@
       <h2>Live Binance coin universe</h2>
       <div class="summary-strip" id="universe-summary">
         <div><b id="us-total">—</b>coins live right now</div>
-        <div><b id="us-scored">—</b>have a trained-model score</div>
+        <div><b id="us-scored">—</b>have a real trained-model score</div>
         <div><b id="us-asof">—</b>prices as of</div>
       </div>
+      <p class="meta">Score = Experiment B's real linear_svm decision_function value (a ranking score, not a
+        calibrated probability). Alert threshold is provisional, not yet validated against real background data
+        -- see Honesty &amp; Method.</p>
       <div class="toolbar">
         <input type="text" id="universe-search" placeholder="Search coin (e.g. ETH)" aria-label="Search coins">
         <select id="universe-filter" aria-label="Filter by scoring status">
@@ -177,12 +184,22 @@
     </section>
   </section>
 
+  <div id="toast-stack"></div>
   <footer class="disclaimer">Research tool. Not financial advice. No trades are placed. Developer API: <a href="/docs">/docs</a>.</footer>
   <script>
     const coins = document.querySelector('#coins');
     const alerts = document.querySelector('#alerts');
     const seen = new Set();
     const time = value => value ? new Date(value).toLocaleString() : 'Waiting for bars';
+    function showToast(message) {
+      const stack = document.querySelector('#toast-stack');
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = message;
+      stack.append(el);
+      setTimeout(() => el.remove(), 8000);
+      while (stack.children.length > 5) stack.firstChild.remove();
+    }
     function cell(row, text, className = '') {
       const td = row.insertCell(); td.textContent = text; td.className = className; return td;
     }
@@ -243,7 +260,7 @@
       const sort = document.querySelector('#universe-sort').value;
       let rows = universeCoins.filter(c =>
         (!search || c.base_asset.includes(search) || c.symbol.includes(search)) &&
-        (filter === 'all' || c.scoring_status === filter)
+        (filter === 'all' || c.real_status === filter)
       );
       if (sort === 'price_desc') rows = rows.slice().sort((a, b) => b.price - a.price);
       else if (sort === 'change_desc') rows = rows.slice().sort((a, b) => b.change_24h_pct - a.change_24h_pct);
@@ -252,27 +269,70 @@
       const tbody = document.querySelector('#universe-rows'); tbody.replaceChildren();
       rows.forEach(c => {
         const row = tbody.insertRow();
+        if (c.is_alert) row.classList.add('alert-row');
         cell(row, c.base_asset);
         cell(row, c.quote_asset, 'muted');
         cell(row, fmtPrice(c.price), 'num');
-        const changeCell = cell(row, `${c.change_24h_pct >= 0 ? '+' : ''}${c.change_24h_pct.toFixed(2)}%`, `num ${c.change_24h_pct >= 0 ? 'change-up' : 'change-down'}`);
-        cell(row, c.score === null ? '—' : c.score.toFixed(3), 'num score');
+        cell(row, `${c.change_24h_pct >= 0 ? '+' : ''}${c.change_24h_pct.toFixed(2)}%`, `num ${c.change_24h_pct >= 0 ? 'change-up' : 'change-down'}`);
+        cell(row, c.real_score === null ? '—' : c.real_score.toFixed(3), 'num score');
         const statusCell = row.insertCell();
-        const badge = document.createElement('span'); badge.className = `badge ${c.scoring_status}`;
-        badge.textContent = { scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[c.scoring_status] || c.scoring_status;
+        const badge = document.createElement('span'); badge.className = `badge ${c.real_status}`;
+        badge.textContent = { scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[c.real_status] || c.real_status;
+        if (c.is_alert) {
+          const alertBadge = document.createElement('span'); alertBadge.className = 'badge warming_up';
+          alertBadge.style.marginLeft = '6px'; alertBadge.style.background = '#3a1f1f'; alertBadge.style.color = '#f28b82';
+          alertBadge.textContent = 'ALERT';
+          statusCell.append(alertBadge);
+        }
         statusCell.append(badge);
         row.addEventListener('click', () => openCoinView(c));
       });
       document.querySelector('#universe-empty').hidden = rows.length > 0;
     }
+    let seenAlertKeys = new Set();
     async function loadUniverse() {
       document.querySelector('#universe-loading').hidden = false;
       try {
-        const r = await fetch('/universe'); if (!r.ok) throw Error(r.status);
-        const d = await r.json();
-        universeCoins = d.coins; universeLoaded = true;
+        const [universeRes, scoresRes] = await Promise.all([
+          fetch('/universe'),
+          fetch('/scores/live').catch(() => null),  // real B-model scores -- optional, degrade gracefully if unavailable
+        ]);
+        if (!universeRes.ok) throw Error(universeRes.status);
+        const d = await universeRes.json();
+
+        let liveByPair = {}, nScoredReal = 0, threshold = null;
+        if (scoresRes && scoresRes.ok) {
+          const scoreData = await scoresRes.json();
+          threshold = scoreData.threshold;
+          scoreData.coins.forEach(c => { liveByPair[c.pair] = c; });
+          nScoredReal = scoreData.coins.filter(c => c.scoring_status === 'scored').length;
+          scoreData.recent_alerts.forEach(a => {
+            const key = `${a.pair}:${a.close_time}`;
+            if (!seenAlertKeys.has(key)) {
+              seenAlertKeys.add(key);
+              showToast(`Alert: ${a.pair} real risk score ${a.score.toFixed(3)} crossed the provisional alert threshold`);
+            }
+          });
+        }
+
+        // Merge the real Experiment B score onto each /universe row, replacing
+        // the old demo-heuristic score/status -- this is the actual trained
+        // model's output, not a placeholder.
+        universeCoins = d.coins.map(c => {
+          const live = c.btc_symbol ? liveByPair[c.btc_symbol] : undefined;
+          if (!live) {
+            return { ...c, real_score: null, real_status: c.btc_symbol ? 'warming_up' : 'unavailable', is_alert: false };
+          }
+          return {
+            ...c,
+            real_score: live.score,
+            real_status: live.scoring_status === 'scored' ? 'scored' : 'warming_up',
+            is_alert: live.is_alert,
+          };
+        });
+        universeLoaded = true;
         document.querySelector('#us-total').textContent = d.n_coins;
-        document.querySelector('#us-scored').textContent = d.n_scored;
+        document.querySelector('#us-scored').textContent = threshold !== null ? nScoredReal : d.n_scored;
         document.querySelector('#us-asof').textContent = time(d.price_as_of);
         document.querySelector('#universe-loading').hidden = true;
         document.querySelector('#universe-stale').classList.remove('show');
@@ -376,10 +436,12 @@
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.querySelector('#view-coin').classList.add('active');
 
+      const statusLabel = { scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[coin.real_status] || coin.real_status;
+      const scoreText = coin.real_score === null ? '' : ` · risk score ${coin.real_score.toFixed(3)}${coin.is_alert ? ' (ALERT)' : ''}`;
       document.querySelector('#coin-symbol').textContent = `${coin.base_asset} / ${coin.quote_asset}`;
       document.querySelector('#coin-price').textContent = fmtPrice(coin.price);
       document.querySelector('#coin-status').textContent =
-        `${{ scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[coin.scoring_status]} · 24h ${coin.change_24h_pct >= 0 ? '+' : ''}${coin.change_24h_pct.toFixed(2)}%`;
+        `${statusLabel}${scoreText} · 24h ${coin.change_24h_pct >= 0 ? '+' : ''}${coin.change_24h_pct.toFixed(2)}%`;
 
       document.querySelectorAll('.range-tabs button').forEach(b => b.classList.toggle('active', b.dataset.range === 'week'));
       ensureCharts();
