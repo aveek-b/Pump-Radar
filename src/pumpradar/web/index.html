@@ -126,16 +126,30 @@
     <section class="card">
       <h2>Past Events (held-out replay)</h2>
       <p class="meta">Real historical pumps from the labeled 2018-2021 dataset, never seen by the models during
-        training. Onset marked where real volume actually spiked. No risk score is shown yet -- the model is not
-        calibrated, so there is no honest score to attach.</p>
+        training. The shaded region is the real pump window: onset (confirmed volume spike) to the real post-onset
+        price peak. No risk score is shown here yet -- the model is not calibrated, so there is no honest score to
+        attach.</p>
       <div class="toolbar">
         <input type="text" id="replay-search" placeholder="Search coin (e.g. PPT)" aria-label="Search events">
         <select id="replay-select" aria-label="Choose an event" style="flex:1"></select>
+        <select id="replay-sort" aria-label="Sort events">
+          <option value="gain_desc">Sort: biggest real gain first</option>
+          <option value="date_asc">Sort: chronological</option>
+        </select>
+      </div>
+      <div class="coin-header" id="replay-stats" hidden>
+        <div>
+          <h2 id="replay-symbol">—</h2>
+          <div class="meta" id="replay-meta"></div>
+        </div>
+        <div class="coin-price" id="replay-gain">—</div>
       </div>
       <div id="replay-chart-container"></div>
       <div id="replay-volume-container"></div>
       <div class="legend">
         <div><span class="swatch" style="background:#f28b82"></span>Onset (confirmed real volume spike)</div>
+        <div><span class="swatch" style="background:#f1bf5f"></span>Pump window (onset &rarr; real price peak)</div>
+        <div><span class="swatch" style="background:#4C72B0"></span>Peak (real local maximum price)</div>
       </div>
       <p class="empty" id="replay-loading">Loading real historical events…</p>
       <p class="empty" id="replay-error" hidden></p>
@@ -508,13 +522,20 @@
 
     function renderReplaySelect() {
       const search = document.querySelector('#replay-search').value.trim().toUpperCase();
+      const sortMode = document.querySelector('#replay-sort').value;
       const select = document.querySelector('#replay-select');
-      const filtered = replayEvents.filter(e => !search || e.symbol.toUpperCase().includes(search));
+      let filtered = replayEvents.filter(e => !search || e.symbol.toUpperCase().includes(search));
+      if (sortMode === 'gain_desc') {
+        filtered = filtered.slice().sort((a, b) => (b.max_gain_pct ?? -Infinity) - (a.max_gain_pct ?? -Infinity));
+      } else {
+        filtered = filtered.slice().sort((a, b) => new Date(a.onset) - new Date(b.onset));
+      }
       select.replaceChildren();
       filtered.forEach(e => {
         const opt = document.createElement('option');
         opt.value = e.event_id;
-        opt.textContent = `${e.symbol} · ${time(e.onset)} · ${e.era}-era`;
+        const gainText = e.max_gain_pct !== null && e.max_gain_pct !== undefined ? ` (+${e.max_gain_pct.toFixed(0)}%)` : '';
+        opt.textContent = `${e.symbol} · ${time(e.onset)} · ${e.era}-era${gainText}`;
         select.append(opt);
       });
       if (filtered.length) loadReplayEvent(filtered[0].event_id);
@@ -536,6 +557,7 @@
       }
     }
     document.querySelector('#replay-search').addEventListener('input', renderReplaySelect);
+    document.querySelector('#replay-sort').addEventListener('change', renderReplaySelect);
     document.querySelector('#replay-select').addEventListener('change', e => loadReplayEvent(e.target.value));
 
     async function loadReplayEvent(eventId) {
@@ -546,21 +568,51 @@
         const d = await r.json();
 
         const times = d.candles.map(c => Math.floor(new Date(c.time).getTime() / 1000));
-        replayCandleSeries.setData(d.candles.map((c, i) => ({ time: times[i], open: c.open, high: c.high, low: c.low, close: c.close })));
-        replayVolumeSeries.setData(d.candles.map((c, i) => ({ time: times[i], value: c.volume, color: c.close >= c.open ? '#75ddc3' : '#f28b82' })));
-
         const onsetTime = Math.floor(new Date(d.onset).getTime() / 1000);
-        const onsetCandle = d.candles.reduce((closest, c, i) =>
-          Math.abs(times[i] - onsetTime) < Math.abs(times[closest] - onsetTime) ? i : closest, 0);
-        replayCandleSeries.setMarkers([{
-          time: times[onsetCandle], position: 'aboveBar', color: '#f28b82', shape: 'arrowDown', text: 'Onset',
-        }]);
+        const peakTime = d.peak_time ? Math.floor(new Date(d.peak_time).getTime() / 1000) : null;
+
+        // Highlight the real pump window (onset -> real peak) by recoloring
+        // just those candles, rather than the default up/down palette --
+        // this is per-bar data lightweight-charts natively supports, not a
+        // drawn overlay, so it stays correct even if the chart is resized.
+        replayCandleSeries.setData(d.candles.map((c, i) => {
+          const inPumpWindow = peakTime !== null && times[i] >= onsetTime && times[i] <= peakTime;
+          const base = { time: times[i], open: c.open, high: c.high, low: c.low, close: c.close };
+          if (!inPumpWindow) return base;
+          return { ...base, color: '#f1bf5f', wickColor: '#f1bf5f', borderColor: '#d9a53e' };
+        }));
+        replayVolumeSeries.setData(d.candles.map((c, i) => ({
+          time: times[i], value: c.volume,
+          color: peakTime !== null && times[i] >= onsetTime && times[i] <= peakTime
+            ? '#f1bf5f' : (c.close >= c.open ? '#75ddc3' : '#f28b82'),
+        })));
+
+        const markers = [{ time: onsetTime, position: 'belowBar', color: '#f28b82', shape: 'arrowUp', text: 'Onset' }];
+        if (peakTime !== null) {
+          markers.push({ time: peakTime, position: 'aboveBar', color: '#4C72B0', shape: 'arrowDown', text: 'Peak' });
+        }
+        replayCandleSeries.setMarkers(markers);
 
         replayChart.timeScale().fitContent();
         replayVolumeChart.timeScale().fitContent();
+
+        const statsEl = document.querySelector('#replay-stats');
+        if (d.max_gain_pct !== undefined && d.max_gain_pct !== null) {
+          statsEl.hidden = false;
+          document.querySelector('#replay-symbol').textContent = `${d.symbol} (${d.pair})`;
+          const declineText = d.decline_from_peak_pct !== null && d.decline_from_peak_pct < -1
+            ? `, then fell ${Math.abs(d.decline_from_peak_pct).toFixed(1)}% from peak by window end (the "dump")`
+            : '';
+          document.querySelector('#replay-meta').textContent =
+            `Onset ${time(d.onset)} · peak ${time(d.peak_time)}${declineText}`;
+          document.querySelector('#replay-gain').textContent = `+${d.max_gain_pct.toFixed(1)}%`;
+        } else {
+          statsEl.hidden = true;
+        }
       } catch {
         errorEl.hidden = false;
         errorEl.textContent = `Could not load replay data for ${eventId}.`;
+        document.querySelector('#replay-stats').hidden = true;
       }
     }
   </script>

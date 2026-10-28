@@ -6,7 +6,8 @@
     "era": "train",
     "onset": "2018-01-03T17:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 116.67796610169492
   },
   {
     "event_id": "event_0002",
@@ -15,7 +16,8 @@
     "era": "train",
     "onset": "2018-01-04T16:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 78.51829812555786
   },
   {
     "event_id": "event_0003",
@@ -24,7 +26,8 @@
     "era": "train",
     "onset": "2018-01-07T17:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 100.52146008824707
   },
   {
     "event_id": "event_0004",
@@ -33,7 +36,8 @@
     "era": "train",
     "onset": "2018-01-09T20:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 142.01010748095953
   },
   {
     "event_id": "event_0005",
@@ -42,7 +46,8 @@
     "era": "train",
     "onset": "2018-01-13T20:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 80.14508982910561
   },
   {
     "event_id": "event_0006",
@@ -51,7 +56,8 @@
     "era": "train",
     "onset": "2018-01-15T16:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 61.36230988429979
   },
   {
     "event_id": "event_0007",
@@ -60,7 +66,8 @@
     "era": "train",
     "onset": "2018-01-20T18:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 64.78765234700037
   },
   {
     "event_id": "event_0008",
@@ -69,7 +76,8 @@
     "era": "train",
     "onset": "2018-01-23T17:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 64.7328462970921
   },
   {
     "event_id": "event_0009",
@@ -78,7 +86,8 @@
     "era": "train",
     "onset": "2018-01-27T17:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 13.174073960786705
   },
   {
     "event_id": "event_0010",
@@ -87,7 +96,8 @@
     "era": "train",
     "onset": "2018-02-12T18:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 22.87026406429392
   },
   {
     "event_id": "event_0011",
@@ -96,7 +106,8 @@
     "era": "train",
     "onset": "2018-03-11T19:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 89.71499380421314
   },
   {
     "event_id": "event_0012",
@@ -105,7 +116,8 @@
     "era": "train",
     "onset": "2018-03-22T15:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 10.413329061198326
   },
   {
     "event_id": "event_0013",
@@ -114,7 +126,8 @@
     "era": "train",
     "onset": "2018-03-24T18:30:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 80.5059523809524
   },
   {
     "event_id": "event_0015",
@@ -123,7 +136,8 @@
     "era": "train",
     "onset": "2018-03-26T17:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 10.344827586206895
   },
   {
     "event_id": "event_0016",
@@ -132,7 +146,8 @@
     "era": "train",
     "onset": "2018-03-30T17:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 2.5468164794007504
   },
   {
     "event_id": "event_0020",
@@ -141,7 +156,8 @@
     "era": "train",
     "onset": "2018-04-03T15:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 5.861767279090102
   },
   {
     "event_id": "event_0021",
@@ -150,7 +166,8 @@
     "era": "train",
     "onset": "2018-04-04T18:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 130.59714334882122
   },
   {
     "event_id": "event_0022",
@@ -159,7 +176,8 @@
     "era": "train",
     "onset": "2018-04-09T14:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 1.0598031794095228
   },
   {
     "event_id": "event_0023",
@@ -168,7 +186,8 @@
     "era": "train",
     "onset": "2018-04-09T16:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 1.1235955056179832
   },
   {
     "event_id": "event_0024",
@@ -177,7 +196,8 @@
     "era": "train",
     "onset": "2018-04-10T16:28:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 3.9353021878835994
   },
   {
     "event_id": "event_0025",
@@ -186,7 +206,8 @@
     "era": "train",
     "onset": "2018-04-10T19:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 64.56422018348624
   },
   {
     "event_id": "event_0026",
@@ -195,7 +216,8 @@
     "era": "train",
     "onset": "2018-04-14T16:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 60.30277544154753
   },
   {
     "event_id": "event_0027",
@@ -204,7 +226,8 @@
     "era": "train",
     "onset": "2018-04-15T14:52:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 3.7876802096985687
   },
   {
     "event_id": "event_0028",
@@ -213,7 +236,8 @@
     "era": "train",
     "onset": "2018-04-17T16:27:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 8.836065573770504
   },
   {
     "event_id": "event_0029",
@@ -222,7 +246,8 @@
     "era": "train",
     "onset": "2018-04-29T18:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 69.2539887882708
   },
   {
     "event_id": "event_0030",
@@ -231,7 +256,8 @@
     "era": "train",
     "onset": "2018-05-10T15:27:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 10.019907100199077
   },
   {
     "event_id": "event_0032",
@@ -240,7 +266,8 @@
     "era": "train",
     "onset": "2018-05-18T14:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 1.786294251380309
   },
   {
     "event_id": "event_0033",
@@ -249,7 +276,8 @@
     "era": "train",
     "onset": "2018-06-06T12:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 2.9812606473594556
   },
   {
     "event_id": "event_0034",
@@ -258,7 +286,8 @@
     "era": "train",
     "onset": "2018-06-10T19:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 39.79238754325258
   },
   {
     "event_id": "event_0035",
@@ -267,7 +296,8 @@
     "era": "train",
     "onset": "2018-06-15T14:54:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 1.1784511784511766
   },
   {
     "event_id": "event_0038",
@@ -276,7 +306,8 @@
     "era": "train",
     "onset": "2018-06-21T14:25:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 1.4628657164291123
   },
   {
     "event_id": "event_0042",
@@ -285,7 +316,8 @@
     "era": "train",
     "onset": "2018-07-04T18:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 21.049999999999997
   },
   {
     "event_id": "event_0045",
@@ -294,7 +326,8 @@
     "era": "train",
     "onset": "2018-07-19T15:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 2.8600964851826274
   },
   {
     "event_id": "event_0048",
@@ -303,7 +336,8 @@
     "era": "train",
     "onset": "2018-08-08T15:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 5.250730829772889
   },
   {
     "event_id": "event_0054",
@@ -312,7 +346,8 @@
     "era": "train",
     "onset": "2018-09-07T15:28:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 10.842433697347897
   },
   {
     "event_id": "event_0058",
@@ -321,7 +356,8 @@
     "era": "train",
     "onset": "2018-09-20T20:06:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 12.405358182877112
   },
   {
     "event_id": "event_0059",
@@ -330,7 +366,8 @@
     "era": "train",
     "onset": "2018-09-22T19:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 102.2332506203474
   },
   {
     "event_id": "event_0062",
@@ -339,7 +376,8 @@
     "era": "train",
     "onset": "2018-09-29T18:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 127.42230347349175
   },
   {
     "event_id": "event_0063",
@@ -348,7 +386,8 @@
     "era": "train",
     "onset": "2018-09-30T18:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 39.93775933609959
   },
   {
     "event_id": "event_0065",
@@ -357,7 +396,8 @@
     "era": "train",
     "onset": "2018-10-04T18:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 28.226779252110983
   },
   {
     "event_id": "event_0067",
@@ -366,7 +406,8 @@
     "era": "train",
     "onset": "2018-10-08T13:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 6.783253842077366
   },
   {
     "event_id": "event_0068",
@@ -375,7 +416,8 @@
     "era": "train",
     "onset": "2018-10-09T17:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 6.523955147808366
   },
   {
     "event_id": "event_0069",
@@ -384,7 +426,8 @@
     "era": "train",
     "onset": "2018-10-09T18:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 14.22413793103448
   },
   {
     "event_id": "event_0070",
@@ -393,7 +436,8 @@
     "era": "train",
     "onset": "2018-10-13T18:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 8.57828434313137
   },
   {
     "event_id": "event_0071",
@@ -402,7 +446,8 @@
     "era": "train",
     "onset": "2018-10-14T18:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 11.031175059952036
   },
   {
     "event_id": "event_0072",
@@ -411,7 +456,8 @@
     "era": "train",
     "onset": "2018-10-17T18:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 35.6755030341744
   },
   {
     "event_id": "event_0073",
@@ -420,7 +466,8 @@
     "era": "train",
     "onset": "2018-10-20T16:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 12.532637075718029
   },
   {
     "event_id": "event_0074",
@@ -429,7 +476,8 @@
     "era": "train",
     "onset": "2018-10-20T20:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 26.60130718954249
   },
   {
     "event_id": "event_0077",
@@ -438,7 +486,8 @@
     "era": "train",
     "onset": "2018-11-07T16:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 49.02560183416126
   },
   {
     "event_id": "event_0078",
@@ -447,7 +496,8 @@
     "era": "train",
     "onset": "2018-11-07T17:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 5.467679661228035
   },
   {
     "event_id": "event_0080",
@@ -456,7 +506,8 @@
     "era": "train",
     "onset": "2018-11-20T16:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 13.208773354995923
   },
   {
     "event_id": "event_0084",
@@ -465,7 +516,8 @@
     "era": "train",
     "onset": "2018-12-10T16:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 7.060886197003501
   },
   {
     "event_id": "event_0087",
@@ -474,7 +526,8 @@
     "era": "train",
     "onset": "2018-12-23T16:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 15.516206482593024
   },
   {
     "event_id": "event_0090",
@@ -483,7 +536,8 @@
     "era": "train",
     "onset": "2018-12-30T12:26:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 6.032258064516132
   },
   {
     "event_id": "event_0091",
@@ -492,7 +546,8 @@
     "era": "train",
     "onset": "2018-12-30T16:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 2.2707870923680993
   },
   {
     "event_id": "event_0092",
@@ -501,7 +556,8 @@
     "era": "train",
     "onset": "2019-01-01T14:25:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 9.23550538737814
   },
   {
     "event_id": "event_0094",
@@ -510,7 +566,8 @@
     "era": "train",
     "onset": "2019-01-08T16:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 3.3523298692591372
   },
   {
     "event_id": "event_0096",
@@ -519,7 +576,8 @@
     "era": "train",
     "onset": "2019-01-25T17:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 19.150348489877196
   },
   {
     "event_id": "event_0097",
@@ -528,7 +586,8 @@
     "era": "train",
     "onset": "2019-01-27T17:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 25.53359683794468
   },
   {
     "event_id": "event_0098",
@@ -537,7 +596,8 @@
     "era": "train",
     "onset": "2019-01-29T13:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 0.3609384399438437
   },
   {
     "event_id": "event_0101",
@@ -546,7 +606,8 @@
     "era": "train",
     "onset": "2019-02-10T17:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 19.10946196660482
   },
   {
     "event_id": "event_0102",
@@ -555,7 +616,8 @@
     "era": "train",
     "onset": "2019-02-16T17:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 3.1234983181163014
   },
   {
     "event_id": "event_0103",
@@ -564,7 +626,8 @@
     "era": "train",
     "onset": "2019-02-23T16:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 5.7570715474209795
   },
   {
     "event_id": "event_0104",
@@ -573,7 +636,8 @@
     "era": "train",
     "onset": "2019-02-24T16:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 4.7465808527755575
   },
   {
     "event_id": "event_0106",
@@ -582,7 +646,8 @@
     "era": "train",
     "onset": "2019-03-02T13:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 12.857142857142856
   },
   {
     "event_id": "event_0107",
@@ -591,7 +656,8 @@
     "era": "train",
     "onset": "2019-03-05T16:25:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 27.778668805132323
   },
   {
     "event_id": "event_0108",
@@ -600,7 +666,8 @@
     "era": "train",
     "onset": "2019-03-17T18:54:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 5.498333838230846
   },
   {
     "event_id": "event_0109",
@@ -609,7 +676,8 @@
     "era": "train",
     "onset": "2019-04-04T13:26:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 8.727810650887578
   },
   {
     "event_id": "event_0110",
@@ -618,7 +686,8 @@
     "era": "train",
     "onset": "2019-04-08T16:30:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 26.09483539716097
   },
   {
     "event_id": "event_0111",
@@ -627,7 +696,8 @@
     "era": "train",
     "onset": "2019-04-13T17:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 15.340086830680175
   },
   {
     "event_id": "event_0112",
@@ -636,7 +706,8 @@
     "era": "train",
     "onset": "2019-04-14T18:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 6.159895150720847
   },
   {
     "event_id": "event_0113",
@@ -645,7 +716,8 @@
     "era": "train",
     "onset": "2019-04-17T16:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 4.408060453400505
   },
   {
     "event_id": "event_0119",
@@ -654,7 +726,8 @@
     "era": "train",
     "onset": "2019-05-12T16:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 3.7864680322780786
   },
   {
     "event_id": "event_0122",
@@ -663,7 +736,8 @@
     "era": "train",
     "onset": "2019-05-18T15:30:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 1.3832853025936624
   },
   {
     "event_id": "event_0123",
@@ -672,7 +746,8 @@
     "era": "train",
     "onset": "2019-05-18T16:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 11.384615384615392
   },
   {
     "event_id": "event_0124",
@@ -681,7 +756,8 @@
     "era": "train",
     "onset": "2019-05-21T13:26:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 6.382978723404266
   },
   {
     "event_id": "event_0125",
@@ -690,7 +766,8 @@
     "era": "train",
     "onset": "2019-05-23T16:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 7.969432314410478
   },
   {
     "event_id": "event_0127",
@@ -699,7 +776,8 @@
     "era": "train",
     "onset": "2019-05-26T20:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 68.73385012919896
   },
   {
     "event_id": "event_0128",
@@ -708,7 +786,8 @@
     "era": "train",
     "onset": "2019-05-27T17:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 8.254397834912032
   },
   {
     "event_id": "event_0129",
@@ -717,7 +796,8 @@
     "era": "train",
     "onset": "2019-05-31T14:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 3.746877601998324
   },
   {
     "event_id": "event_0132",
@@ -726,7 +806,8 @@
     "era": "train",
     "onset": "2019-06-02T20:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 64.45086705202311
   },
   {
     "event_id": "event_0133",
@@ -735,7 +816,8 @@
     "era": "train",
     "onset": "2019-06-11T17:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 71.37142857142858
   },
   {
     "event_id": "event_0134",
@@ -744,7 +826,8 @@
     "era": "train",
     "onset": "2019-06-16T20:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 55.10752688172042
   },
   {
     "event_id": "event_0138",
@@ -753,7 +836,8 @@
     "era": "train",
     "onset": "2019-06-24T18:29:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 24.571428571428566
   },
   {
     "event_id": "event_0139",
@@ -762,7 +846,8 @@
     "era": "train",
     "onset": "2019-06-25T15:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 5.714285714285718
   },
   {
     "event_id": "event_0143",
@@ -771,7 +856,8 @@
     "era": "train",
     "onset": "2019-07-02T16:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 8.311688311688298
   },
   {
     "event_id": "event_0146",
@@ -780,7 +866,8 @@
     "era": "train",
     "onset": "2019-07-05T16:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 16.450567260940023
   },
   {
     "event_id": "event_0163",
@@ -789,7 +876,8 @@
     "era": "train",
     "onset": "2019-08-07T16:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 17.543859649122805
   },
   {
     "event_id": "event_0165",
@@ -798,7 +886,8 @@
     "era": "train",
     "onset": "2019-08-09T14:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 23.77622377622377
   },
   {
     "event_id": "event_0185",
@@ -807,7 +896,8 @@
     "era": "train",
     "onset": "2019-10-03T14:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 1.2065813528336327
   },
   {
     "event_id": "event_0187",
@@ -816,7 +906,8 @@
     "era": "train",
     "onset": "2019-10-29T17:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 5.048213272830402
   },
   {
     "event_id": "event_0203",
@@ -825,7 +916,8 @@
     "era": "test",
     "onset": "2020-01-30T16:57:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 6.073825503355698
   },
   {
     "event_id": "event_0211",
@@ -834,7 +926,8 @@
     "era": "test",
     "onset": "2020-03-08T18:54:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 20.472440944881896
   },
   {
     "event_id": "event_0220",
@@ -843,7 +936,8 @@
     "era": "test",
     "onset": "2020-03-21T16:37:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 34.28968070337805
   },
   {
     "event_id": "event_0223",
@@ -852,7 +946,8 @@
     "era": "test",
     "onset": "2020-03-24T15:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 23.24810606060605
   },
   {
     "event_id": "event_0229",
@@ -861,7 +956,8 @@
     "era": "test",
     "onset": "2020-04-01T11:53:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 19.04761904761904
   },
   {
     "event_id": "event_0232",
@@ -870,7 +966,8 @@
     "era": "test",
     "onset": "2020-04-07T18:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 4.548635409377179
   },
   {
     "event_id": "event_0245",
@@ -879,7 +976,8 @@
     "era": "test",
     "onset": "2020-05-26T15:58:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 92.3076923076923
   },
   {
     "event_id": "event_0246",
@@ -888,7 +986,8 @@
     "era": "test",
     "onset": "2020-05-29T15:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 150.08356545961004
   },
   {
     "event_id": "event_0247",
@@ -897,7 +996,8 @@
     "era": "test",
     "onset": "2020-05-30T15:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 84.90566037735849
   },
   {
     "event_id": "event_0250",
@@ -906,7 +1006,8 @@
     "era": "test",
     "onset": "2020-06-10T15:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 41.50943396226416
   },
   {
     "event_id": "event_0251",
@@ -915,7 +1016,8 @@
     "era": "test",
     "onset": "2020-06-13T16:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 43.062200956937815
   },
   {
     "event_id": "event_0252",
@@ -924,7 +1026,8 @@
     "era": "test",
     "onset": "2020-06-14T15:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 29.23735531948627
   },
   {
     "event_id": "event_0253",
@@ -933,7 +1036,8 @@
     "era": "test",
     "onset": "2020-06-15T15:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 13.733552631578947
   },
   {
     "event_id": "event_0254",
@@ -942,7 +1046,8 @@
     "era": "test",
     "onset": "2020-06-24T15:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 10.039215686274506
   },
   {
     "event_id": "event_0258",
@@ -951,7 +1056,8 @@
     "era": "test",
     "onset": "2020-07-10T16:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 8.092948717948707
   },
   {
     "event_id": "event_0260",
@@ -960,7 +1066,8 @@
     "era": "test",
     "onset": "2020-07-21T15:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 21.487930352196283
   },
   {
     "event_id": "event_0261",
@@ -969,7 +1076,8 @@
     "era": "test",
     "onset": "2020-07-24T16:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 4.829308909242294
   },
   {
     "event_id": "event_0264",
@@ -978,7 +1086,8 @@
     "era": "test",
     "onset": "2020-08-04T17:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 27.41154562383613
   },
   {
     "event_id": "event_0265",
@@ -987,7 +1096,8 @@
     "era": "test",
     "onset": "2020-08-25T17:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 27.320954907161806
   },
   {
     "event_id": "event_0266",
@@ -996,7 +1106,8 @@
     "era": "test",
     "onset": "2020-09-04T15:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 12.878787878787868
   },
   {
     "event_id": "event_0267",
@@ -1005,7 +1116,8 @@
     "era": "test",
     "onset": "2020-09-06T15:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 18.478260869565215
   },
   {
     "event_id": "event_0268",
@@ -1014,7 +1126,8 @@
     "era": "test",
     "onset": "2020-09-08T16:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 14.798206278026917
   },
   {
     "event_id": "event_0269",
@@ -1023,7 +1136,8 @@
     "era": "test",
     "onset": "2020-09-10T17:59:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 28.346456692913378
   },
   {
     "event_id": "event_0277",
@@ -1032,7 +1146,8 @@
     "era": "test",
     "onset": "2020-10-30T16:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 85.85526315789474
   },
   {
     "event_id": "event_0279",
@@ -1041,7 +1156,8 @@
     "era": "test",
     "onset": "2020-11-02T15:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 54.64190981432361
   },
   {
     "event_id": "event_0283",
@@ -1050,7 +1166,8 @@
     "era": "test",
     "onset": "2020-11-06T19:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 16.570486397361904
   },
   {
     "event_id": "event_0285",
@@ -1059,7 +1176,8 @@
     "era": "test",
     "onset": "2020-11-09T15:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 39.72332015810277
   },
   {
     "event_id": "event_0293",
@@ -1068,7 +1186,8 @@
     "era": "test",
     "onset": "2020-12-06T17:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 7.47863247863248
   },
   {
     "event_id": "event_0298",
@@ -1077,7 +1196,8 @@
     "era": "test",
     "onset": "2020-12-20T19:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 15.559157212317668
   },
   {
     "event_id": "event_0299",
@@ -1086,7 +1206,8 @@
     "era": "test",
     "onset": "2020-12-23T18:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 17.98561151079135
   },
   {
     "event_id": "event_0305",
@@ -1095,7 +1216,8 @@
     "era": "test",
     "onset": "2021-01-02T20:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 517.1481481481482
   },
   {
     "event_id": "event_0306",
@@ -1104,7 +1226,8 @@
     "era": "test",
     "onset": "2021-01-03T16:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 4.16666666666667
   },
   {
     "event_id": "event_0312",
@@ -1113,7 +1236,8 @@
     "era": "test",
     "onset": "2021-01-09T20:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 80.9811320754717
   },
   {
     "event_id": "event_0313",
@@ -1122,7 +1246,8 @@
     "era": "test",
     "onset": "2021-01-10T16:56:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 11.61290322580645
   },
   {
     "event_id": "event_0314",
@@ -1131,7 +1256,8 @@
     "era": "test",
     "onset": "2021-01-11T15:55:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 12.280701754385968
   },
   {
     "event_id": "event_0318",
@@ -1140,6 +1266,7 @@
     "era": "test",
     "onset": "2021-01-18T17:00:00+00:00",
     "available": true,
-    "n_candles": 181
+    "n_candles": 181,
+    "max_gain_pct": 15.535714285714288
   }
 ]

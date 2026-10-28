@@ -89,6 +89,37 @@ def extract_replay_window(
     return combined.loc[(combined["minute"] >= start) & (combined["minute"] <= end)].reset_index(drop=True)
 
 
+def compute_window_stats(candles: pd.DataFrame, onset: pd.Timestamp) -> dict:
+    """Real statistics computed directly from the replay window's candles --
+    no estimation, no fabricated severity. The "pump window" highlighted on
+    the chart is defined as onset -> the real post-onset price peak in this
+    window, since that is the one data-grounded boundary available (there
+    is no labeled "pump end" in the source data). If the window also
+    captures a real decline after that peak, decline_from_peak_pct reports
+    it as the (visible) "dump" side -- None if the window ends before any
+    decline shows up, not assumed to be zero.
+    """
+    pre = candles.loc[candles["minute"] < onset]
+    post = candles.loc[candles["minute"] >= onset]
+    if post.empty:
+        return {}
+
+    onset_price = float(pre.iloc[-1]["close"]) if not pre.empty else float(post.iloc[0]["close"])
+    peak_idx = post["close"].idxmax()
+    peak_price = float(post.loc[peak_idx, "close"])
+    peak_time = post.loc[peak_idx, "minute"]
+    end_price = float(post.iloc[-1]["close"])
+
+    return {
+        "onset_price": onset_price,
+        "peak_price": peak_price,
+        "peak_time": peak_time.isoformat(),
+        "max_gain_pct": ((peak_price - onset_price) / onset_price * 100) if onset_price else None,
+        "window_end_price": end_price,
+        "decline_from_peak_pct": ((end_price - peak_price) / peak_price * 100) if peak_price else None,
+    }
+
+
 def build_replay_files(
     events: pd.DataFrame,
     kline_dir: Path,
@@ -115,6 +146,7 @@ def build_replay_files(
         onset = ev["t_onset"]
         candles = extract_replay_window(ev["pair"], onset, kline_dir, window_before, window_after)
         available = not candles.empty
+        stats = compute_window_stats(candles, onset) if available else {}
         if available:
             payload = {
                 "event_id": ev["event_id"],
@@ -122,6 +154,7 @@ def build_replay_files(
                 "symbol": ev["symbol"],
                 "era": ev["era"],
                 "onset": onset.isoformat(),
+                **stats,
                 "candles": [
                     {
                         "time": row.minute.isoformat(), "open": float(row.open), "high": float(row.high),
@@ -137,6 +170,7 @@ def build_replay_files(
             "event_id": ev["event_id"], "pair": ev["pair"], "symbol": ev["symbol"],
             "era": ev["era"], "onset": onset.isoformat(),
             "available": available, "n_candles": len(candles),
+            "max_gain_pct": stats.get("max_gain_pct"),
         })
 
     with open(out_dir / "index.json", "w") as f:
