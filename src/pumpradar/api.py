@@ -6,11 +6,14 @@ import os
 from datetime import UTC, datetime
 from pathlib import Path
 
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from pumpradar.engine import Bar, Radar
+from pumpradar.live import discover_symbols
+from pumpradar.live_scoring import CrossSectionalScoringEngine, backfill_engine, load_frozen_bundle
 from pumpradar.prices import CANDLE_RANGES, LiveUniverseCache, fetch_candles, simple_moving_average
 from pumpradar.storage import AlertStore
 
@@ -21,7 +24,23 @@ subscribers: set[asyncio.Queue] = set()
 universe_cache = LiveUniverseCache()
 RESULTS_DIR = Path(__file__).resolve().parents[2] / "results"
 REPLAY_DIR = Path(__file__).resolve().parents[2] / "data" / "replay"
-MODEL_VERSION = "exp_a_leakage_audit_v1"  # Experiment A only; no deployed/frozen bundle yet
+MODEL_VERSION = "exp_a_leakage_audit_v1"  # Experiment A, offline audit only -- never deployed
+
+# Experiment B's live scoring engine. Built from the frozen bundle if it
+# exists; left None otherwise so the app still starts without it (e.g. in
+# an environment that never ran exp_b.freeze_deployment_model). Backfill is
+# never triggered automatically -- see POST /scores/backfill -- so simply
+# creating the TestClient/app in tests never makes a real network call.
+try:
+    _b_model, _b_feature_columns, _b_threshold_info = load_frozen_bundle()
+    b_scoring_engine: CrossSectionalScoringEngine | None = CrossSectionalScoringEngine(
+        _b_model, _b_feature_columns, threshold=_b_threshold_info["threshold"],
+        cooldown_minutes=_b_threshold_info.get("cooldown_minutes", 30),
+    )
+    B_THRESHOLD_INFO = _b_threshold_info
+except FileNotFoundError:
+    b_scoring_engine = None
+    B_THRESHOLD_INFO = None
 
 
 @app.get("/", include_in_schema=False)
@@ -93,6 +112,8 @@ async def ingest_batch(payload: BatchInput) -> dict:
         if any(radar.history[b.symbol] and b.close_time <= radar.history[b.symbol][-1].close_time for b in bars):
             raise ValueError("bars for each symbol must arrive in increasing time order")
         scores = [score_and_publish(bar) for bar in sorted(bars, key=lambda b: b.symbol)]
+        if b_scoring_engine is not None:
+            b_scoring_engine.ingest_batch(bars)  # idempotent: ingest_bar drops out-of-order/duplicate bars
         return {"minute": minute.isoformat(), "coins": sorted(
             scores, key=lambda row: (row["score"] is None, -(row["score"] or 0), row["symbol"])
         )}
@@ -234,6 +255,64 @@ def get_replay_event(event_id: str) -> dict:
         return json.load(f)
 
 
+@app.get("/scores/live")
+def get_live_scores() -> dict:
+    """Experiment B's real frozen model, scored against whatever live bars
+    this process has actually ingested via /batches. Each coin's score is
+    the linear_svm decision_function value -- a ranking score, NOT a
+    calibrated probability -- and scoring_status is "scored" only once
+    that coin has enough real history (see live_scoring.MIN_BASELINE_OBS
+    via features.py); everything else is honestly "insufficient_history",
+    never a guessed score.
+    """
+    if b_scoring_engine is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Experiment B model bundle not found -- run exp_b.freeze_deployment_model first",
+        )
+    scores = b_scoring_engine.score_latest()
+    return {
+        "model_version": "exp_b_linear_svm_h10_v1",
+        "score_type": "decision_function (ranking score, not a calibrated probability)",
+        "threshold": b_scoring_engine.threshold,
+        "threshold_status": B_THRESHOLD_INFO.get("status") if B_THRESHOLD_INFO else None,
+        "cooldown_minutes": b_scoring_engine.cooldown.total_seconds() / 60,
+        "coins": [
+            {
+                "pair": s.pair, "score": s.score, "scoring_status": s.scoring_status,
+                "as_of": s.as_of, "is_alert": s.is_alert,
+            }
+            for s in scores
+        ],
+        "recent_alerts": b_scoring_engine.alerts[-50:],
+        "n_tracked_pairs": len(b_scoring_engine.history),
+    }
+
+
+@app.post("/scores/backfill")
+async def backfill_live_scores() -> dict:
+    """Backfill real historical 1-minute bars (via Binance's public klines
+    endpoint) for the current live BTC-pair universe, so /scores/live can
+    start producing real scores immediately rather than waiting ~12+ real
+    hours for live data to accumulate. A real, explicit, operator-triggered
+    network operation -- never run automatically on app startup, so
+    creating the app/TestClient in tests never makes a real network call.
+    """
+    if b_scoring_engine is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Experiment B model bundle not found -- run exp_b.freeze_deployment_model first",
+        )
+    async with httpx.AsyncClient() as client:
+        pairs = await discover_symbols(client)
+    counts = await backfill_engine(b_scoring_engine, pairs)
+    return {
+        "n_pairs_requested": len(pairs),
+        "n_bars_loaded": counts,
+        "n_pairs_with_full_history": sum(1 for n in counts.values() if n >= b_scoring_engine.history_minutes * 0.9),
+    }
+
+
 @app.get("/universe")
 async def get_universe() -> dict:
     """Every currently live Binance coin's real price, deduplicated across
@@ -331,7 +410,9 @@ def get_honesty() -> dict:
 
     return {
         "status": "Experiment A (leakage audit) and Experiment B (cross-sectional scoring) have "
-                  "both run; no calibration or alert threshold has been chosen for either",
+                  "both run. Experiment B's linear_svm model is frozen and wired into live "
+                  "scoring (GET /scores/live) with a PROVISIONAL alert threshold -- see "
+                  "'live_deployment' below. Calibration has not been run for either experiment.",
         "model_version": MODEL_VERSION,
         "dataset": {"source": "SystemsLab-Sapienza 2018-2021 (research archive, not live)",
                     "n_events": 317, "n_symbols": 85},
@@ -348,20 +429,32 @@ def get_honesty() -> dict:
                     "guide's rule. The validation-based pick (linear_svm) differs from which model "
                     "looks best on raw test AP (random_forest) -- reported as-is, not reconciled.",
         },
+        "live_deployment": {
+            "wired_up": b_scoring_engine is not None,
+            "endpoint": "GET /scores/live",
+            "threshold_info": B_THRESHOLD_INFO,
+        },
         "live_coin_universe_check": live_check,
         "calibration": "not_yet_run",
-        "alert_threshold": "not_yet_chosen",
+        "alert_threshold": (
+            B_THRESHOLD_INFO["threshold"] if B_THRESHOLD_INFO else "not_yet_chosen"
+        ),
         "known_limitations": [
-            "Scores are not calibrated probabilities.",
+            ("Scores are not calibrated probabilities -- Experiment B's live score is a "
+             "decision_function ranking value, not a pump probability."),
             ("Model trained and evaluated only on BTC-paired historical data; "
              f"only {live_check['btc_quoted_pairs']} BTC pairs are live-tradeable right now."),
             ("Experiment A's full-feature-set AP is driven mainly by time-of-day encoding "
              "(permutation importance), not price level as initially hypothesized; whether this "
              "is a genuine signal or a small-sample artifact is not resolved."),
-            "Experiment B's absolute AP is tiny (base rate ~0.1% at h=10, 84 live coins per "
-            "minute) -- read it as lift over base rate, not an absolute score.",
-            "No false-alert-rate validation against ordinary market periods has been run.",
-            "No frozen/deployed model bundle exists yet for either experiment.",
+            ("Experiment B's absolute AP is tiny (base rate ~0.1% at h=10, 84 live coins per "
+             "minute) -- read it as lift over base rate, not an absolute score."),
+            ("Experiment B's live alert threshold is PROVISIONAL, computed from validation-era "
+             "rows, not a real ordinary-market-period background stream -- the live false-alert "
+             "rate is unvalidated per the build guide's K11 requirement."),
+            ("Experiment A has no live deployment path and never will: its features are "
+             "25-second resolution with an undocumented formula; live Binance data is "
+             "1-minute resolution with a known, different formula."),
         ],
         "generated_at": datetime.now(UTC).isoformat(),
     }

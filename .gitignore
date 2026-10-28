@@ -22,6 +22,9 @@ data/*
 # without it -- committing directly rather than requiring a release download.
 !data/replay/
 models/*.joblib
+# Exception: model_B.joblib is tiny (4KB, a single LinearSVC pipeline) and
+# the live scoring feature (GET /scores/live) is non-functional without it.
+!models/model_B.joblib
 *.sqlite3
 __pycache__/
 .venv/

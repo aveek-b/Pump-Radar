@@ -1,0 +1,33 @@
+{
+  "feature_columns": [
+    "buy_share",
+    "z_buy_5",
+    "z_vol_5",
+    "z_trades_5",
+    "z_absret_5",
+    "r_buy_5",
+    "r_vol_5",
+    "r_trades_5",
+    "r_absret_5",
+    "quiet_accum_5",
+    "z_buy_15",
+    "z_vol_15",
+    "z_trades_15",
+    "z_absret_15",
+    "r_buy_15",
+    "r_vol_15",
+    "r_trades_15",
+    "r_absret_15",
+    "quiet_accum_15",
+    "z_buy_60",
+    "z_vol_60",
+    "z_trades_60",
+    "z_absret_60",
+    "r_buy_60",
+    "r_vol_60",
+    "r_trades_60",
+    "r_absret_60",
+    "quiet_accum_60"
+  ],
+  "horizon_min": 10
+}

@@ -1,3 +1,4 @@
+import pandas as pd
 from fastapi.testclient import TestClient
 
 from pumpradar import prices
@@ -89,7 +90,9 @@ def test_honesty_returns_real_results_with_no_placeholders():
 
     assert body["dataset"]["n_events"] == 317
     assert body["calibration"] == "not_yet_run"
-    assert body["alert_threshold"] == "not_yet_chosen"
+    assert isinstance(body["alert_threshold"], float)  # real provisional threshold, not a placeholder string
+    assert body["live_deployment"]["wired_up"] is True
+    assert "PROVISIONAL" in body["live_deployment"]["threshold_info"]["status"]
     assert "lightgbm" in body["experiment_a_h10_full_feature_ap_by_model"]
     assert 0.0 < body["experiment_a_h10_full_feature_ap_by_model"]["lightgbm"] < 1.0
     assert len(body["known_limitations"]) > 0
@@ -213,3 +216,68 @@ def test_replay_event_rejects_path_traversal():
     client = TestClient(app)
     response = client.get("/replay/..%2F..%2Fsecrets")
     assert response.status_code in (404, 422)  # never 200, never reads outside REPLAY_DIR
+
+
+def test_live_scores_503s_when_engine_not_loaded(monkeypatch):
+    monkeypatch.setattr("pumpradar.api.b_scoring_engine", None)
+    client = TestClient(app)
+    response = client.get("/scores/live")
+    assert response.status_code == 503
+
+
+def test_live_scores_reflects_real_engine_state(monkeypatch):
+    from datetime import UTC, datetime
+
+    from pumpradar.live_scoring import LiveScore
+
+    class FakeEngine:
+        def __init__(self):
+            self.threshold = 1.5
+            self.cooldown = pd.Timedelta(minutes=30)
+            self.alerts = [{"pair": "ABCBTC", "score": 2.0, "close_time": datetime.now(UTC).isoformat()}]
+            self.history = {"ABCBTC": [1, 2, 3]}
+
+        def score_latest(self):
+            return [LiveScore("ABCBTC", 2.0, "scored", datetime.now(UTC).isoformat(), True)]
+
+    monkeypatch.setattr("pumpradar.api.b_scoring_engine", FakeEngine())
+    monkeypatch.setattr("pumpradar.api.B_THRESHOLD_INFO", {"status": "PROVISIONAL -- test"})
+
+    client = TestClient(app)
+    response = client.get("/scores/live")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["coins"][0]["pair"] == "ABCBTC"
+    assert body["coins"][0]["is_alert"] is True
+    assert "not a calibrated probability" in body["score_type"]
+    assert body["n_tracked_pairs"] == 1
+    assert len(body["recent_alerts"]) == 1
+
+
+def test_backfill_503s_when_engine_not_loaded(monkeypatch):
+    monkeypatch.setattr("pumpradar.api.b_scoring_engine", None)
+    client = TestClient(app)
+    response = client.post("/scores/backfill")
+    assert response.status_code == 503
+
+
+def test_backfill_calls_discover_and_backfill(monkeypatch):
+    async def fake_discover(client):
+        return ["ABCBTC", "XYZBTC"]
+
+    async def fake_backfill(engine, pairs, concurrency=10):
+        return {p: 1500 for p in pairs}
+
+    class FakeEngine:
+        history_minutes = 1500
+
+    monkeypatch.setattr("pumpradar.api.discover_symbols", fake_discover)
+    monkeypatch.setattr("pumpradar.api.backfill_engine", fake_backfill)
+    monkeypatch.setattr("pumpradar.api.b_scoring_engine", FakeEngine())
+
+    client = TestClient(app)
+    response = client.post("/scores/backfill")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["n_pairs_requested"] == 2
+    assert body["n_pairs_with_full_history"] == 2

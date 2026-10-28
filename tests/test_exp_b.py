@@ -7,6 +7,7 @@ from pumpradar.exp_b import (
     add_horizon_labels,
     assert_no_pair_minute_leak,
     feature_columns_in,
+    freeze_deployment_model,
     hit_at_k_snapshot,
     load_xsec,
     run_experiment_b_sweep,
@@ -166,3 +167,26 @@ def test_select_deployment_candidate_uses_validation_not_test():
     assert len(result["val_ap_by_model"]) == 6
     best_ap = result["val_ap_by_model"][result["deployment_candidate"]]
     assert best_ap == max(result["val_ap_by_model"].values())
+
+
+def test_freeze_deployment_model_trains_on_all_eras():
+    xsec = _synthetic_xsec(n_events=40, n_pairs=5)
+    frozen = freeze_deployment_model(
+        xsec, model_name="linear_svm", model_overrides={"linear_svm": {"C": 1.0}}, horizon=10, seed=0,
+    )
+    assert frozen["model_name"] == "linear_svm"
+    assert frozen["horizon_min"] == 10
+    assert frozen["n_events_trained_on"] == 40  # all events, not just a train split
+    assert hasattr(frozen["model"], "predict")
+    assert set(frozen["feature_columns"]) == {"feat_a", "feat_b"}
+
+    # The fitted model can actually score new rows.
+    scores = frozen["model"].decision_function(xsec[frozen["feature_columns"]].iloc[:5])
+    assert len(scores) == 5
+
+
+def test_freeze_deployment_model_rejects_horizon_with_no_positives():
+    xsec = _synthetic_xsec(n_events=5, n_pairs=5)
+    # horizon=0: lead_min is always >= 1, so no row can ever be positive at h=0.
+    with pytest.raises(ValueError):
+        freeze_deployment_model(xsec, model_name="linear_svm", model_overrides={}, horizon=0)
