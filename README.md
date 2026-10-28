@@ -1,6 +1,6 @@
 # PumpRadar
 
-## Project status (as of 2026-10-28, commit `6980ba7`)
+## Project status (as of 2026-10-29, commit `95cf346`)
 
 Three deliverables: a deployed web platform, an executed research notebook, and a
 research-style report. This section summarizes what's real and working right now,
@@ -9,89 +9,90 @@ what's missing, and where the risk is. Everything below is verifiable by running
 
 ### What's done
 
-**Models & evaluation (Kaashvi)** -- Experiment A, the leakage audit, is complete and
-real:
-- Built against the actual SystemsLab-Sapienza dataset (482,157 rows, 317 confirmed
-  pump events, 85 coins, 2018-2021), pulled via Git LFS and SHA-256 verified.
-- Six models (Logistic Regression, KNN, Decision Tree, Random Forest, linear SVM,
-  LightGBM) compared under a random-split audit baseline (P0) vs. an honest,
-  event-grouped, chronologically embargoed split (P2), across six horizons and two
-  feature sets, with validation-selected hyperparameters.
-- Finding: clean (rush-order/volume/trade) features show no leakage-driven inflation,
-  robust to split-boundary and seed sensitivity checks. Full features (adds price-level
-  and time-of-day) show a real, protocol-driven inflation gap (ruled out as a
-  training-size artifact) -- permutation importance traces this to **time-of-day
-  encoding**, not price level as first hypothesized, and whether that's genuine
-  pump-timing behavior or a small-sample artifact is not yet resolved.
-- Best model: Random Forest / LightGBM, full features, honest split -- AP from 0.36
-  (h=1, 57x base rate) down to 0.56 (h=60, 2.1x base rate). **Not calibrated, no
-  alert threshold chosen, not a deployed model yet.**
-- Hyperparameters were re-verified with a true joint (Cartesian) grid search rather
-  than a coordinate search, specifically to check LightGBM's two tunable parameters
-  for interaction effects a coordinate search could miss. Result: identical AP --
-  the original search had already found the genuinely best combination, not a
-  coordinate-search artifact. Confirms the tuning, doesn't improve on it; further
-  gains within this methodology are limited by the small validation set (44 events)
-  and small grids, not by search thoroughness.
-- Full writeup: `paper/sections/results_kaashvi.md` (claims ledger included).
-  Executed notebook: `notebooks/KD_pumpradar_complete.ipynb` (0 errors, restart-and-run-all verified).
-  Raw results: `results/*.json`.
+**Experiment A (leakage audit) -- complete.** Six models compared under a random-split
+audit baseline (P0) vs. an honest, event-grouped, chronologically embargoed split (P2),
+across six horizons and two feature sets, on the real SystemsLab-Sapienza dataset
+(482,157 rows, 317 confirmed pump events, 85 coins, 2018-2021). Finding: clean
+(volume/trade) features show no leakage-driven inflation; full features (adds
+price-level + time-of-day) show a real, protocol-driven inflation gap that permutation
+importance traces to **time-of-day encoding**, not price level as first hypothesized --
+whether that's genuine pump-timing behavior or a small-sample artifact is unresolved.
+Hyperparameters verified with a true joint grid search. **Has no live deployment path
+and never will** -- its features are 25-second resolution with an undocumented
+formula; live Binance data is 1-minute resolution with a known, different formula.
+Full writeup: `paper/sections/results_kaashvi.md`. Notebook:
+`notebooks/KD_pumpradar_complete.ipynb` (0 errors, restart-and-run-all verified).
 
-**Platform (this session, extending Aveek's original API/dashboard)**:
-- `GET /universe`: every coin currently trading on live Binance (520 as of this
-  writing), deduplicated across quote pairs, with real live price + 24h change.
-  Verified live: as of 2026-10-28, **only 38 of those 520 coins have an actively
-  trading BTC pair** -- the quote currency the trained model is defined on. Every
-  coin gets a real price; only those 38 can ever show a real `scored` status, the
-  rest are honestly `unavailable`, never a fabricated or guessed score.
-- `GET /honesty`: the real Experiment A numbers above, served from `results/*.json`,
-  with `calibration`/`alert_threshold` explicitly `"not_yet_run"`/`"not_yet_chosen"`
-  rather than a plausible-looking placeholder.
-- Dashboard (`web/index.html`) gained a **Live Universe** tab (search/filter/sort
-  over all live coins, scoring-status badges) and an **Honesty & Method** tab
-  (dataset size, AP-by-model table, live limitations list) alongside the original
-  demo radar and alerts view. This extends the existing plain HTML/CSS/JS dashboard
-  rather than introducing a new React/Vite/Tailwind toolchain -- that stack was
-  planned in the build guide but never scaffolded, and starting it now without the
-  ability to actually install/build/deploy it here would risk looking finished
-  without being verified.
-- All of the above was run against the live Binance API end to end (not just
-  mocked tests) during development; one real bug (coins with both a BTC and USDT
-  pair were incorrectly marked `unavailable` because display-quote preference was
-  conflated with scoring eligibility) was caught this way and fixed.
+**Data pipeline (`features.py`, `xsec.parquet`) -- complete and merged.** Real
+`pump_telegram.csv`, `prepare_events.py` and `detect_onsets.py` re-run against a
+real ~42,500-file Binance kline archive, reproducing the exact published onset counts
+(127 confirmed / 187 fallback / 4 missing) before anything new was built on top.
+`features.py` (robust z-scores, market-relative percentile ranks, quiet accumulation,
+per the build guide's D4 formula) is the one shared feature implementation for both
+research and the live platform, with the guide's required no-lookahead regression
+test. Real `xsec.parquet`: 1,063,320 rows, 127 confirmed events. A known data-quality
+issue (extreme z-scores for ~0.9% of rows, illiquid-coin baselines) is documented in
+`data/processed/data_summary.json`, not hidden.
 
-**Data (Hannah, `origin/feat/data-events`, PR #1)**: event table and onset-detection
-scripts, with honestly-reported real limitations (318 events processed: 127 confirmed
-onset, 187 fallback-to-Telegram-time, 4 missing data), and the real Sapienza dataset
-via Git LFS. `features.py` (the shared cross-sectional feature module) and
-`xsec.parquet` -- the piece Experiment B depends on -- **is being completed now, in
-progress as of this writing**: real `pump_telegram.csv` pulled from the public
-Sapienza repo, her `prepare_events.py` re-run verbatim (reproduced her exact 318-event
-count, confirming correctness), and a real ~42,500-file Binance kline download
-running to build the full universe history each event needs. `features.py` itself
-(robust z-scores, market-relative percentile ranks, quiet accumulation, per the
-guide's D4 formula) is written and unit-tested, including the guide's required
-no-lookahead regression test. Not yet pushed -- will land as new commits on
-`feat/data-events` and then on `main` once the download finishes and the real
-`xsec.parquet` is assembled and verified.
+**Experiment B (cross-sectional "which coin, how early" scoring) -- complete,
+deployed, and live.** Honest train-era/test-era split (pre-2020/2020+), zero
+`(pair, minute)` leakage verified empirically. Real result: Random Forest leads on
+raw test AP and Hit@1/Hit@5 (5-12x random chance across ~84 live coins), but the
+proper **validation-AP-based** selection (never test, per the guide's rule) picks
+**Linear SVM** instead -- the two rankings disagree, reported as-is rather than
+reconciled. The selected model is frozen (`models/model_B.joblib`, trained on all 127
+confirmed events now that selection is final) with a real, honestly-labeled
+**PROVISIONAL** alert threshold (`models/threshold_B.json`, computed from
+validation-era scores, not real background data -- live false-alert rate is
+unvalidated per the guide's K11 requirement).
+
+**Live scoring -- real, wired, and verified end to end.** `live_scoring.py`'s
+cross-sectional engine tracks rolling history for the whole live BTC-pair universe
+(Experiment B's features are percentile ranks relative to every other live coin at
+the same minute, so no coin can be scored alone), computes real features once per
+minute, scores with the frozen model, and fires cooldown-gated alerts. Wired into the
+existing `/batches` endpoint (same feeder already in `live.py`, no second process).
+Verified live: backfilled real history for all 38 live BTC pairs, all 38 scored with
+real differentiated values, confirmed scores update continuously as real minutes
+close. New endpoints: `GET /scores/live`, `POST /scores/backfill`.
+
+**Platform.** `GET /universe`: every coin currently on live Binance (520 as of this
+writing), deduplicated across quote pairs, real price + 24h change; only the 38 coins
+with a live BTC pair can ever get a real score, the rest are honestly `unavailable`,
+never guessed. `GET /coin/{symbol}/candles`: real OHLCV history (week/month/year) +
+SMA-20/50, via TradingView's lightweight-charts (no build toolchain needed). `GET
+/replay/events` + `/replay/{event_id}`: real historical pump replay with a real onset
+marker, extracted from the downloaded archive (`data/replay/`, committed directly --
+small and essential, like `model_B.joblib`). `GET /honesty`: both experiments' real
+results, the live deployment status, and the provisional-threshold caveat, all in one
+place. Dashboard has five tabs: Radar (original demo heuristic, clearly labeled),
+**Live Universe** (real B-model scores, alert highlighting, toast notifications),
+Coin view, **Past Events** (replay), **Honesty & Method**. Extends the existing plain
+HTML/CSS/JS dashboard rather than a new React/Vite/Tailwind toolchain -- that stack
+was planned but never scaffolded, and starting it now without the ability to actually
+build/deploy it here would risk looking finished without being verified.
+
+Several real bugs were caught this way -- by actually running the server against live
+data, not just passing mocked tests -- and fixed: a coin with both a BTC and USDT pair
+was wrongly marked `unavailable`; a replay-index-writing bug let the test suite
+silently overwrite real data with a test fixture; a `row`/`snapshot` index mismatch in
+Hit@k scoring.
 
 ### What's not done / blocked
 
-- **Experiment B (cross-sectional "which coin, how early" scoring) itself has not
-  started** -- `xsec.parquet` (above) is the prerequisite, not Experiment B's model
-  training, which is a separate next step once it lands.
-- **No calibration, no alert-budget threshold.** Needs a disjoint calibration slice
-  and ordinary-period background market data, neither available yet.
-- **The live feed only covers the 38 live BTC pairs for scoring.** Reaching real
-  scores for more of the 520 live coins requires training on an expanded quote-asset
-  universe -- the build guide calls this "additional work, not a UI setting"; it has
-  not been scoped or started.
+- **No calibration.** Experiment B's live score is a ranking value (decision_function),
+  not a probability, and the alert threshold is provisional (validation-era, not real
+  background data) -- both need a disjoint calibration slice and ordinary-period
+  background market data that don't exist yet.
+- **Only 38 of 520 live coins can ever get a real score.** Reaching more requires
+  training on an expanded quote-asset universe -- the build guide calls this
+  "additional work, not a UI setting"; not scoped.
 - **No live/production deployment.** Everything above runs and is verified locally;
   there is no public URL, VM, or hosting account set up from this session.
-- This status reflects what's in the **shared git repo** as of commit `6980ba7`
-  (2026-10-28), plus the in-progress `features.py`/`xsec.parquet` work described
-  above (not yet pushed at the time of this edit). It may understate real progress
-  if teammates have local, not-yet-pushed work of their own.
+- No paper skeleton exists yet beyond the Results section; Introduction, Related Work,
+  Data, Method, System, Discussion, Abstract, Conclusion are all still unwritten.
+- This status reflects the **shared git repo** as of commit `95cf346` (2026-10-29). It
+  may understate real progress if teammates have local, not-yet-pushed work.
 
 ---
 
@@ -159,21 +160,29 @@ python -m ruff check .
 
 Set `PUMPRADAR_DB` to an SQLite file path if you want alerts outside the project directory. The default is `alerts.sqlite3` in the server's working directory. Scores and warmup history remain in memory; restarting the API clears those, while alert records stay in SQLite. Run one API worker because this slice has in-process state.
 
-`GET /universe` (every live coin's real price, any quote, merged with this process's
-BTC-pair scoring coverage) and `GET /honesty` (the real Experiment A leakage-audit
-results) are additive endpoints alongside the original `/radar`, `/bars`, `/batches`,
-`/alerts`, `/events`, `/replay`. `/universe` calls the public Binance API directly
-(`data-api.binance.vision`, no key) and caches for 30 seconds; `/honesty` reads
-`results/metrics_A_tuned.json`, `results/bootstrap_A_h10.json` and
-`results/live_binance_universe_check.json` and returns 503 if they're missing rather
-than fabricating a response.
+Endpoints beyond the original skeleton's `/radar`, `/bars`, `/batches`, `/alerts`,
+`/events`:
 
-### Next integration
+| Endpoint | Real data source |
+|---|---|
+| `GET /universe` | Live Binance prices for every live coin (`data-api.binance.vision`, no key), cached 30s |
+| `GET /coin/{symbol}/candles?range=week\|month\|year` | Real OHLCV history + SMA-20/50 |
+| `GET /replay/events`, `GET /replay/{event_id}` | `data/replay/*.json`, extracted from the real downloaded archive |
+| `GET /scores/live` | `live_scoring.CrossSectionalScoringEngine`, Experiment B's frozen model scored against real ingested bars |
+| `POST /scores/backfill` | Real historical backfill for the live BTC-pair universe (operator-triggered, never automatic -- so tests never hit the network) |
+| `GET /honesty` | `results/*.json` (both experiments) + live deployment status; 503s rather than fabricating a response if a results file is missing |
 
-- Replace `Radar.ingest`'s volume heuristic with the team's **one shared feature module** and trained hazard model. The feature and scoring path must remain identical in replay and live use.
-- Add historical archive warmup and gap recovery, a 24-hour baseline, liquidity-tier thresholds and a tested false-alert budget. The current five-bar median and fixed 0.8 threshold are for wiring the platform only.
-- Implement trade-based features, candlestick and risk-curve views, event selection and the full two-hour replay after research data contracts settle.
-- Measure 5-second latency and 48-hour stability before claiming the build guide's platform acceptance criteria. Live Binance connectivity has not been exercised by the local unit tests.
+To actually see live scores and alerts: start the API, `POST /scores/backfill` once,
+then run the real feeder (`python -m pumpradar.live --all-btc`) in a second terminal
+to keep `/scores/live` updating as real minutes close.
+
+### What's left on the platform side
+
+- Calibration + a real (non-provisional) alert threshold, once ordinary-period
+  background market data exists.
+- Scoring beyond the 38 live BTC pairs needs an expanded-quote-universe model --
+  unscoped, not a UI change.
+- Production deployment (public URL / hosting) -- everything currently runs locally.
 
 ## D3: Market Onset Detection — Limitations
 
