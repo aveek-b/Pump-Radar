@@ -15,3 +15,12 @@ data/raw/
 data/processed/
 data/klines/
 data/manifests/
+data/
+*.zip
+*.parquet
+models/*.joblib
+*.sqlite3
+__pycache__/
+.venv/
+.ipynb_checkpoints/
+.pytest_cache/

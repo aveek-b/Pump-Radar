@@ -1,0 +1,194 @@
+[
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.6,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.1086725077939393,
+    "n_train_events": 190,
+    "n_test_events": 127
+  },
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.6,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.535879597234605,
+    "n_train_events": 190,
+    "n_test_events": 127
+  },
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.65,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.10489718448351394,
+    "n_train_events": 206,
+    "n_test_events": 111
+  },
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.65,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.5140704948298155,
+    "n_train_events": 206,
+    "n_test_events": 111
+  },
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.7,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.10242882379937664,
+    "n_train_events": 220,
+    "n_test_events": 96
+  },
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.7,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.5435029878446213,
+    "n_train_events": 220,
+    "n_test_events": 96
+  },
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.75,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.10313398143527128,
+    "n_train_events": 237,
+    "n_test_events": 80
+  },
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.75,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.5557098910212915,
+    "n_train_events": 237,
+    "n_test_events": 80
+  },
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.8,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.09753656515598641,
+    "n_train_events": 253,
+    "n_test_events": 64
+  },
+  {
+    "check": "honest_boundary",
+    "train_frac": 0.8,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.5464760417713714,
+    "n_train_events": 253,
+    "n_test_events": 64
+  },
+  {
+    "check": "random_seed",
+    "seed": 1,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.11213552897082639
+  },
+  {
+    "check": "random_seed",
+    "seed": 1,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.6403541613682702
+  },
+  {
+    "check": "random_seed",
+    "seed": 2,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.10868341849165768
+  },
+  {
+    "check": "random_seed",
+    "seed": 2,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.6291247046438304
+  },
+  {
+    "check": "random_seed",
+    "seed": 3,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.10497437897135738
+  },
+  {
+    "check": "random_seed",
+    "seed": 3,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.639443727215127
+  },
+  {
+    "check": "random_seed",
+    "seed": 4,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.1049339060733186
+  },
+  {
+    "check": "random_seed",
+    "seed": 4,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.6386668461197031
+  },
+  {
+    "check": "random_seed",
+    "seed": 5,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.0993921516505344
+  },
+  {
+    "check": "random_seed",
+    "seed": 5,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.6586641762315991
+  },
+  {
+    "check": "P0_size_isolation",
+    "train_frac": 0.5,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.10659914772823031,
+    "n_train_rows": 27570
+  },
+  {
+    "check": "P0_size_isolation",
+    "train_frac": 0.5,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.636556994398282,
+    "n_train_rows": 27570
+  },
+  {
+    "check": "P0_size_isolation",
+    "train_frac": 0.7,
+    "feature_set": "clean",
+    "model": "lightgbm",
+    "ap": 0.11707794290980515,
+    "n_train_rows": 38598
+  },
+  {
+    "check": "P0_size_isolation",
+    "train_frac": 0.7,
+    "feature_set": "full",
+    "model": "lightgbm",
+    "ap": 0.6293270180382787,
+    "n_train_rows": 38598
+  }
+]

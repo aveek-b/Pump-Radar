@@ -1,0 +1,363 @@
+2026-10-28 20:25:46,653 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/exchangeInfo "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,433 INFO tracking 38 BTC pairs
+2026-10-28 20:25:47,678 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=AAVEBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,707 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,718 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,728 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,740 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,750 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,900 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=BCHBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,910 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,918 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,927 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,936 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:47,946 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,092 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=BNBBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,103 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,114 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,127 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=ADABTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,135 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,146 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=AVAXBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,161 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=ATOMBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,172 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,182 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,183 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=ARBBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,204 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,210 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,217 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,218 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,250 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,256 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,271 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,284 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,292 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,300 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,301 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,314 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,323 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,333 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,334 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,349 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,360 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,371 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,372 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,388 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=CAKEBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,396 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,404 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,413 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,423 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,432 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,442 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,506 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=DASHBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,516 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,527 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,535 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=DOGEBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,545 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=DOTBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,554 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,558 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=ETCBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,572 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,583 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,596 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,599 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=ETHBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,613 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,616 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,631 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,643 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,657 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,658 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,671 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,682 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,691 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,692 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,696 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,716 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,725 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,727 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,736 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,743 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,755 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,764 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,773 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,809 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=FETBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,820 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,833 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,847 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,860 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,876 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,894 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=FILBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,909 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=ICPBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,913 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=HBARBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,930 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,933 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=INJBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,961 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,978 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:48,981 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,000 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,019 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,031 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,034 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,056 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=LINKBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,068 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,087 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,098 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,101 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,125 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,126 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,149 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,160 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,163 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,178 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,179 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,193 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,198 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,218 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,227 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,235 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,244 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,334 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=LTCBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,343 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,353 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,360 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=NEARBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,368 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,382 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=NEXOBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,391 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=PAXGBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,400 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,406 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=PENDLEBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,429 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,449 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,469 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,471 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,496 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,498 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,518 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,540 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,542 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,563 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,576 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,588 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,592 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,607 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,617 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,627 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,629 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,639 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,651 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,657 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,668 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,683 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=RENDERBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,692 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,703 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,714 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,726 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,739 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,788 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=SOLBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,798 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,807 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,815 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=SUIBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,816 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=TAOBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,829 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=STXBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,839 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,851 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,860 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,868 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,871 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,887 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,897 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,897 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=THETABTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,915 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,918 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,928 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,939 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,941 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,953 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,964 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,976 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,984 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,993 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:49,995 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,006 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,018 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,027 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,039 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,050 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,080 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=TRXBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,090 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,099 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,108 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,117 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,128 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,161 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=UNIBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,171 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,180 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,188 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=WBTCBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,195 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=WLDBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,202 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=XAUTBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,210 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,222 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,231 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,238 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,240 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,253 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,261 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,272 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,275 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,283 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,289 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=XRPBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,303 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,315 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,326 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,336 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,346 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,353 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,355 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,366 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,375 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,383 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,390 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,403 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,414 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,441 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=XTZBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,453 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,466 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,480 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,493 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,507 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,514 INFO HTTP Request: GET https://data-api.binance.vision/api/v3/klines?symbol=ZECBTC&interval=1m&limit=7 "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,526 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,543 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,561 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,574 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:50,584 INFO HTTP Request: POST http://127.0.0.1:8000/bars "HTTP/1.1 200 OK"
+2026-10-28 20:25:51,285 INFO connected to public market stream
+2026-10-28 20:25:59,045 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:25:59,053 INFO scored 38 bars through 2026-10-28T14:56:00+00:00
+2026-10-28 20:25:59,053 INFO coverage 2026-10-28T14:56:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:26:58,969 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:26:58,975 INFO scored 38 bars through 2026-10-28T14:57:00+00:00
+2026-10-28 20:26:58,976 INFO coverage 2026-10-28T14:57:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:27:58,958 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:27:58,967 INFO scored 38 bars through 2026-10-28T14:58:00+00:00
+2026-10-28 20:27:58,968 INFO coverage 2026-10-28T14:58:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:28:58,951 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:28:58,962 INFO scored 38 bars through 2026-10-28T14:59:00+00:00
+2026-10-28 20:28:58,962 INFO coverage 2026-10-28T14:59:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:29:59,076 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:29:59,084 INFO scored 38 bars through 2026-10-28T15:00:00+00:00
+2026-10-28 20:29:59,085 INFO coverage 2026-10-28T15:00:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:30:58,950 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:30:58,960 INFO scored 38 bars through 2026-10-28T15:01:00+00:00
+2026-10-28 20:30:58,961 INFO coverage 2026-10-28T15:01:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:31:58,939 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:31:58,947 INFO scored 38 bars through 2026-10-28T15:02:00+00:00
+2026-10-28 20:31:58,947 INFO coverage 2026-10-28T15:02:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:32:58,983 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:32:58,995 INFO scored 38 bars through 2026-10-28T15:03:00+00:00
+2026-10-28 20:32:58,995 INFO coverage 2026-10-28T15:03:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:33:58,892 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:33:58,899 INFO scored 38 bars through 2026-10-28T15:04:00+00:00
+2026-10-28 20:33:58,899 INFO coverage 2026-10-28T15:04:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:34:58,994 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:34:59,003 INFO scored 38 bars through 2026-10-28T15:05:00+00:00
+2026-10-28 20:34:59,003 INFO coverage 2026-10-28T15:05:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:35:58,903 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:35:58,907 INFO scored 38 bars through 2026-10-28T15:06:00+00:00
+2026-10-28 20:35:58,908 INFO coverage 2026-10-28T15:06:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:36:58,907 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:36:58,915 INFO scored 38 bars through 2026-10-28T15:07:00+00:00
+2026-10-28 20:36:58,916 INFO coverage 2026-10-28T15:07:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:37:58,918 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:37:58,925 INFO scored 38 bars through 2026-10-28T15:08:00+00:00
+2026-10-28 20:37:58,926 INFO coverage 2026-10-28T15:08:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:38:58,950 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:38:58,957 INFO scored 38 bars through 2026-10-28T15:09:00+00:00
+2026-10-28 20:38:58,958 INFO coverage 2026-10-28T15:09:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:39:59,006 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:39:59,016 INFO scored 38 bars through 2026-10-28T15:10:00+00:00
+2026-10-28 20:39:59,016 INFO coverage 2026-10-28T15:10:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:40:59,054 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:40:59,062 INFO scored 38 bars through 2026-10-28T15:11:00+00:00
+2026-10-28 20:40:59,063 INFO coverage 2026-10-28T15:11:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:41:58,925 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:41:58,932 INFO scored 38 bars through 2026-10-28T15:12:00+00:00
+2026-10-28 20:41:58,932 INFO coverage 2026-10-28T15:12:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:42:58,915 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:42:58,924 INFO scored 38 bars through 2026-10-28T15:13:00+00:00
+2026-10-28 20:42:58,924 INFO coverage 2026-10-28T15:13:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:43:58,938 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:43:58,941 INFO scored 38 bars through 2026-10-28T15:14:00+00:00
+2026-10-28 20:43:58,942 INFO coverage 2026-10-28T15:14:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:44:59,064 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:44:59,072 INFO scored 38 bars through 2026-10-28T15:15:00+00:00
+2026-10-28 20:44:59,072 INFO coverage 2026-10-28T15:15:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:45:58,945 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:45:58,953 INFO scored 38 bars through 2026-10-28T15:16:00+00:00
+2026-10-28 20:45:58,953 INFO coverage 2026-10-28T15:16:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:46:58,904 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:46:58,910 INFO scored 38 bars through 2026-10-28T15:17:00+00:00
+2026-10-28 20:46:58,911 INFO coverage 2026-10-28T15:17:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:47:58,939 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:47:58,946 INFO scored 38 bars through 2026-10-28T15:18:00+00:00
+2026-10-28 20:47:58,946 INFO coverage 2026-10-28T15:18:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:48:58,947 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:48:58,953 INFO scored 38 bars through 2026-10-28T15:19:00+00:00
+2026-10-28 20:48:58,955 INFO coverage 2026-10-28T15:19:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:49:58,974 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:49:58,981 INFO scored 38 bars through 2026-10-28T15:20:00+00:00
+2026-10-28 20:49:58,981 INFO coverage 2026-10-28T15:20:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:50:59,008 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:50:59,016 INFO scored 38 bars through 2026-10-28T15:21:00+00:00
+2026-10-28 20:50:59,016 INFO coverage 2026-10-28T15:21:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:51:58,947 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:51:58,955 INFO scored 38 bars through 2026-10-28T15:22:00+00:00
+2026-10-28 20:51:58,955 INFO coverage 2026-10-28T15:22:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:52:59,059 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:52:59,066 INFO scored 38 bars through 2026-10-28T15:23:00+00:00
+2026-10-28 20:52:59,066 INFO coverage 2026-10-28T15:23:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:53:58,952 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:53:58,961 INFO scored 38 bars through 2026-10-28T15:24:00+00:00
+2026-10-28 20:53:58,961 INFO coverage 2026-10-28T15:24:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:54:58,991 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:54:58,998 INFO scored 38 bars through 2026-10-28T15:25:00+00:00
+2026-10-28 20:54:58,998 INFO coverage 2026-10-28T15:25:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:55:58,959 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:55:58,967 INFO scored 38 bars through 2026-10-28T15:26:00+00:00
+2026-10-28 20:55:58,968 INFO coverage 2026-10-28T15:26:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:56:58,982 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:56:58,988 INFO scored 38 bars through 2026-10-28T15:27:00+00:00
+2026-10-28 20:56:58,988 INFO coverage 2026-10-28T15:27:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:57:58,944 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:57:58,951 INFO scored 38 bars through 2026-10-28T15:28:00+00:00
+2026-10-28 20:57:58,951 INFO coverage 2026-10-28T15:28:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:58:58,999 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:58:59,007 INFO scored 38 bars through 2026-10-28T15:29:00+00:00
+2026-10-28 20:58:59,008 INFO coverage 2026-10-28T15:29:00+00:00: 38/38 pairs; missing: none
+2026-10-28 20:59:59,050 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 20:59:59,057 INFO scored 38 bars through 2026-10-28T15:30:00+00:00
+2026-10-28 20:59:59,057 INFO coverage 2026-10-28T15:30:00+00:00: 38/38 pairs; missing: none
+2026-10-28 21:00:58,953 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 21:00:58,961 INFO scored 38 bars through 2026-10-28T15:31:00+00:00
+2026-10-28 21:00:58,961 INFO coverage 2026-10-28T15:31:00+00:00: 38/38 pairs; missing: none
+2026-10-28 21:01:58,969 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 21:01:58,976 INFO scored 38 bars through 2026-10-28T15:32:00+00:00
+2026-10-28 21:01:58,976 INFO coverage 2026-10-28T15:32:00+00:00: 38/38 pairs; missing: none
+2026-10-28 21:02:58,993 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 21:02:59,002 INFO scored 38 bars through 2026-10-28T15:33:00+00:00
+2026-10-28 21:02:59,003 INFO coverage 2026-10-28T15:33:00+00:00: 38/38 pairs; missing: none
+2026-10-28 21:03:58,987 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 21:03:58,993 INFO scored 38 bars through 2026-10-28T15:34:00+00:00
+2026-10-28 21:03:58,993 INFO coverage 2026-10-28T15:34:00+00:00: 38/38 pairs; missing: none
+2026-10-28 21:04:59,071 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 21:04:59,078 INFO scored 38 bars through 2026-10-28T15:35:00+00:00
+2026-10-28 21:04:59,078 INFO coverage 2026-10-28T15:35:00+00:00: 38/38 pairs; missing: none
+2026-10-28 21:05:58,950 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 21:05:58,956 INFO scored 38 bars through 2026-10-28T15:36:00+00:00
+2026-10-28 21:05:58,956 INFO coverage 2026-10-28T15:36:00+00:00: 38/38 pairs; missing: none
+2026-10-28 21:06:58,978 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 21:06:58,985 INFO scored 38 bars through 2026-10-28T15:37:00+00:00
+2026-10-28 21:06:58,985 INFO coverage 2026-10-28T15:37:00+00:00: 38/38 pairs; missing: none
+2026-10-28 21:07:58,943 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 21:07:58,951 INFO scored 38 bars through 2026-10-28T15:38:00+00:00
+2026-10-28 21:07:58,951 INFO coverage 2026-10-28T15:38:00+00:00: 38/38 pairs; missing: none
+2026-10-28 21:08:58,971 INFO HTTP Request: POST http://127.0.0.1:8000/batches "HTTP/1.1 200 OK"
+2026-10-28 21:08:58,978 INFO scored 38 bars through 2026-10-28T15:39:00+00:00
+2026-10-28 21:08:58,978 INFO coverage 2026-10-28T15:39:00+00:00: 38/38 pairs; missing: none

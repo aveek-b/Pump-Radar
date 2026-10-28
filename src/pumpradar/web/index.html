@@ -22,21 +22,99 @@
     .alert strong { color: #f3ce7a; } .alert small { display: block; color: #8ea1bb; }
     .empty { padding: 20px 0; color: #8ea1bb; }
     a { color: #a5c7ff; } @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } header { flex-direction: column; } }
+    nav.tabs { display: flex; gap: 6px; margin: 22px 0 16px; border-bottom: 1px solid #26344e; }
+    nav.tabs button { background: none; border: none; color: #93a6c6; font: inherit; font-size: .92rem; padding: 10px 14px; cursor: pointer; border-bottom: 2px solid transparent; }
+    nav.tabs button.active { color: #edf3ff; border-bottom-color: #4C72B0; }
+    nav.tabs button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #4C72B0; outline-offset: 2px; }
+    .view { display: none; } .view.active { display: block; }
+    .toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+    .toolbar input, .toolbar select { background: #0c1220; border: 1px solid #2b3a54; color: #edf3ff; border-radius: 8px; padding: 8px 10px; font: inherit; font-size: .85rem; }
+    .toolbar input { flex: 1; min-width: 160px; }
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+    .badge.scored { background: #16342c; color: #75ddc3; } .badge.warming_up { background: #332a16; color: #f1bf5f; }
+    .badge.unavailable { background: #2a2a33; color: #8ea1bb; }
+    .change-up { color: #75ddc3; } .change-down { color: #f28b82; }
+    .num { font-variant-numeric: tabular-nums; }
+    .summary-strip { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 16px; color: #aab8d0; font-size: .85rem; }
+    .summary-strip b { color: #edf3ff; font-size: 1.15rem; display: block; font-variant-numeric: tabular-nums; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin: 16px 0; }
+    .kpi { background: #0c1220; border: 1px solid #2b3a54; border-radius: 10px; padding: 14px; }
+    .kpi .label { color: #93a6c6; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; }
+    .kpi .value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .limitations { padding-left: 20px; color: #aab8d0; font-size: .88rem; line-height: 1.6; }
+    .stale-banner { display: none; background: #3a1f1f; border-left: 3px solid #f28b82; color: #f3b8b3; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: .85rem; }
+    .stale-banner.show { display: block; }
+    .skeleton { opacity: .4; }
+    footer.disclaimer { margin: 28px 0 10px; color: #6e7f9c; font-size: .78rem; border-top: 1px solid #26344e; padding-top: 14px; }
   </style>
 </head>
 <body>
-  <header><div><h1>PumpRadar</h1><p>BTC pair radar · closed 1-minute bars</p></div><span class="tag">DEMO SCORER</span></header>
-  <div class="notice">Scores are a volume heuristic for testing the platform. A score of 0 means the latest BTC volume did not exceed the coin's earlier median. Scores are not calibrated probabilities, verified warnings, or trading signals.</div>
-  <main class="grid">
-    <section class="card"><h2>Current minute ranking</h2><div class="meta" id="minute">Waiting for bars</div>
-      <table><thead><tr><th>Rank</th><th>Coin</th><th>Volume vs median</th><th>Buy share</th><th>Demo score</th></tr></thead><tbody id="coins"></tbody></table>
-      <p class="empty" id="no-coins">No bars yet. Use the API or start the live feeder.</p>
+  <header><div><h1>PumpRadar</h1><p>Live Binance coin universe · leakage-audited research model</p></div><span class="tag">RESEARCH TOOL</span></header>
+  <div class="notice">Scores are a volume heuristic for the platform demo path, not the trained model's output. The trained model (Experiment A, see Method) is leakage-audited but not yet calibrated into a probability or a committed alert threshold. Nothing here is a trading signal.</div>
+
+  <nav class="tabs" role="tablist">
+    <button class="active" data-view="radar" role="tab" aria-selected="true">Radar</button>
+    <button data-view="universe" role="tab" aria-selected="false">Live Universe</button>
+    <button data-view="method" role="tab" aria-selected="false">Honesty &amp; Method</button>
+  </nav>
+
+  <section id="view-radar" class="view active">
+    <main class="grid">
+      <section class="card"><h2>Current minute ranking</h2><div class="meta" id="minute">Waiting for bars</div>
+        <table><thead><tr><th>Rank</th><th>Coin</th><th>Volume vs median</th><th>Buy share</th><th>Demo score</th></tr></thead><tbody id="coins"></tbody></table>
+        <p class="empty" id="no-coins">No bars yet. Use the API or start the live feeder.</p>
+      </section>
+      <section class="card"><h2>Recent alerts</h2><div class="meta" id="connection">Connecting to alert stream…</div><div id="alerts"></div>
+        <p class="empty" id="no-alerts">No alerts yet.</p>
+      </section>
+    </main>
+  </section>
+
+  <section id="view-universe" class="view">
+    <div class="stale-banner" id="universe-stale">Reconnecting — live prices could not be refreshed.</div>
+    <section class="card">
+      <h2>Live Binance coin universe</h2>
+      <div class="summary-strip" id="universe-summary">
+        <div><b id="us-total">—</b>coins live right now</div>
+        <div><b id="us-scored">—</b>have a trained-model score</div>
+        <div><b id="us-asof">—</b>prices as of</div>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="universe-search" placeholder="Search coin (e.g. ETH)" aria-label="Search coins">
+        <select id="universe-filter" aria-label="Filter by scoring status">
+          <option value="all">All coins</option>
+          <option value="scored">Scored</option>
+          <option value="warming_up">Warming up</option>
+          <option value="unavailable">Unavailable</option>
+        </select>
+        <select id="universe-sort" aria-label="Sort by">
+          <option value="price_desc">Sort: price (high to low)</option>
+          <option value="change_desc">Sort: 24h change (high to low)</option>
+          <option value="symbol_asc">Sort: symbol (A-Z)</option>
+        </select>
+      </div>
+      <table>
+        <thead><tr><th>Coin</th><th>Quote</th><th>Price</th><th>24h change</th><th>Score</th><th>Status</th></tr></thead>
+        <tbody id="universe-rows"></tbody>
+      </table>
+      <p class="empty" id="universe-empty" hidden>No coins match that search/filter.</p>
+      <p class="empty" id="universe-loading">Loading live prices from Binance…</p>
     </section>
-    <section class="card"><h2>Recent alerts</h2><div class="meta" id="connection">Connecting to alert stream…</div><div id="alerts"></div>
-      <p class="empty" id="no-alerts">No alerts yet.</p>
+  </section>
+
+  <section id="view-method" class="view">
+    <section class="card">
+      <h2>Honesty &amp; Method</h2>
+      <p id="honesty-status" class="meta">Loading…</p>
+      <div class="kpi-grid" id="honesty-kpis"></div>
+      <h2 style="margin-top:22px">Average precision by model (h=10, full feature set, honest split)</h2>
+      <table><thead><tr><th>Model</th><th>AP</th></tr></thead><tbody id="honesty-ap-table"></tbody></table>
+      <h2 style="margin-top:22px">Known limitations</h2>
+      <ul class="limitations" id="honesty-limitations"></ul>
     </section>
-  </main>
-  <p style="margin-top:24px">Developer API: <a href="/docs">/docs</a> · New alerts update through Server-Sent Events.</p>
+  </section>
+
+  <footer class="disclaimer">Research tool. Not financial advice. No trades are placed. Developer API: <a href="/docs">/docs</a>.</footer>
   <script>
     const coins = document.querySelector('#coins');
     const alerts = document.querySelector('#alerts');
@@ -79,6 +157,105 @@
     events.onopen = () => document.querySelector('#connection').textContent = 'Alert stream connected';
     events.onerror = () => document.querySelector('#connection').textContent = 'Reconnecting to alert stream…';
     refreshRadar(); loadAlerts(); setInterval(refreshRadar, 5000);
+
+    // ---- Tabs ----
+    document.querySelectorAll('nav.tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('nav.tabs button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+        document.querySelector(`#view-${btn.dataset.view}`).classList.add('active');
+        if (btn.dataset.view === 'universe' && !universeLoaded) loadUniverse();
+        if (btn.dataset.view === 'method' && !honestyLoaded) loadHonesty();
+      });
+    });
+
+    // ---- Live Universe ----
+    let universeCoins = []; let universeLoaded = false;
+    const fmtPrice = p => p >= 1 ? p.toLocaleString(undefined, { maximumFractionDigits: 4 }) : p.toPrecision(4);
+    function renderUniverse() {
+      const search = document.querySelector('#universe-search').value.trim().toUpperCase();
+      const filter = document.querySelector('#universe-filter').value;
+      const sort = document.querySelector('#universe-sort').value;
+      let rows = universeCoins.filter(c =>
+        (!search || c.base_asset.includes(search) || c.symbol.includes(search)) &&
+        (filter === 'all' || c.scoring_status === filter)
+      );
+      if (sort === 'price_desc') rows = rows.slice().sort((a, b) => b.price - a.price);
+      else if (sort === 'change_desc') rows = rows.slice().sort((a, b) => b.change_24h_pct - a.change_24h_pct);
+      else rows = rows.slice().sort((a, b) => a.base_asset.localeCompare(b.base_asset));
+
+      const tbody = document.querySelector('#universe-rows'); tbody.replaceChildren();
+      rows.forEach(c => {
+        const row = tbody.insertRow();
+        cell(row, c.base_asset);
+        cell(row, c.quote_asset, 'muted');
+        cell(row, fmtPrice(c.price), 'num');
+        const changeCell = cell(row, `${c.change_24h_pct >= 0 ? '+' : ''}${c.change_24h_pct.toFixed(2)}%`, `num ${c.change_24h_pct >= 0 ? 'change-up' : 'change-down'}`);
+        cell(row, c.score === null ? '—' : c.score.toFixed(3), 'num score');
+        const statusCell = row.insertCell();
+        const badge = document.createElement('span'); badge.className = `badge ${c.scoring_status}`;
+        badge.textContent = { scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[c.scoring_status] || c.scoring_status;
+        statusCell.append(badge);
+      });
+      document.querySelector('#universe-empty').hidden = rows.length > 0;
+    }
+    async function loadUniverse() {
+      document.querySelector('#universe-loading').hidden = false;
+      try {
+        const r = await fetch('/universe'); if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+        universeCoins = d.coins; universeLoaded = true;
+        document.querySelector('#us-total').textContent = d.n_coins;
+        document.querySelector('#us-scored').textContent = d.n_scored;
+        document.querySelector('#us-asof').textContent = time(d.price_as_of);
+        document.querySelector('#universe-loading').hidden = true;
+        document.querySelector('#universe-stale').classList.remove('show');
+        renderUniverse();
+      } catch {
+        document.querySelector('#universe-stale').classList.add('show');
+        document.querySelector('#universe-loading').hidden = true;
+      }
+    }
+    document.querySelector('#universe-search').addEventListener('input', renderUniverse);
+    document.querySelector('#universe-filter').addEventListener('change', renderUniverse);
+    document.querySelector('#universe-sort').addEventListener('change', renderUniverse);
+    setInterval(() => { if (universeLoaded) loadUniverse(); }, 30000);
+
+    // ---- Honesty & Method ----
+    let honestyLoaded = false;
+    function kpi(label, value) {
+      const div = document.createElement('div'); div.className = 'kpi';
+      const l = document.createElement('div'); l.className = 'label'; l.textContent = label;
+      const v = document.createElement('div'); v.className = 'value'; v.textContent = value;
+      div.append(l, v); return div;
+    }
+    async function loadHonesty() {
+      try {
+        const r = await fetch('/honesty'); if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+        honestyLoaded = true;
+        document.querySelector('#honesty-status').textContent = d.status;
+        const kpis = document.querySelector('#honesty-kpis'); kpis.replaceChildren();
+        kpis.append(
+          kpi('Training events', d.dataset.n_events),
+          kpi('Coins in training data', d.dataset.n_symbols),
+          kpi('Live BTC pairs today', d.live_coin_universe_check.btc_quoted_pairs),
+          kpi('Calibration', d.calibration === 'not_yet_run' ? 'Not yet run' : d.calibration),
+          kpi('Alert threshold', d.alert_threshold === 'not_yet_chosen' ? 'Not yet chosen' : d.alert_threshold),
+        );
+        const apTable = document.querySelector('#honesty-ap-table'); apTable.replaceChildren();
+        Object.entries(d.h10_full_feature_ap_by_model)
+          .sort((a, b) => b[1] - a[1])
+          .forEach(([model, ap]) => {
+            const row = apTable.insertRow(); cell(row, model); cell(row, ap.toFixed(4), 'num score');
+          });
+        const list = document.querySelector('#honesty-limitations'); list.replaceChildren();
+        d.known_limitations.forEach(text => { const li = document.createElement('li'); li.textContent = text; list.append(li); });
+      } catch {
+        document.querySelector('#honesty-status').textContent = 'Honesty data unavailable — API unreachable or results not generated.';
+      }
+    }
   </script>
 </body>
 </html>
