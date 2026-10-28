@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PumpRadar · Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     :root { color-scheme: dark; font: 16px/1.5 system-ui, sans-serif; background: #0c1220; color: #edf3ff; }
     body { margin: 0 auto; max-width: 1100px; padding: 32px 20px; }
@@ -46,6 +47,16 @@
     .stale-banner.show { display: block; }
     .skeleton { opacity: .4; }
     footer.disclaimer { margin: 28px 0 10px; color: #6e7f9c; font-size: .78rem; border-top: 1px solid #26344e; padding-top: 14px; }
+    #universe-rows tr { cursor: pointer; } #universe-rows tr:hover { background: #17213a; }
+    .coin-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+    .coin-header h2 { margin: 0; } .coin-price { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .range-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .range-tabs button { background: #0c1220; border: 1px solid #2b3a54; color: #93a6c6; padding: 7px 16px; border-radius: 8px; cursor: pointer; font: inherit; font-size: .85rem; }
+    .range-tabs button.active { background: #4C72B0; color: #fff; border-color: #4C72B0; }
+    #chart-container { width: 100%; height: 360px; } #volume-container { width: 100%; height: 110px; margin-top: 4px; }
+    .legend { display: flex; gap: 16px; font-size: .78rem; color: #93a6c6; margin-top: 10px; }
+    .legend span.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+    .back-link { color: #a5c7ff; cursor: pointer; font-size: .85rem; margin-bottom: 10px; display: inline-block; }
   </style>
 </head>
 <body>
@@ -111,6 +122,28 @@
       <table><thead><tr><th>Model</th><th>AP</th></tr></thead><tbody id="honesty-ap-table"></tbody></table>
       <h2 style="margin-top:22px">Known limitations</h2>
       <ul class="limitations" id="honesty-limitations"></ul>
+    </section>
+  </section>
+
+  <section id="view-coin" class="view">
+    <section class="card">
+      <span class="back-link" id="coin-back">&larr; Back to Live Universe</span>
+      <div class="coin-header">
+        <div><h2 id="coin-symbol">—</h2><div class="meta" id="coin-status"></div></div>
+        <div class="coin-price" id="coin-price">—</div>
+      </div>
+      <div class="range-tabs">
+        <button data-range="week" class="active">1 Week</button>
+        <button data-range="month">1 Month</button>
+        <button data-range="year">1 Year</button>
+      </div>
+      <div id="chart-container"></div>
+      <div id="volume-container"></div>
+      <div class="legend">
+        <div><span class="swatch" style="background:#f1bf5f"></span>SMA 20</div>
+        <div><span class="swatch" style="background:#a5c7ff"></span>SMA 50</div>
+      </div>
+      <p class="empty" id="coin-chart-error" hidden></p>
     </section>
   </section>
 
@@ -197,6 +230,7 @@
         const badge = document.createElement('span'); badge.className = `badge ${c.scoring_status}`;
         badge.textContent = { scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[c.scoring_status] || c.scoring_status;
         statusCell.append(badge);
+        row.addEventListener('click', () => openCoinView(c));
       });
       document.querySelector('#universe-empty').hidden = rows.length > 0;
     }
@@ -254,6 +288,88 @@
         d.known_limitations.forEach(text => { const li = document.createElement('li'); li.textContent = text; list.append(li); });
       } catch {
         document.querySelector('#honesty-status').textContent = 'Honesty data unavailable — API unreachable or results not generated.';
+      }
+    }
+
+    // ---- Coin view: candlestick chart + volume + SMA, real Binance history ----
+    let priceChart = null, candleSeries = null, sma20Series = null, sma50Series = null;
+    let volumeChart = null, volumeSeries = null;
+    let currentCoinSymbol = null, currentRange = 'week';
+
+    function ensureCharts() {
+      if (priceChart) return;
+      const dark = {
+        layout: { background: { color: '#151e30' }, textColor: '#aab8d0' },
+        grid: { vertLines: { color: '#29374d' }, horzLines: { color: '#29374d' } },
+        rightPriceScale: { borderColor: '#2b3a54' },
+        timeScale: { borderColor: '#2b3a54' },
+      };
+      priceChart = LightweightCharts.createChart(document.querySelector('#chart-container'), {
+        ...dark, autoSize: true,
+      });
+      candleSeries = priceChart.addCandlestickSeries({
+        upColor: '#75ddc3', downColor: '#f28b82', borderVisible: false,
+        wickUpColor: '#75ddc3', wickDownColor: '#f28b82',
+      });
+      sma20Series = priceChart.addLineSeries({ color: '#f1bf5f', lineWidth: 1, priceLineVisible: false });
+      sma50Series = priceChart.addLineSeries({ color: '#a5c7ff', lineWidth: 1, priceLineVisible: false });
+
+      volumeChart = LightweightCharts.createChart(document.querySelector('#volume-container'), {
+        ...dark, autoSize: true,
+        timeScale: { borderColor: '#2b3a54', visible: true },
+      });
+      volumeSeries = volumeChart.addHistogramSeries({ color: '#4C72B0', priceFormat: { type: 'volume' } });
+    }
+
+    function openCoinView(coin) {
+      currentCoinSymbol = coin.symbol;
+      currentRange = 'week';
+      document.querySelectorAll('nav.tabs button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelector('#view-coin').classList.add('active');
+
+      document.querySelector('#coin-symbol').textContent = `${coin.base_asset} / ${coin.quote_asset}`;
+      document.querySelector('#coin-price').textContent = fmtPrice(coin.price);
+      document.querySelector('#coin-status').textContent =
+        `${{ scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[coin.scoring_status]} · 24h ${coin.change_24h_pct >= 0 ? '+' : ''}${coin.change_24h_pct.toFixed(2)}%`;
+
+      document.querySelectorAll('.range-tabs button').forEach(b => b.classList.toggle('active', b.dataset.range === 'week'));
+      ensureCharts();
+      loadCandles();
+    }
+
+    document.querySelector('#coin-back').addEventListener('click', () => {
+      document.querySelector('#view-coin').classList.remove('active');
+      document.querySelector('[data-view="universe"]').click();
+    });
+
+    document.querySelectorAll('.range-tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.range-tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentRange = btn.dataset.range;
+        loadCandles();
+      });
+    });
+
+    async function loadCandles() {
+      const errorEl = document.querySelector('#coin-chart-error');
+      errorEl.hidden = true;
+      try {
+        const r = await fetch(`/coin/${currentCoinSymbol}/candles?range=${currentRange}`);
+        if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+
+        const times = d.candles.map(c => Math.floor(new Date(c.time).getTime() / 1000));
+        candleSeries.setData(d.candles.map((c, i) => ({ time: times[i], open: c.open, high: c.high, low: c.low, close: c.close })));
+        volumeSeries.setData(d.candles.map((c, i) => ({ time: times[i], value: c.volume, color: c.close >= c.open ? '#75ddc3' : '#f28b82' })));
+        sma20Series.setData(d.sma_20.map((v, i) => v === null ? null : { time: times[i], value: v }).filter(Boolean));
+        sma50Series.setData(d.sma_50.map((v, i) => v === null ? null : { time: times[i], value: v }).filter(Boolean));
+        priceChart.timeScale().fitContent();
+        volumeChart.timeScale().fitContent();
+      } catch {
+        errorEl.hidden = false;
+        errorEl.textContent = `Could not load price history for ${currentCoinSymbol} — Binance may be unreachable.`;
       }
     }
   </script>

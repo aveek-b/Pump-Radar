@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from pumpradar.engine import Bar, Radar
-from pumpradar.prices import LiveUniverseCache
+from pumpradar.prices import CANDLE_RANGES, LiveUniverseCache, fetch_candles, simple_moving_average
 from pumpradar.storage import AlertStore
 
 app = FastAPI(title="PumpRadar platform starter", version="0.3.0")
@@ -157,6 +157,46 @@ def replay(payload: ReplayInput) -> dict:
             (payload.onset_time - datetime.fromisoformat(first["close_time"])).total_seconds() / 60
             if first is not None else None
         ),
+    }
+
+
+@app.get("/coin/{symbol}/candles")
+async def get_coin_candles(symbol: str, range: str = "month") -> dict:
+    """Real historical OHLC candles for one coin, pulled live from Binance's
+    public klines endpoint (no API key, no synthetic data). `symbol` is the
+    exact display pair as returned by /universe (e.g. BTCUSDT, ETHBTC) --
+    the same pair the price is quoted in there, so the chart matches what
+    the user already sees. `range` is one of "week", "month", "year".
+
+    Includes SMA-20 and SMA-50 overlays computed directly from the real
+    closes -- standard, unambiguous technical indicators, not a pump-risk
+    overlay (that would require the trained model's live feature pipeline,
+    which does not exist yet; see /honesty's limitations).
+    """
+    if range not in CANDLE_RANGES:
+        raise HTTPException(status_code=422, detail=f"range must be one of {sorted(CANDLE_RANGES)}")
+    try:
+        candles = await fetch_candles(symbol.upper(), range)
+    except Exception as exc:  # surface any upstream failure as a clean 502, not a crash
+        raise HTTPException(status_code=502, detail=f"could not fetch candles for {symbol}: {exc}") from exc
+
+    if not candles:
+        raise HTTPException(status_code=404, detail=f"no candle data for {symbol!r} -- check the symbol is correct")
+
+    closes = [c.close for c in candles]
+    return {
+        "symbol": symbol.upper(),
+        "range": range,
+        "interval": CANDLE_RANGES[range][0],
+        "candles": [
+            {
+                "time": c.open_time, "open": c.open, "high": c.high,
+                "low": c.low, "close": c.close, "volume": c.volume,
+            }
+            for c in candles
+        ],
+        "sma_20": simple_moving_average(closes, 20),
+        "sma_50": simple_moving_average(closes, 50),
     }
 
 

@@ -3,10 +3,13 @@ import httpx
 import pytest
 
 from pumpradar.prices import (
+    CANDLE_RANGES,
     CoinPrice,
     LiveUniverseCache,
+    fetch_candles,
     fetch_live_universe,
     select_display_pairs,
+    simple_moving_average,
 )
 
 EXCHANGE_INFO = {
@@ -80,3 +83,50 @@ async def test_live_universe_cache_reuses_within_ttl(monkeypatch):
 @pytest.fixture
 def anyio_backend():
     return "asyncio"
+
+
+FAKE_KLINES = [
+    [1700000000000 + i * 86400000, "100.0", "105.0", "95.0", str(100.0 + i), "1000.0",
+     1700000000000 + i * 86400000 + 86399999, "100000.0", 500, "500.0", "50000.0", "0"]
+    for i in range(5)
+]
+
+
+def test_fetch_candles_rejects_unknown_range():
+    import anyio
+
+    async def run():
+        with pytest.raises(ValueError):
+            await fetch_candles("BTCUSDT", "decade")
+
+    anyio.run(run)
+
+
+@pytest.mark.anyio
+async def test_fetch_candles_parses_real_shaped_klines():
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url.params["symbol"] == "BTCUSDT"
+        assert request.url.params["interval"] == CANDLE_RANGES["week"][0]
+        return httpx.Response(200, json=FAKE_KLINES)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        candles = await fetch_candles("BTCUSDT", "week", client)
+
+    assert len(candles) == 5
+    assert candles[0].open == 100.0
+    assert candles[4].close == 104.0
+    assert all(c.high >= c.low for c in candles)
+
+
+def test_simple_moving_average_none_until_full_window():
+    closes = [1.0, 2.0, 3.0, 4.0, 5.0]
+    sma = simple_moving_average(closes, window=3)
+    assert sma[:2] == [None, None]
+    assert sma[2] == pytest.approx(2.0)  # mean(1,2,3)
+    assert sma[3] == pytest.approx(3.0)  # mean(2,3,4)
+    assert sma[4] == pytest.approx(4.0)  # mean(3,4,5)
+
+
+def test_simple_moving_average_full_window_larger_than_data_is_all_none():
+    sma = simple_moving_average([1.0, 2.0], window=5)
+    assert sma == [None, None]

@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 
 from pumpradar import prices
 from pumpradar.api import app, universe_cache
-from pumpradar.prices import CoinPrice
+from pumpradar.prices import Candle, CoinPrice
 
 
 def _fake_coins():
@@ -94,3 +94,56 @@ def test_honesty_returns_real_results_with_no_placeholders():
     assert 0.0 < body["h10_full_feature_ap_by_model"]["lightgbm"] < 1.0
     assert len(body["known_limitations"]) > 0
     assert body["live_coin_universe_check"]["btc_quoted_pairs"] > 0
+
+
+def _fake_candles(n=60):
+    return [
+        Candle(f"2026-01-{(i % 28) + 1:02d}T00:00:00+00:00", 100.0 + i, 105.0 + i, 95.0 + i, 100.0 + i, 1000.0)
+        for i in range(n)
+    ]
+
+
+def test_coin_candles_returns_real_shaped_data(monkeypatch):
+    async def fake_fetch(symbol, range_key, client=None):
+        assert symbol == "BTCUSDT"
+        assert range_key == "month"
+        return _fake_candles()
+
+    monkeypatch.setattr("pumpradar.api.fetch_candles", fake_fetch)
+    client = TestClient(app)
+    response = client.get("/coin/btcusdt/candles?range=month")
+    assert response.status_code == 200
+    body = response.json()
+
+    assert body["symbol"] == "BTCUSDT"
+    assert body["range"] == "month"
+    assert len(body["candles"]) == 60
+    assert len(body["sma_20"]) == 60
+    assert body["sma_20"][:19] == [None] * 19
+    assert body["sma_20"][19] is not None
+
+
+def test_coin_candles_rejects_unknown_range():
+    client = TestClient(app)
+    response = client.get("/coin/BTCUSDT/candles?range=decade")
+    assert response.status_code == 422
+
+
+def test_coin_candles_404s_on_empty_result(monkeypatch):
+    async def fake_fetch(symbol, range_key, client=None):
+        return []
+
+    monkeypatch.setattr("pumpradar.api.fetch_candles", fake_fetch)
+    client = TestClient(app)
+    response = client.get("/coin/NOPEUSDT/candles?range=week")
+    assert response.status_code == 404
+
+
+def test_coin_candles_502s_on_upstream_failure(monkeypatch):
+    async def fake_fetch(symbol, range_key, client=None):
+        raise RuntimeError("upstream exploded")
+
+    monkeypatch.setattr("pumpradar.api.fetch_candles", fake_fetch)
+    client = TestClient(app)
+    response = client.get("/coin/BTCUSDT/candles?range=week")
+    assert response.status_code == 502
