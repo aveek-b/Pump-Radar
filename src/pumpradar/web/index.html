@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PumpRadar · Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     :root { color-scheme: dark; font: 16px/1.5 system-ui, sans-serif; background: #0c1220; color: #edf3ff; }
     body { margin: 0 auto; max-width: 1100px; padding: 32px 20px; }
@@ -22,21 +23,161 @@
     .alert strong { color: #f3ce7a; } .alert small { display: block; color: #8ea1bb; }
     .empty { padding: 20px 0; color: #8ea1bb; }
     a { color: #a5c7ff; } @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } header { flex-direction: column; } }
+    nav.tabs { display: flex; gap: 6px; margin: 22px 0 16px; border-bottom: 1px solid #26344e; }
+    nav.tabs button { background: none; border: none; color: #93a6c6; font: inherit; font-size: .92rem; padding: 10px 14px; cursor: pointer; border-bottom: 2px solid transparent; }
+    nav.tabs button.active { color: #edf3ff; border-bottom-color: #4C72B0; }
+    nav.tabs button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #4C72B0; outline-offset: 2px; }
+    .view { display: none; } .view.active { display: block; }
+    .toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+    .toolbar input, .toolbar select { background: #0c1220; border: 1px solid #2b3a54; color: #edf3ff; border-radius: 8px; padding: 8px 10px; font: inherit; font-size: .85rem; }
+    .toolbar input { flex: 1; min-width: 160px; }
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+    .badge.scored { background: #16342c; color: #75ddc3; } .badge.warming_up { background: #332a16; color: #f1bf5f; }
+    .badge.unavailable { background: #2a2a33; color: #8ea1bb; }
+    .change-up { color: #75ddc3; } .change-down { color: #f28b82; }
+    .num { font-variant-numeric: tabular-nums; }
+    .summary-strip { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 16px; color: #aab8d0; font-size: .85rem; }
+    .summary-strip b { color: #edf3ff; font-size: 1.15rem; display: block; font-variant-numeric: tabular-nums; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin: 16px 0; }
+    .kpi { background: #0c1220; border: 1px solid #2b3a54; border-radius: 10px; padding: 14px; }
+    .kpi .label { color: #93a6c6; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; }
+    .kpi .value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .limitations { padding-left: 20px; color: #aab8d0; font-size: .88rem; line-height: 1.6; }
+    .stale-banner { display: none; background: #3a1f1f; border-left: 3px solid #f28b82; color: #f3b8b3; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: .85rem; }
+    .stale-banner.show { display: block; }
+    .skeleton { opacity: .4; }
+    footer.disclaimer { margin: 28px 0 10px; color: #6e7f9c; font-size: .78rem; border-top: 1px solid #26344e; padding-top: 14px; }
+    #universe-rows tr { cursor: pointer; } #universe-rows tr:hover { background: #17213a; }
+    .coin-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+    .coin-header h2 { margin: 0; } .coin-price { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .range-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .range-tabs button { background: #0c1220; border: 1px solid #2b3a54; color: #93a6c6; padding: 7px 16px; border-radius: 8px; cursor: pointer; font: inherit; font-size: .85rem; }
+    .range-tabs button.active { background: #4C72B0; color: #fff; border-color: #4C72B0; }
+    #chart-container, #replay-chart-container { width: 100%; height: 360px; }
+    #volume-container, #replay-volume-container { width: 100%; height: 110px; margin-top: 4px; }
+    .legend { display: flex; gap: 16px; font-size: .78rem; color: #93a6c6; margin-top: 10px; }
+    .legend span.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+    .back-link { color: #a5c7ff; cursor: pointer; font-size: .85rem; margin-bottom: 10px; display: inline-block; }
   </style>
 </head>
 <body>
-  <header><div><h1>PumpRadar</h1><p>BTC pair radar · closed 1-minute bars</p></div><span class="tag">DEMO SCORER</span></header>
-  <div class="notice">Scores are a volume heuristic for testing the platform. A score of 0 means the latest BTC volume did not exceed the coin's earlier median. Scores are not calibrated probabilities, verified warnings, or trading signals.</div>
-  <main class="grid">
-    <section class="card"><h2>Current minute ranking</h2><div class="meta" id="minute">Waiting for bars</div>
-      <table><thead><tr><th>Rank</th><th>Coin</th><th>Volume vs median</th><th>Buy share</th><th>Demo score</th></tr></thead><tbody id="coins"></tbody></table>
-      <p class="empty" id="no-coins">No bars yet. Use the API or start the live feeder.</p>
+  <header><div><h1>PumpRadar</h1><p>Live Binance coin universe · leakage-audited research model</p></div><span class="tag">RESEARCH TOOL</span></header>
+  <div class="notice">Scores are a volume heuristic for the platform demo path, not the trained model's output. The trained model (Experiment A, see Method) is leakage-audited but not yet calibrated into a probability or a committed alert threshold. Nothing here is a trading signal.</div>
+
+  <nav class="tabs" role="tablist">
+    <button class="active" data-view="radar" role="tab" aria-selected="true">Radar</button>
+    <button data-view="universe" role="tab" aria-selected="false">Live Universe</button>
+    <button data-view="replay" role="tab" aria-selected="false">Past Events</button>
+    <button data-view="method" role="tab" aria-selected="false">Honesty &amp; Method</button>
+  </nav>
+
+  <section id="view-radar" class="view active">
+    <main class="grid">
+      <section class="card"><h2>Current minute ranking</h2><div class="meta" id="minute">Waiting for bars</div>
+        <table><thead><tr><th>Rank</th><th>Coin</th><th>Volume vs median</th><th>Buy share</th><th>Demo score</th></tr></thead><tbody id="coins"></tbody></table>
+        <p class="empty" id="no-coins">No bars yet. Use the API or start the live feeder.</p>
+      </section>
+      <section class="card"><h2>Recent alerts</h2><div class="meta" id="connection">Connecting to alert stream…</div><div id="alerts"></div>
+        <p class="empty" id="no-alerts">No alerts yet.</p>
+      </section>
+    </main>
+  </section>
+
+  <section id="view-universe" class="view">
+    <div class="stale-banner" id="universe-stale">Reconnecting — live prices could not be refreshed.</div>
+    <section class="card">
+      <h2>Live Binance coin universe</h2>
+      <div class="summary-strip" id="universe-summary">
+        <div><b id="us-total">—</b>coins live right now</div>
+        <div><b id="us-scored">—</b>have a trained-model score</div>
+        <div><b id="us-asof">—</b>prices as of</div>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="universe-search" placeholder="Search coin (e.g. ETH)" aria-label="Search coins">
+        <select id="universe-filter" aria-label="Filter by scoring status">
+          <option value="all">All coins</option>
+          <option value="scored">Scored</option>
+          <option value="warming_up">Warming up</option>
+          <option value="unavailable">Unavailable</option>
+        </select>
+        <select id="universe-sort" aria-label="Sort by">
+          <option value="price_desc">Sort: price (high to low)</option>
+          <option value="change_desc">Sort: 24h change (high to low)</option>
+          <option value="symbol_asc">Sort: symbol (A-Z)</option>
+        </select>
+      </div>
+      <table>
+        <thead><tr><th>Coin</th><th>Quote</th><th>Price</th><th>24h change</th><th>Score</th><th>Status</th></tr></thead>
+        <tbody id="universe-rows"></tbody>
+      </table>
+      <p class="empty" id="universe-empty" hidden>No coins match that search/filter.</p>
+      <p class="empty" id="universe-loading">Loading live prices from Binance…</p>
     </section>
-    <section class="card"><h2>Recent alerts</h2><div class="meta" id="connection">Connecting to alert stream…</div><div id="alerts"></div>
-      <p class="empty" id="no-alerts">No alerts yet.</p>
+  </section>
+
+  <section id="view-replay" class="view">
+    <section class="card">
+      <h2>Past Events (held-out replay)</h2>
+      <p class="meta">Real historical pumps from the labeled 2018-2021 dataset, never seen by the models during
+        training. Onset marked where real volume actually spiked. No risk score is shown yet -- the model is not
+        calibrated, so there is no honest score to attach.</p>
+      <div class="toolbar">
+        <input type="text" id="replay-search" placeholder="Search coin (e.g. PPT)" aria-label="Search events">
+        <select id="replay-select" aria-label="Choose an event" style="flex:1"></select>
+      </div>
+      <div id="replay-chart-container"></div>
+      <div id="replay-volume-container"></div>
+      <div class="legend">
+        <div><span class="swatch" style="background:#f28b82"></span>Onset (confirmed real volume spike)</div>
+      </div>
+      <p class="empty" id="replay-loading">Loading real historical events…</p>
+      <p class="empty" id="replay-error" hidden></p>
     </section>
-  </main>
-  <p style="margin-top:24px">Developer API: <a href="/docs">/docs</a> · New alerts update through Server-Sent Events.</p>
+  </section>
+
+  <section id="view-method" class="view">
+    <section class="card">
+      <h2>Honesty &amp; Method</h2>
+      <p id="honesty-status" class="meta">Loading…</p>
+      <div class="kpi-grid" id="honesty-kpis"></div>
+      <h2 style="margin-top:22px">Experiment A — average precision by model (h=10, full feature set, honest split)</h2>
+      <table><thead><tr><th>Model</th><th>AP</th></tr></thead><tbody id="honesty-ap-table"></tbody></table>
+
+      <h2 style="margin-top:22px">Experiment B — cross-sectional "which coin" scoring (h=10, test era)</h2>
+      <p class="meta" id="expb-note"></p>
+      <table>
+        <thead><tr><th>Model</th><th>Test AP</th><th>Hit@1</th><th>Hit@5</th></tr></thead>
+        <tbody id="expb-table"></tbody>
+      </table>
+
+      <h2 style="margin-top:22px">Known limitations</h2>
+      <ul class="limitations" id="honesty-limitations"></ul>
+    </section>
+  </section>
+
+  <section id="view-coin" class="view">
+    <section class="card">
+      <span class="back-link" id="coin-back">&larr; Back to Live Universe</span>
+      <div class="coin-header">
+        <div><h2 id="coin-symbol">—</h2><div class="meta" id="coin-status"></div></div>
+        <div class="coin-price" id="coin-price">—</div>
+      </div>
+      <div class="range-tabs">
+        <button data-range="week" class="active">1 Week</button>
+        <button data-range="month">1 Month</button>
+        <button data-range="year">1 Year</button>
+      </div>
+      <div id="chart-container"></div>
+      <div id="volume-container"></div>
+      <div class="legend">
+        <div><span class="swatch" style="background:#f1bf5f"></span>SMA 20</div>
+        <div><span class="swatch" style="background:#a5c7ff"></span>SMA 50</div>
+      </div>
+      <p class="empty" id="coin-chart-error" hidden></p>
+    </section>
+  </section>
+
+  <footer class="disclaimer">Research tool. Not financial advice. No trades are placed. Developer API: <a href="/docs">/docs</a>.</footer>
   <script>
     const coins = document.querySelector('#coins');
     const alerts = document.querySelector('#alerts');
@@ -79,6 +220,287 @@
     events.onopen = () => document.querySelector('#connection').textContent = 'Alert stream connected';
     events.onerror = () => document.querySelector('#connection').textContent = 'Reconnecting to alert stream…';
     refreshRadar(); loadAlerts(); setInterval(refreshRadar, 5000);
+
+    // ---- Tabs ----
+    document.querySelectorAll('nav.tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('nav.tabs button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+        document.querySelector(`#view-${btn.dataset.view}`).classList.add('active');
+        if (btn.dataset.view === 'universe' && !universeLoaded) loadUniverse();
+        if (btn.dataset.view === 'method' && !honestyLoaded) loadHonesty();
+        if (btn.dataset.view === 'replay' && !replayEventsLoaded) loadReplayEvents();
+      });
+    });
+
+    // ---- Live Universe ----
+    let universeCoins = []; let universeLoaded = false;
+    const fmtPrice = p => p >= 1 ? p.toLocaleString(undefined, { maximumFractionDigits: 4 }) : p.toPrecision(4);
+    function renderUniverse() {
+      const search = document.querySelector('#universe-search').value.trim().toUpperCase();
+      const filter = document.querySelector('#universe-filter').value;
+      const sort = document.querySelector('#universe-sort').value;
+      let rows = universeCoins.filter(c =>
+        (!search || c.base_asset.includes(search) || c.symbol.includes(search)) &&
+        (filter === 'all' || c.scoring_status === filter)
+      );
+      if (sort === 'price_desc') rows = rows.slice().sort((a, b) => b.price - a.price);
+      else if (sort === 'change_desc') rows = rows.slice().sort((a, b) => b.change_24h_pct - a.change_24h_pct);
+      else rows = rows.slice().sort((a, b) => a.base_asset.localeCompare(b.base_asset));
+
+      const tbody = document.querySelector('#universe-rows'); tbody.replaceChildren();
+      rows.forEach(c => {
+        const row = tbody.insertRow();
+        cell(row, c.base_asset);
+        cell(row, c.quote_asset, 'muted');
+        cell(row, fmtPrice(c.price), 'num');
+        const changeCell = cell(row, `${c.change_24h_pct >= 0 ? '+' : ''}${c.change_24h_pct.toFixed(2)}%`, `num ${c.change_24h_pct >= 0 ? 'change-up' : 'change-down'}`);
+        cell(row, c.score === null ? '—' : c.score.toFixed(3), 'num score');
+        const statusCell = row.insertCell();
+        const badge = document.createElement('span'); badge.className = `badge ${c.scoring_status}`;
+        badge.textContent = { scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[c.scoring_status] || c.scoring_status;
+        statusCell.append(badge);
+        row.addEventListener('click', () => openCoinView(c));
+      });
+      document.querySelector('#universe-empty').hidden = rows.length > 0;
+    }
+    async function loadUniverse() {
+      document.querySelector('#universe-loading').hidden = false;
+      try {
+        const r = await fetch('/universe'); if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+        universeCoins = d.coins; universeLoaded = true;
+        document.querySelector('#us-total').textContent = d.n_coins;
+        document.querySelector('#us-scored').textContent = d.n_scored;
+        document.querySelector('#us-asof').textContent = time(d.price_as_of);
+        document.querySelector('#universe-loading').hidden = true;
+        document.querySelector('#universe-stale').classList.remove('show');
+        renderUniverse();
+      } catch {
+        document.querySelector('#universe-stale').classList.add('show');
+        document.querySelector('#universe-loading').hidden = true;
+      }
+    }
+    document.querySelector('#universe-search').addEventListener('input', renderUniverse);
+    document.querySelector('#universe-filter').addEventListener('change', renderUniverse);
+    document.querySelector('#universe-sort').addEventListener('change', renderUniverse);
+    setInterval(() => { if (universeLoaded) loadUniverse(); }, 30000);
+
+    // ---- Honesty & Method ----
+    let honestyLoaded = false;
+    function kpi(label, value) {
+      const div = document.createElement('div'); div.className = 'kpi';
+      const l = document.createElement('div'); l.className = 'label'; l.textContent = label;
+      const v = document.createElement('div'); v.className = 'value'; v.textContent = value;
+      div.append(l, v); return div;
+    }
+    async function loadHonesty() {
+      try {
+        const r = await fetch('/honesty'); if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+        honestyLoaded = true;
+        document.querySelector('#honesty-status').textContent = d.status;
+        const kpis = document.querySelector('#honesty-kpis'); kpis.replaceChildren();
+        kpis.append(
+          kpi('Training events', d.dataset.n_events),
+          kpi('Coins in training data', d.dataset.n_symbols),
+          kpi('Live BTC pairs today', d.live_coin_universe_check.btc_quoted_pairs),
+          kpi('Calibration', d.calibration === 'not_yet_run' ? 'Not yet run' : d.calibration),
+          kpi('Alert threshold', d.alert_threshold === 'not_yet_chosen' ? 'Not yet chosen' : d.alert_threshold),
+        );
+        const apTable = document.querySelector('#honesty-ap-table'); apTable.replaceChildren();
+        Object.entries(d.experiment_a_h10_full_feature_ap_by_model)
+          .sort((a, b) => b[1] - a[1])
+          .forEach(([model, ap]) => {
+            const row = apTable.insertRow(); cell(row, model); cell(row, ap.toFixed(4), 'num score');
+          });
+
+        const expB = d.experiment_b;
+        document.querySelector('#expb-note').textContent =
+          `Deployment candidate (by validation AP, never test): ${expB.deployment_candidate.deployment_candidate}. ${expB.note}`;
+        const expbTable = document.querySelector('#expb-table'); expbTable.replaceChildren();
+        Object.keys(expB.test_ap_h10_by_model)
+          .sort((a, b) => expB.test_ap_h10_by_model[b] - expB.test_ap_h10_by_model[a])
+          .forEach(model => {
+            const row = expbTable.insertRow();
+            const isCandidate = model === expB.deployment_candidate.deployment_candidate;
+            cell(row, isCandidate ? `${model} ★` : model);
+            cell(row, expB.test_ap_h10_by_model[model].toFixed(5), 'num score');
+            const h1 = expB.hit_at_1_h10_by_model[model], h5 = expB.hit_at_5_h10_by_model[model];
+            cell(row, h1 === null || h1 === undefined ? '—' : `${(h1 * 100).toFixed(1)}%`, 'num');
+            cell(row, h5 === null || h5 === undefined ? '—' : `${(h5 * 100).toFixed(1)}%`, 'num');
+          });
+
+        const list = document.querySelector('#honesty-limitations'); list.replaceChildren();
+        d.known_limitations.forEach(text => { const li = document.createElement('li'); li.textContent = text; list.append(li); });
+      } catch {
+        document.querySelector('#honesty-status').textContent = 'Honesty data unavailable — API unreachable or results not generated.';
+      }
+    }
+
+    // ---- Coin view: candlestick chart + volume + SMA, real Binance history ----
+    let priceChart = null, candleSeries = null, sma20Series = null, sma50Series = null;
+    let volumeChart = null, volumeSeries = null;
+    let currentCoinSymbol = null, currentRange = 'week';
+
+    function ensureCharts() {
+      if (priceChart) return;
+      const dark = {
+        layout: { background: { color: '#151e30' }, textColor: '#aab8d0' },
+        grid: { vertLines: { color: '#29374d' }, horzLines: { color: '#29374d' } },
+        rightPriceScale: { borderColor: '#2b3a54' },
+        timeScale: { borderColor: '#2b3a54' },
+      };
+      priceChart = LightweightCharts.createChart(document.querySelector('#chart-container'), {
+        ...dark, autoSize: true,
+      });
+      candleSeries = priceChart.addCandlestickSeries({
+        upColor: '#75ddc3', downColor: '#f28b82', borderVisible: false,
+        wickUpColor: '#75ddc3', wickDownColor: '#f28b82',
+      });
+      sma20Series = priceChart.addLineSeries({ color: '#f1bf5f', lineWidth: 1, priceLineVisible: false });
+      sma50Series = priceChart.addLineSeries({ color: '#a5c7ff', lineWidth: 1, priceLineVisible: false });
+
+      volumeChart = LightweightCharts.createChart(document.querySelector('#volume-container'), {
+        ...dark, autoSize: true,
+        timeScale: { borderColor: '#2b3a54', visible: true },
+      });
+      volumeSeries = volumeChart.addHistogramSeries({ color: '#4C72B0', priceFormat: { type: 'volume' } });
+    }
+
+    function openCoinView(coin) {
+      currentCoinSymbol = coin.symbol;
+      currentRange = 'week';
+      document.querySelectorAll('nav.tabs button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelector('#view-coin').classList.add('active');
+
+      document.querySelector('#coin-symbol').textContent = `${coin.base_asset} / ${coin.quote_asset}`;
+      document.querySelector('#coin-price').textContent = fmtPrice(coin.price);
+      document.querySelector('#coin-status').textContent =
+        `${{ scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[coin.scoring_status]} · 24h ${coin.change_24h_pct >= 0 ? '+' : ''}${coin.change_24h_pct.toFixed(2)}%`;
+
+      document.querySelectorAll('.range-tabs button').forEach(b => b.classList.toggle('active', b.dataset.range === 'week'));
+      ensureCharts();
+      loadCandles();
+    }
+
+    document.querySelector('#coin-back').addEventListener('click', () => {
+      document.querySelector('#view-coin').classList.remove('active');
+      document.querySelector('[data-view="universe"]').click();
+    });
+
+    document.querySelectorAll('.range-tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.range-tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentRange = btn.dataset.range;
+        loadCandles();
+      });
+    });
+
+    async function loadCandles() {
+      const errorEl = document.querySelector('#coin-chart-error');
+      errorEl.hidden = true;
+      try {
+        const r = await fetch(`/coin/${currentCoinSymbol}/candles?range=${currentRange}`);
+        if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+
+        const times = d.candles.map(c => Math.floor(new Date(c.time).getTime() / 1000));
+        candleSeries.setData(d.candles.map((c, i) => ({ time: times[i], open: c.open, high: c.high, low: c.low, close: c.close })));
+        volumeSeries.setData(d.candles.map((c, i) => ({ time: times[i], value: c.volume, color: c.close >= c.open ? '#75ddc3' : '#f28b82' })));
+        sma20Series.setData(d.sma_20.map((v, i) => v === null ? null : { time: times[i], value: v }).filter(Boolean));
+        sma50Series.setData(d.sma_50.map((v, i) => v === null ? null : { time: times[i], value: v }).filter(Boolean));
+        priceChart.timeScale().fitContent();
+        volumeChart.timeScale().fitContent();
+      } catch {
+        errorEl.hidden = false;
+        errorEl.textContent = `Could not load price history for ${currentCoinSymbol} — Binance may be unreachable.`;
+      }
+    }
+
+    // ---- Past Events (Replay): real historical onset, real archived candles ----
+    let replayEventsLoaded = false, replayEvents = [];
+    let replayChart = null, replayCandleSeries = null, replayVolumeChart = null, replayVolumeSeries = null;
+
+    function ensureReplayCharts() {
+      if (replayChart) return;
+      const dark = {
+        layout: { background: { color: '#151e30' }, textColor: '#aab8d0' },
+        grid: { vertLines: { color: '#29374d' }, horzLines: { color: '#29374d' } },
+        rightPriceScale: { borderColor: '#2b3a54' },
+        timeScale: { borderColor: '#2b3a54' },
+      };
+      replayChart = LightweightCharts.createChart(document.querySelector('#replay-chart-container'), { ...dark, autoSize: true });
+      replayCandleSeries = replayChart.addCandlestickSeries({
+        upColor: '#75ddc3', downColor: '#f28b82', borderVisible: false,
+        wickUpColor: '#75ddc3', wickDownColor: '#f28b82',
+      });
+      replayVolumeChart = LightweightCharts.createChart(document.querySelector('#replay-volume-container'), {
+        ...dark, autoSize: true, timeScale: { borderColor: '#2b3a54', visible: true },
+      });
+      replayVolumeSeries = replayVolumeChart.addHistogramSeries({ color: '#4C72B0', priceFormat: { type: 'volume' } });
+    }
+
+    function renderReplaySelect() {
+      const search = document.querySelector('#replay-search').value.trim().toUpperCase();
+      const select = document.querySelector('#replay-select');
+      const filtered = replayEvents.filter(e => !search || e.symbol.toUpperCase().includes(search));
+      select.replaceChildren();
+      filtered.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.event_id;
+        opt.textContent = `${e.symbol} · ${time(e.onset)} · ${e.era}-era`;
+        select.append(opt);
+      });
+      if (filtered.length) loadReplayEvent(filtered[0].event_id);
+    }
+
+    async function loadReplayEvents() {
+      try {
+        const r = await fetch('/replay/events'); if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+        replayEvents = d.events;
+        replayEventsLoaded = true;
+        document.querySelector('#replay-loading').hidden = true;
+        ensureReplayCharts();
+        renderReplaySelect();
+      } catch {
+        document.querySelector('#replay-loading').hidden = true;
+        document.querySelector('#replay-error').hidden = false;
+        document.querySelector('#replay-error').textContent = 'Replay events unavailable — has the replay data been generated?';
+      }
+    }
+    document.querySelector('#replay-search').addEventListener('input', renderReplaySelect);
+    document.querySelector('#replay-select').addEventListener('change', e => loadReplayEvent(e.target.value));
+
+    async function loadReplayEvent(eventId) {
+      const errorEl = document.querySelector('#replay-error');
+      errorEl.hidden = true;
+      try {
+        const r = await fetch(`/replay/${eventId}`); if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+
+        const times = d.candles.map(c => Math.floor(new Date(c.time).getTime() / 1000));
+        replayCandleSeries.setData(d.candles.map((c, i) => ({ time: times[i], open: c.open, high: c.high, low: c.low, close: c.close })));
+        replayVolumeSeries.setData(d.candles.map((c, i) => ({ time: times[i], value: c.volume, color: c.close >= c.open ? '#75ddc3' : '#f28b82' })));
+
+        const onsetTime = Math.floor(new Date(d.onset).getTime() / 1000);
+        const onsetCandle = d.candles.reduce((closest, c, i) =>
+          Math.abs(times[i] - onsetTime) < Math.abs(times[closest] - onsetTime) ? i : closest, 0);
+        replayCandleSeries.setMarkers([{
+          time: times[onsetCandle], position: 'aboveBar', color: '#f28b82', shape: 'arrowDown', text: 'Onset',
+        }]);
+
+        replayChart.timeScale().fitContent();
+        replayVolumeChart.timeScale().fitContent();
+      } catch {
+        errorEl.hidden = false;
+        errorEl.textContent = `Could not load replay data for ${eventId}.`;
+      }
+    }
   </script>
 </body>
 </html>
