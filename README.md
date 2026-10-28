@@ -174,3 +174,18 @@ than fabricating a response.
 - Add historical archive warmup and gap recovery, a 24-hour baseline, liquidity-tier thresholds and a tested false-alert budget. The current five-bar median and fixed 0.8 threshold are for wiring the platform only.
 - Implement trade-based features, candlestick and risk-curve views, event selection and the full two-hour replay after research data contracts settle.
 - Measure 5-second latency and 48-hour stability before claiming the build guide's platform acceptance criteria. Live Binance connectivity has not been exercised by the local unit tests.
+
+## D3: Market Onset Detection — Limitations
+
+The onset detection pipeline processed 318 events using the original threshold method.
+
+- **127 events (`ok`):** A spike was detected using the robust threshold based on the previous 24 hours, excluding the most recent hour.
+- **187 events (`zero_iqr`):** The baseline interquartile range (IQR) was zero, so the primary threshold could not be calculated. The onset timestamp falls back to the Telegram timestamp; this is not a confirmed market onset.
+- **4 events (`no_data`):** Required market data was unavailable, so the onset could not be reliably determined.
+- **0 events (`no_spike`):** No events received this flag. This does not mean all 318 events had a detected spike; zero-IQR and missing-data cases are reported separately.
+
+An alternative onset estimate is available for 310 events. Treat it as a sensitivity analysis, not as a replacement for the primary method without further validation.
+
+The onset histogram includes fallback timestamps for events without a confirmed primary onset. Interpret it with this limitation in mind.
+
+These results describe the current dataset and may change if the input data or detection method changes.
