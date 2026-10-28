@@ -90,10 +90,17 @@ def test_honesty_returns_real_results_with_no_placeholders():
     assert body["dataset"]["n_events"] == 317
     assert body["calibration"] == "not_yet_run"
     assert body["alert_threshold"] == "not_yet_chosen"
-    assert "lightgbm" in body["h10_full_feature_ap_by_model"]
-    assert 0.0 < body["h10_full_feature_ap_by_model"]["lightgbm"] < 1.0
+    assert "lightgbm" in body["experiment_a_h10_full_feature_ap_by_model"]
+    assert 0.0 < body["experiment_a_h10_full_feature_ap_by_model"]["lightgbm"] < 1.0
     assert len(body["known_limitations"]) > 0
     assert body["live_coin_universe_check"]["btc_quoted_pairs"] > 0
+
+    exp_b = body["experiment_b"]
+    assert "random_forest" in exp_b["test_ap_h10_by_model"]
+    assert 0.0 <= exp_b["test_ap_h10_by_model"]["random_forest"] <= 1.0
+    assert "random_forest" in exp_b["hit_at_1_h10_by_model"]
+    assert "random_forest" in exp_b["hit_at_5_h10_by_model"]
+    assert exp_b["deployment_candidate"]["deployment_candidate"] in exp_b["test_ap_h10_by_model"]
 
 
 def _fake_candles(n=60):
@@ -147,3 +154,62 @@ def test_coin_candles_502s_on_upstream_failure(monkeypatch):
     client = TestClient(app)
     response = client.get("/coin/BTCUSDT/candles?range=week")
     assert response.status_code == 502
+
+
+def test_replay_events_returns_only_available_events(tmp_path, monkeypatch):
+    import json as json_mod
+
+    index = [
+        {"event_id": "event_0001", "pair": "PUMPBTC", "symbol": "PUMP", "era": "train",
+         "onset": "2018-01-01T00:00:00+00:00", "available": True, "n_candles": 100},
+        {"event_id": "event_0002", "pair": "NOPEBTC", "symbol": "NOPE", "era": "train",
+         "onset": "2018-01-02T00:00:00+00:00", "available": False, "n_candles": 0},
+    ]
+    with open(tmp_path / "index.json", "w") as f:
+        json_mod.dump(index, f)
+
+    monkeypatch.setattr("pumpradar.api.REPLAY_DIR", tmp_path)
+    client = TestClient(app)
+    response = client.get("/replay/events")
+    assert response.status_code == 200
+    events = response.json()["events"]
+    assert len(events) == 1
+    assert events[0]["event_id"] == "event_0001"
+
+
+def test_replay_events_503s_when_index_missing(tmp_path, monkeypatch):
+    monkeypatch.setattr("pumpradar.api.REPLAY_DIR", tmp_path)
+    client = TestClient(app)
+    response = client.get("/replay/events")
+    assert response.status_code == 503
+
+
+def test_replay_event_returns_real_candles(tmp_path, monkeypatch):
+    import json as json_mod
+
+    payload = {
+        "event_id": "event_0001", "pair": "PUMPBTC", "symbol": "PUMP", "era": "train",
+        "onset": "2018-01-01T00:00:00+00:00",
+        "candles": [{"time": "2018-01-01T00:00:00+00:00", "open": 1, "high": 1, "low": 1, "close": 1, "volume": 1}],
+    }
+    with open(tmp_path / "event_0001.json", "w") as f:
+        json_mod.dump(payload, f)
+
+    monkeypatch.setattr("pumpradar.api.REPLAY_DIR", tmp_path)
+    client = TestClient(app)
+    response = client.get("/replay/event_0001")
+    assert response.status_code == 200
+    assert response.json()["pair"] == "PUMPBTC"
+
+
+def test_replay_event_404s_for_unknown_event(tmp_path, monkeypatch):
+    monkeypatch.setattr("pumpradar.api.REPLAY_DIR", tmp_path)
+    client = TestClient(app)
+    response = client.get("/replay/event_9999")
+    assert response.status_code == 404
+
+
+def test_replay_event_rejects_path_traversal():
+    client = TestClient(app)
+    response = client.get("/replay/..%2F..%2Fsecrets")
+    assert response.status_code in (404, 422)  # never 200, never reads outside REPLAY_DIR

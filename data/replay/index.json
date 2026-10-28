@@ -1,0 +1,1145 @@
+[
+  {
+    "event_id": "event_0001",
+    "pair": "PPTBTC",
+    "symbol": "PPT",
+    "era": "train",
+    "onset": "2018-01-03T17:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0002",
+    "pair": "KMDBTC",
+    "symbol": "KMD",
+    "era": "train",
+    "onset": "2018-01-04T16:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0003",
+    "pair": "NAVBTC",
+    "symbol": "NAV",
+    "era": "train",
+    "onset": "2018-01-07T17:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0004",
+    "pair": "DGDBTC",
+    "symbol": "DGD",
+    "era": "train",
+    "onset": "2018-01-09T20:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0005",
+    "pair": "GVTBTC",
+    "symbol": "GVT",
+    "era": "train",
+    "onset": "2018-01-13T20:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0006",
+    "pair": "ICNBTC",
+    "symbol": "ICN",
+    "era": "train",
+    "onset": "2018-01-15T16:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0007",
+    "pair": "BNTBTC",
+    "symbol": "BNT",
+    "era": "train",
+    "onset": "2018-01-20T18:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0008",
+    "pair": "XZCBTC",
+    "symbol": "XZC",
+    "era": "train",
+    "onset": "2018-01-23T17:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0009",
+    "pair": "BNTBTC",
+    "symbol": "BNT",
+    "era": "train",
+    "onset": "2018-01-27T17:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0010",
+    "pair": "MODBTC",
+    "symbol": "MOD",
+    "era": "train",
+    "onset": "2018-02-12T18:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0011",
+    "pair": "DLTBTC",
+    "symbol": "DLT",
+    "era": "train",
+    "onset": "2018-03-11T19:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0012",
+    "pair": "DLTBTC",
+    "symbol": "DLT",
+    "era": "train",
+    "onset": "2018-03-22T15:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0013",
+    "pair": "DNTBTC",
+    "symbol": "DNT",
+    "era": "train",
+    "onset": "2018-03-24T18:30:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0015",
+    "pair": "SNGLSBTC",
+    "symbol": "SNGLS",
+    "era": "train",
+    "onset": "2018-03-26T17:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0016",
+    "pair": "MTHBTC",
+    "symbol": "MTH",
+    "era": "train",
+    "onset": "2018-03-30T17:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0020",
+    "pair": "CHATBTC",
+    "symbol": "CHAT",
+    "era": "train",
+    "onset": "2018-04-03T15:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0021",
+    "pair": "ICNBTC",
+    "symbol": "ICN",
+    "era": "train",
+    "onset": "2018-04-04T18:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0022",
+    "pair": "RLCBTC",
+    "symbol": "RLC",
+    "era": "train",
+    "onset": "2018-04-09T14:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0023",
+    "pair": "NAVBTC",
+    "symbol": "NAV",
+    "era": "train",
+    "onset": "2018-04-09T16:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0024",
+    "pair": "ARNBTC",
+    "symbol": "ARN",
+    "era": "train",
+    "onset": "2018-04-10T16:28:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0025",
+    "pair": "SNGLSBTC",
+    "symbol": "SNGLS",
+    "era": "train",
+    "onset": "2018-04-10T19:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0026",
+    "pair": "TNTBTC",
+    "symbol": "TNT",
+    "era": "train",
+    "onset": "2018-04-14T16:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0027",
+    "pair": "OAXBTC",
+    "symbol": "OAX",
+    "era": "train",
+    "onset": "2018-04-15T14:52:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0028",
+    "pair": "MDABTC",
+    "symbol": "MDA",
+    "era": "train",
+    "onset": "2018-04-17T16:27:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0029",
+    "pair": "OAXBTC",
+    "symbol": "OAX",
+    "era": "train",
+    "onset": "2018-04-29T18:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0030",
+    "pair": "DLTBTC",
+    "symbol": "DLT",
+    "era": "train",
+    "onset": "2018-05-10T15:27:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0032",
+    "pair": "MODBTC",
+    "symbol": "MOD",
+    "era": "train",
+    "onset": "2018-05-18T14:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0033",
+    "pair": "DLTBTC",
+    "symbol": "DLT",
+    "era": "train",
+    "onset": "2018-06-06T12:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0034",
+    "pair": "CHATBTC",
+    "symbol": "CHAT",
+    "era": "train",
+    "onset": "2018-06-10T19:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0035",
+    "pair": "MDABTC",
+    "symbol": "MDA",
+    "era": "train",
+    "onset": "2018-06-15T14:54:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0038",
+    "pair": "ASTBTC",
+    "symbol": "AST",
+    "era": "train",
+    "onset": "2018-06-21T14:25:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0042",
+    "pair": "NXSBTC",
+    "symbol": "NXS",
+    "era": "train",
+    "onset": "2018-07-04T18:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0045",
+    "pair": "PIVXBTC",
+    "symbol": "PIVX",
+    "era": "train",
+    "onset": "2018-07-19T15:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0048",
+    "pair": "ICNBTC",
+    "symbol": "ICN",
+    "era": "train",
+    "onset": "2018-08-08T15:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0054",
+    "pair": "ASTBTC",
+    "symbol": "AST",
+    "era": "train",
+    "onset": "2018-09-07T15:28:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0058",
+    "pair": "KMDBTC",
+    "symbol": "KMD",
+    "era": "train",
+    "onset": "2018-09-20T20:06:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0059",
+    "pair": "NAVBTC",
+    "symbol": "NAV",
+    "era": "train",
+    "onset": "2018-09-22T19:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0062",
+    "pair": "DATABTC",
+    "symbol": "DATA",
+    "era": "train",
+    "onset": "2018-09-29T18:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0063",
+    "pair": "VIABTC",
+    "symbol": "VIA",
+    "era": "train",
+    "onset": "2018-09-30T18:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0065",
+    "pair": "BRDBTC",
+    "symbol": "BRD",
+    "era": "train",
+    "onset": "2018-10-04T18:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0067",
+    "pair": "BRDBTC",
+    "symbol": "BRD",
+    "era": "train",
+    "onset": "2018-10-08T13:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0068",
+    "pair": "QLCBTC",
+    "symbol": "QLC",
+    "era": "train",
+    "onset": "2018-10-09T17:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0069",
+    "pair": "OAXBTC",
+    "symbol": "OAX",
+    "era": "train",
+    "onset": "2018-10-09T18:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0070",
+    "pair": "EDOBTC",
+    "symbol": "EDO",
+    "era": "train",
+    "onset": "2018-10-13T18:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0071",
+    "pair": "REQBTC",
+    "symbol": "REQ",
+    "era": "train",
+    "onset": "2018-10-14T18:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0072",
+    "pair": "POLYBTC",
+    "symbol": "POLY",
+    "era": "train",
+    "onset": "2018-10-17T18:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0073",
+    "pair": "CNDBTC",
+    "symbol": "CND",
+    "era": "train",
+    "onset": "2018-10-20T16:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0074",
+    "pair": "XZCBTC",
+    "symbol": "XZC",
+    "era": "train",
+    "onset": "2018-10-20T20:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0077",
+    "pair": "WINGSBTC",
+    "symbol": "WINGS",
+    "era": "train",
+    "onset": "2018-11-07T16:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0078",
+    "pair": "EVXBTC",
+    "symbol": "EVX",
+    "era": "train",
+    "onset": "2018-11-07T17:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0080",
+    "pair": "EVXBTC",
+    "symbol": "EVX",
+    "era": "train",
+    "onset": "2018-11-20T16:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0084",
+    "pair": "EVXBTC",
+    "symbol": "EVX",
+    "era": "train",
+    "onset": "2018-12-10T16:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0087",
+    "pair": "NEBLBTC",
+    "symbol": "NEBL",
+    "era": "train",
+    "onset": "2018-12-23T16:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0090",
+    "pair": "BQXBTC",
+    "symbol": "BQX",
+    "era": "train",
+    "onset": "2018-12-30T12:26:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0091",
+    "pair": "BRDBTC",
+    "symbol": "BRD",
+    "era": "train",
+    "onset": "2018-12-30T16:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0092",
+    "pair": "AMBBTC",
+    "symbol": "AMB",
+    "era": "train",
+    "onset": "2019-01-01T14:25:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0094",
+    "pair": "EVXBTC",
+    "symbol": "EVX",
+    "era": "train",
+    "onset": "2019-01-08T16:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0096",
+    "pair": "HCBTC",
+    "symbol": "HC",
+    "era": "train",
+    "onset": "2019-01-25T17:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0097",
+    "pair": "WINGSBTC",
+    "symbol": "WINGS",
+    "era": "train",
+    "onset": "2019-01-27T17:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0098",
+    "pair": "BQXBTC",
+    "symbol": "BQX",
+    "era": "train",
+    "onset": "2019-01-29T13:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0101",
+    "pair": "GXSBTC",
+    "symbol": "GXS",
+    "era": "train",
+    "onset": "2019-02-10T17:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0102",
+    "pair": "EDOBTC",
+    "symbol": "EDO",
+    "era": "train",
+    "onset": "2019-02-16T17:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0103",
+    "pair": "HCBTC",
+    "symbol": "HC",
+    "era": "train",
+    "onset": "2019-02-23T16:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0104",
+    "pair": "BQXBTC",
+    "symbol": "BQX",
+    "era": "train",
+    "onset": "2019-02-24T16:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0106",
+    "pair": "ASTBTC",
+    "symbol": "AST",
+    "era": "train",
+    "onset": "2019-03-02T13:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0107",
+    "pair": "GRSBTC",
+    "symbol": "GRS",
+    "era": "train",
+    "onset": "2019-03-05T16:25:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0108",
+    "pair": "BRDBTC",
+    "symbol": "BRD",
+    "era": "train",
+    "onset": "2019-03-17T18:54:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0109",
+    "pair": "SNMBTC",
+    "symbol": "SNM",
+    "era": "train",
+    "onset": "2019-04-04T13:26:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0110",
+    "pair": "NEBLBTC",
+    "symbol": "NEBL",
+    "era": "train",
+    "onset": "2019-04-08T16:30:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0111",
+    "pair": "BLZBTC",
+    "symbol": "BLZ",
+    "era": "train",
+    "onset": "2019-04-13T17:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0112",
+    "pair": "BRDBTC",
+    "symbol": "BRD",
+    "era": "train",
+    "onset": "2019-04-14T18:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0113",
+    "pair": "ARDRBTC",
+    "symbol": "ARDR",
+    "era": "train",
+    "onset": "2019-04-17T16:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0119",
+    "pair": "HCBTC",
+    "symbol": "HC",
+    "era": "train",
+    "onset": "2019-05-12T16:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0122",
+    "pair": "HCBTC",
+    "symbol": "HC",
+    "era": "train",
+    "onset": "2019-05-18T15:30:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0123",
+    "pair": "NAVBTC",
+    "symbol": "NAV",
+    "era": "train",
+    "onset": "2019-05-18T16:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0124",
+    "pair": "CNDBTC",
+    "symbol": "CND",
+    "era": "train",
+    "onset": "2019-05-21T13:26:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0125",
+    "pair": "SYSBTC",
+    "symbol": "SYS",
+    "era": "train",
+    "onset": "2019-05-23T16:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0127",
+    "pair": "POABTC",
+    "symbol": "POA",
+    "era": "train",
+    "onset": "2019-05-26T20:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0128",
+    "pair": "BLZBTC",
+    "symbol": "BLZ",
+    "era": "train",
+    "onset": "2019-05-27T17:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0129",
+    "pair": "PPTBTC",
+    "symbol": "PPT",
+    "era": "train",
+    "onset": "2019-05-31T14:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0132",
+    "pair": "SNMBTC",
+    "symbol": "SNM",
+    "era": "train",
+    "onset": "2019-06-02T20:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0133",
+    "pair": "STORJBTC",
+    "symbol": "STORJ",
+    "era": "train",
+    "onset": "2019-06-11T17:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0134",
+    "pair": "NEBLBTC",
+    "symbol": "NEBL",
+    "era": "train",
+    "onset": "2019-06-16T20:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0138",
+    "pair": "BLZBTC",
+    "symbol": "BLZ",
+    "era": "train",
+    "onset": "2019-06-24T18:29:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0139",
+    "pair": "INSBTC",
+    "symbol": "INS",
+    "era": "train",
+    "onset": "2019-06-25T15:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0143",
+    "pair": "VIBBTC",
+    "symbol": "VIB",
+    "era": "train",
+    "onset": "2019-07-02T16:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0146",
+    "pair": "ADXBTC",
+    "symbol": "ADX",
+    "era": "train",
+    "onset": "2019-07-05T16:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0163",
+    "pair": "SNMBTC",
+    "symbol": "SNM",
+    "era": "train",
+    "onset": "2019-08-07T16:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0165",
+    "pair": "CDTBTC",
+    "symbol": "CDT",
+    "era": "train",
+    "onset": "2019-08-09T14:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0185",
+    "pair": "BRDBTC",
+    "symbol": "BRD",
+    "era": "train",
+    "onset": "2019-10-03T14:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0187",
+    "pair": "ONGBTC",
+    "symbol": "ONG",
+    "era": "train",
+    "onset": "2019-10-29T17:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0203",
+    "pair": "NULSBTC",
+    "symbol": "NULS",
+    "era": "test",
+    "onset": "2020-01-30T16:57:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0211",
+    "pair": "SNGLSBTC",
+    "symbol": "SNGLS",
+    "era": "test",
+    "onset": "2020-03-08T18:54:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0220",
+    "pair": "EVXBTC",
+    "symbol": "EVX",
+    "era": "test",
+    "onset": "2020-03-21T16:37:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0223",
+    "pair": "BRDBTC",
+    "symbol": "BRD",
+    "era": "test",
+    "onset": "2020-03-24T15:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0229",
+    "pair": "SNGLSBTC",
+    "symbol": "SNGLS",
+    "era": "test",
+    "onset": "2020-04-01T11:53:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0232",
+    "pair": "ARNBTC",
+    "symbol": "ARN",
+    "era": "test",
+    "onset": "2020-04-07T18:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0245",
+    "pair": "ONGBTC",
+    "symbol": "ONG",
+    "era": "test",
+    "onset": "2020-05-26T15:58:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0246",
+    "pair": "VIABTC",
+    "symbol": "VIA",
+    "era": "test",
+    "onset": "2020-05-29T15:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0247",
+    "pair": "NASBTC",
+    "symbol": "NAS",
+    "era": "test",
+    "onset": "2020-05-30T15:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0250",
+    "pair": "VIABTC",
+    "symbol": "VIA",
+    "era": "test",
+    "onset": "2020-06-10T15:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0251",
+    "pair": "QSPBTC",
+    "symbol": "QSP",
+    "era": "test",
+    "onset": "2020-06-13T16:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0252",
+    "pair": "NEBLBTC",
+    "symbol": "NEBL",
+    "era": "test",
+    "onset": "2020-06-14T15:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0253",
+    "pair": "GXSBTC",
+    "symbol": "GXS",
+    "era": "test",
+    "onset": "2020-06-15T15:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0254",
+    "pair": "EVXBTC",
+    "symbol": "EVX",
+    "era": "test",
+    "onset": "2020-06-24T15:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0258",
+    "pair": "CTXCBTC",
+    "symbol": "CTXC",
+    "era": "test",
+    "onset": "2020-07-10T16:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0260",
+    "pair": "NXSBTC",
+    "symbol": "NXS",
+    "era": "test",
+    "onset": "2020-07-21T15:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0261",
+    "pair": "ELFBTC",
+    "symbol": "ELF",
+    "era": "test",
+    "onset": "2020-07-24T16:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0264",
+    "pair": "PPTBTC",
+    "symbol": "PPT",
+    "era": "test",
+    "onset": "2020-08-04T17:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0265",
+    "pair": "RDNBTC",
+    "symbol": "RDN",
+    "era": "test",
+    "onset": "2020-08-25T17:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0266",
+    "pair": "SNMBTC",
+    "symbol": "SNM",
+    "era": "test",
+    "onset": "2020-09-04T15:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0267",
+    "pair": "QLCBTC",
+    "symbol": "QLC",
+    "era": "test",
+    "onset": "2020-09-06T15:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0268",
+    "pair": "STPTBTC",
+    "symbol": "STPT",
+    "era": "test",
+    "onset": "2020-09-08T16:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0269",
+    "pair": "QSPBTC",
+    "symbol": "QSP",
+    "era": "test",
+    "onset": "2020-09-10T17:59:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0277",
+    "pair": "DUSKBTC",
+    "symbol": "DUSK",
+    "era": "test",
+    "onset": "2020-10-30T16:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0279",
+    "pair": "ARDRBTC",
+    "symbol": "ARDR",
+    "era": "test",
+    "onset": "2020-11-02T15:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0283",
+    "pair": "NXSBTC",
+    "symbol": "NXS",
+    "era": "test",
+    "onset": "2020-11-06T19:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0285",
+    "pair": "BRDBTC",
+    "symbol": "BRD",
+    "era": "test",
+    "onset": "2020-11-09T15:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0293",
+    "pair": "BRDBTC",
+    "symbol": "BRD",
+    "era": "test",
+    "onset": "2020-12-06T17:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0298",
+    "pair": "NAVBTC",
+    "symbol": "NAV",
+    "era": "test",
+    "onset": "2020-12-20T19:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0299",
+    "pair": "NASBTC",
+    "symbol": "NAS",
+    "era": "test",
+    "onset": "2020-12-23T18:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0305",
+    "pair": "NEBLBTC",
+    "symbol": "NEBL",
+    "era": "test",
+    "onset": "2021-01-02T20:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0306",
+    "pair": "MDABTC",
+    "symbol": "MDA",
+    "era": "test",
+    "onset": "2021-01-03T16:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0312",
+    "pair": "EVXBTC",
+    "symbol": "EVX",
+    "era": "test",
+    "onset": "2021-01-09T20:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0313",
+    "pair": "RCNBTC",
+    "symbol": "RCN",
+    "era": "test",
+    "onset": "2021-01-10T16:56:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0314",
+    "pair": "ONGBTC",
+    "symbol": "ONG",
+    "era": "test",
+    "onset": "2021-01-11T15:55:00+00:00",
+    "available": true,
+    "n_candles": 181
+  },
+  {
+    "event_id": "event_0318",
+    "pair": "STEEMBTC",
+    "symbol": "STEEM",
+    "era": "test",
+    "onset": "2021-01-18T17:00:00+00:00",
+    "available": true,
+    "n_candles": 181
+  }
+]

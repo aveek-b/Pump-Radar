@@ -10,14 +10,17 @@ __pycache__/
 # Local database
 alerts.sqlite3
 
-# Raw and processed datasets
-data/raw/
-data/processed/
-data/klines/
-data/manifests/
-data/
+# Raw and processed datasets. data/* (not data/) so git still descends into
+# the directory to apply the data/replay/ exception below -- a blanket
+# "data/" rule stops git from traversing in at all, silently defeating any
+# negation rule placed after it.
+data/*
 *.zip
 *.parquet
+# Exception: data/replay/ is small (~3MB of curated per-event JSON, not the
+# raw archive or xsec.parquet), and the Replay feature is non-functional
+# without it -- committing directly rather than requiring a release download.
+!data/replay/
 models/*.joblib
 *.sqlite3
 __pycache__/

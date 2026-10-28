@@ -20,6 +20,7 @@ store = AlertStore(os.getenv("PUMPRADAR_DB", "alerts.sqlite3"))
 subscribers: set[asyncio.Queue] = set()
 universe_cache = LiveUniverseCache()
 RESULTS_DIR = Path(__file__).resolve().parents[2] / "results"
+REPLAY_DIR = Path(__file__).resolve().parents[2] / "data" / "replay"
 MODEL_VERSION = "exp_a_leakage_audit_v1"  # Experiment A only; no deployed/frozen bundle yet
 
 
@@ -200,6 +201,39 @@ async def get_coin_candles(symbol: str, range: str = "month") -> dict:
     }
 
 
+@app.get("/replay/events")
+def get_replay_events() -> dict:
+    """Real historical pump events with a confirmed onset, available for
+    replay. Served from data/replay/index.json, precomputed from the real
+    downloaded Binance archive -- not generated on request, since that
+    archive (~1.4GB) is not part of this deployment's data.
+    """
+    index_path = REPLAY_DIR / "index.json"
+    if not index_path.exists():
+        raise HTTPException(status_code=503, detail="replay index not generated yet")
+    with open(index_path) as f:
+        index = json.load(f)
+    return {"events": [e for e in index if e["available"]]}
+
+
+@app.get("/replay/{event_id}")
+def get_replay_event(event_id: str) -> dict:
+    """Real OHLCV candles around one confirmed historical onset, plus the
+    real onset timestamp for marking on the chart. No model risk score is
+    included -- Experiment B's model is not calibrated or frozen yet, so
+    there is no honest score to attach; this is real price history and a
+    real onset marker only.
+    """
+    safe_id = "".join(c for c in event_id if c.isalnum() or c == "_")
+    if safe_id != event_id:
+        raise HTTPException(status_code=422, detail="invalid event_id")
+    path = REPLAY_DIR / f"{event_id}.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"no replay data for {event_id!r}")
+    with open(path) as f:
+        return json.load(f)
+
+
 @app.get("/universe")
 async def get_universe() -> dict:
     """Every currently live Binance coin's real price, deduplicated across
@@ -258,11 +292,11 @@ async def get_universe() -> dict:
 
 @app.get("/honesty")
 def get_honesty() -> dict:
-    """Real Experiment A leakage-audit results, read from results/*.json.
+    """Real Experiment A and B results, read from results/*.json.
     Everything returned here is a generated artifact with a known source
-    file -- fields the audit has not yet produced (calibration, a chosen
-    alert threshold, Hit@k, Experiment B) are returned as null/"not_yet_run"
-    rather than a plausible-looking placeholder number.
+    file -- fields neither experiment has produced yet (calibration, a
+    chosen alert threshold) are returned as null/"not_yet_run" rather than
+    a plausible-looking placeholder number.
     """
     try:
         with open(RESULTS_DIR / "metrics_A_tuned.json") as f:
@@ -271,23 +305,49 @@ def get_honesty() -> dict:
             bootstrap = json.load(f)
         with open(RESULTS_DIR / "live_binance_universe_check.json") as f:
             live_check = json.load(f)
+        with open(RESULTS_DIR / "metrics_B_tuned.json") as f:
+            metrics_b = json.load(f)
+        with open(RESULTS_DIR / "hit_at_k_B.json") as f:
+            hit_at_k_b = json.load(f)
+        with open(RESULTS_DIR / "deployment_candidate_B.json") as f:
+            deployment_candidate_b = json.load(f)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=503, detail=f"results artifact missing: {exc.filename}") from exc
 
-    records = [r for r in metrics_a["records"] if r["model"] is not None]
-    honest_h10_full = {
-        r["model"]: r["ap"] for r in records
+    records_a = [r for r in metrics_a["records"] if r["model"] is not None]
+    honest_h10_full_a = {
+        r["model"]: r["ap"] for r in records_a
         if r["horizon_min"] == 10 and r["feature_set"] == "full" and r["protocol"] == "honest_P2"
     }
 
+    records_b = [r for r in metrics_b["records"] if r["model"] is not None]
+    test_h10_b = {r["model"]: r["ap"] for r in records_b if r["horizon_min"] == 10}
+    hit_at_1_h10_b = {
+        r["model"]: r["hit_rate"] for r in hit_at_k_b if r["horizon_min"] == 10 and r["k"] == 1
+    }
+    hit_at_5_h10_b = {
+        r["model"]: r["hit_rate"] for r in hit_at_k_b if r["horizon_min"] == 10 and r["k"] == 5
+    }
+
     return {
-        "status": "Experiment A (leakage audit) only -- Experiment B (deployed cross-sectional "
-                  "model) has not run; no calibration or alert threshold has been chosen",
+        "status": "Experiment A (leakage audit) and Experiment B (cross-sectional scoring) have "
+                  "both run; no calibration or alert threshold has been chosen for either",
         "model_version": MODEL_VERSION,
         "dataset": {"source": "SystemsLab-Sapienza 2018-2021 (research archive, not live)",
                     "n_events": 317, "n_symbols": 85},
-        "h10_full_feature_ap_by_model": honest_h10_full,
-        "bootstrap_ci_h10": bootstrap,
+        "experiment_a_h10_full_feature_ap_by_model": honest_h10_full_a,
+        "experiment_a_bootstrap_ci_h10": bootstrap,
+        "experiment_b": {
+            "description": "Cross-sectional 'which coin, how early' scoring on real xsec.parquet "
+                            "(1,063,320 rows, 127 confirmed-onset events, era-honest split).",
+            "test_ap_h10_by_model": test_h10_b,
+            "hit_at_1_h10_by_model": hit_at_1_h10_b,
+            "hit_at_5_h10_by_model": hit_at_5_h10_b,
+            "deployment_candidate": deployment_candidate_b,
+            "note": "Deployment candidate chosen by VALIDATION AP (never test), per the build "
+                    "guide's rule. The validation-based pick (linear_svm) differs from which model "
+                    "looks best on raw test AP (random_forest) -- reported as-is, not reconciled.",
+        },
         "live_coin_universe_check": live_check,
         "calibration": "not_yet_run",
         "alert_threshold": "not_yet_chosen",
@@ -295,10 +355,13 @@ def get_honesty() -> dict:
             "Scores are not calibrated probabilities.",
             ("Model trained and evaluated only on BTC-paired historical data; "
              f"only {live_check['btc_quoted_pairs']} BTC pairs are live-tradeable right now."),
-            ("Full-feature-set AP is driven mainly by time-of-day encoding (permutation "
-             "importance), not price level as initially hypothesized; whether this is a "
-             "genuine signal or a small-sample artifact is not resolved."),
+            ("Experiment A's full-feature-set AP is driven mainly by time-of-day encoding "
+             "(permutation importance), not price level as initially hypothesized; whether this "
+             "is a genuine signal or a small-sample artifact is not resolved."),
+            "Experiment B's absolute AP is tiny (base rate ~0.1% at h=10, 84 live coins per "
+            "minute) -- read it as lift over base rate, not an absolute score.",
             "No false-alert-rate validation against ordinary market periods has been run.",
+            "No frozen/deployed model bundle exists yet for either experiment.",
         ],
         "generated_at": datetime.now(UTC).isoformat(),
     }

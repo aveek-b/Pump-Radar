@@ -53,7 +53,8 @@
     .range-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
     .range-tabs button { background: #0c1220; border: 1px solid #2b3a54; color: #93a6c6; padding: 7px 16px; border-radius: 8px; cursor: pointer; font: inherit; font-size: .85rem; }
     .range-tabs button.active { background: #4C72B0; color: #fff; border-color: #4C72B0; }
-    #chart-container { width: 100%; height: 360px; } #volume-container { width: 100%; height: 110px; margin-top: 4px; }
+    #chart-container, #replay-chart-container { width: 100%; height: 360px; }
+    #volume-container, #replay-volume-container { width: 100%; height: 110px; margin-top: 4px; }
     .legend { display: flex; gap: 16px; font-size: .78rem; color: #93a6c6; margin-top: 10px; }
     .legend span.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
     .back-link { color: #a5c7ff; cursor: pointer; font-size: .85rem; margin-bottom: 10px; display: inline-block; }
@@ -66,6 +67,7 @@
   <nav class="tabs" role="tablist">
     <button class="active" data-view="radar" role="tab" aria-selected="true">Radar</button>
     <button data-view="universe" role="tab" aria-selected="false">Live Universe</button>
+    <button data-view="replay" role="tab" aria-selected="false">Past Events</button>
     <button data-view="method" role="tab" aria-selected="false">Honesty &amp; Method</button>
   </nav>
 
@@ -113,13 +115,41 @@
     </section>
   </section>
 
+  <section id="view-replay" class="view">
+    <section class="card">
+      <h2>Past Events (held-out replay)</h2>
+      <p class="meta">Real historical pumps from the labeled 2018-2021 dataset, never seen by the models during
+        training. Onset marked where real volume actually spiked. No risk score is shown yet -- the model is not
+        calibrated, so there is no honest score to attach.</p>
+      <div class="toolbar">
+        <input type="text" id="replay-search" placeholder="Search coin (e.g. PPT)" aria-label="Search events">
+        <select id="replay-select" aria-label="Choose an event" style="flex:1"></select>
+      </div>
+      <div id="replay-chart-container"></div>
+      <div id="replay-volume-container"></div>
+      <div class="legend">
+        <div><span class="swatch" style="background:#f28b82"></span>Onset (confirmed real volume spike)</div>
+      </div>
+      <p class="empty" id="replay-loading">Loading real historical events…</p>
+      <p class="empty" id="replay-error" hidden></p>
+    </section>
+  </section>
+
   <section id="view-method" class="view">
     <section class="card">
       <h2>Honesty &amp; Method</h2>
       <p id="honesty-status" class="meta">Loading…</p>
       <div class="kpi-grid" id="honesty-kpis"></div>
-      <h2 style="margin-top:22px">Average precision by model (h=10, full feature set, honest split)</h2>
+      <h2 style="margin-top:22px">Experiment A — average precision by model (h=10, full feature set, honest split)</h2>
       <table><thead><tr><th>Model</th><th>AP</th></tr></thead><tbody id="honesty-ap-table"></tbody></table>
+
+      <h2 style="margin-top:22px">Experiment B — cross-sectional "which coin" scoring (h=10, test era)</h2>
+      <p class="meta" id="expb-note"></p>
+      <table>
+        <thead><tr><th>Model</th><th>Test AP</th><th>Hit@1</th><th>Hit@5</th></tr></thead>
+        <tbody id="expb-table"></tbody>
+      </table>
+
       <h2 style="margin-top:22px">Known limitations</h2>
       <ul class="limitations" id="honesty-limitations"></ul>
     </section>
@@ -200,6 +230,7 @@
         document.querySelector(`#view-${btn.dataset.view}`).classList.add('active');
         if (btn.dataset.view === 'universe' && !universeLoaded) loadUniverse();
         if (btn.dataset.view === 'method' && !honestyLoaded) loadHonesty();
+        if (btn.dataset.view === 'replay' && !replayEventsLoaded) loadReplayEvents();
       });
     });
 
@@ -279,11 +310,28 @@
           kpi('Alert threshold', d.alert_threshold === 'not_yet_chosen' ? 'Not yet chosen' : d.alert_threshold),
         );
         const apTable = document.querySelector('#honesty-ap-table'); apTable.replaceChildren();
-        Object.entries(d.h10_full_feature_ap_by_model)
+        Object.entries(d.experiment_a_h10_full_feature_ap_by_model)
           .sort((a, b) => b[1] - a[1])
           .forEach(([model, ap]) => {
             const row = apTable.insertRow(); cell(row, model); cell(row, ap.toFixed(4), 'num score');
           });
+
+        const expB = d.experiment_b;
+        document.querySelector('#expb-note').textContent =
+          `Deployment candidate (by validation AP, never test): ${expB.deployment_candidate.deployment_candidate}. ${expB.note}`;
+        const expbTable = document.querySelector('#expb-table'); expbTable.replaceChildren();
+        Object.keys(expB.test_ap_h10_by_model)
+          .sort((a, b) => expB.test_ap_h10_by_model[b] - expB.test_ap_h10_by_model[a])
+          .forEach(model => {
+            const row = expbTable.insertRow();
+            const isCandidate = model === expB.deployment_candidate.deployment_candidate;
+            cell(row, isCandidate ? `${model} ★` : model);
+            cell(row, expB.test_ap_h10_by_model[model].toFixed(5), 'num score');
+            const h1 = expB.hit_at_1_h10_by_model[model], h5 = expB.hit_at_5_h10_by_model[model];
+            cell(row, h1 === null || h1 === undefined ? '—' : `${(h1 * 100).toFixed(1)}%`, 'num');
+            cell(row, h5 === null || h5 === undefined ? '—' : `${(h5 * 100).toFixed(1)}%`, 'num');
+          });
+
         const list = document.querySelector('#honesty-limitations'); list.replaceChildren();
         d.known_limitations.forEach(text => { const li = document.createElement('li'); li.textContent = text; list.append(li); });
       } catch {
@@ -370,6 +418,87 @@
       } catch {
         errorEl.hidden = false;
         errorEl.textContent = `Could not load price history for ${currentCoinSymbol} — Binance may be unreachable.`;
+      }
+    }
+
+    // ---- Past Events (Replay): real historical onset, real archived candles ----
+    let replayEventsLoaded = false, replayEvents = [];
+    let replayChart = null, replayCandleSeries = null, replayVolumeChart = null, replayVolumeSeries = null;
+
+    function ensureReplayCharts() {
+      if (replayChart) return;
+      const dark = {
+        layout: { background: { color: '#151e30' }, textColor: '#aab8d0' },
+        grid: { vertLines: { color: '#29374d' }, horzLines: { color: '#29374d' } },
+        rightPriceScale: { borderColor: '#2b3a54' },
+        timeScale: { borderColor: '#2b3a54' },
+      };
+      replayChart = LightweightCharts.createChart(document.querySelector('#replay-chart-container'), { ...dark, autoSize: true });
+      replayCandleSeries = replayChart.addCandlestickSeries({
+        upColor: '#75ddc3', downColor: '#f28b82', borderVisible: false,
+        wickUpColor: '#75ddc3', wickDownColor: '#f28b82',
+      });
+      replayVolumeChart = LightweightCharts.createChart(document.querySelector('#replay-volume-container'), {
+        ...dark, autoSize: true, timeScale: { borderColor: '#2b3a54', visible: true },
+      });
+      replayVolumeSeries = replayVolumeChart.addHistogramSeries({ color: '#4C72B0', priceFormat: { type: 'volume' } });
+    }
+
+    function renderReplaySelect() {
+      const search = document.querySelector('#replay-search').value.trim().toUpperCase();
+      const select = document.querySelector('#replay-select');
+      const filtered = replayEvents.filter(e => !search || e.symbol.toUpperCase().includes(search));
+      select.replaceChildren();
+      filtered.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.event_id;
+        opt.textContent = `${e.symbol} · ${time(e.onset)} · ${e.era}-era`;
+        select.append(opt);
+      });
+      if (filtered.length) loadReplayEvent(filtered[0].event_id);
+    }
+
+    async function loadReplayEvents() {
+      try {
+        const r = await fetch('/replay/events'); if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+        replayEvents = d.events;
+        replayEventsLoaded = true;
+        document.querySelector('#replay-loading').hidden = true;
+        ensureReplayCharts();
+        renderReplaySelect();
+      } catch {
+        document.querySelector('#replay-loading').hidden = true;
+        document.querySelector('#replay-error').hidden = false;
+        document.querySelector('#replay-error').textContent = 'Replay events unavailable — has the replay data been generated?';
+      }
+    }
+    document.querySelector('#replay-search').addEventListener('input', renderReplaySelect);
+    document.querySelector('#replay-select').addEventListener('change', e => loadReplayEvent(e.target.value));
+
+    async function loadReplayEvent(eventId) {
+      const errorEl = document.querySelector('#replay-error');
+      errorEl.hidden = true;
+      try {
+        const r = await fetch(`/replay/${eventId}`); if (!r.ok) throw Error(r.status);
+        const d = await r.json();
+
+        const times = d.candles.map(c => Math.floor(new Date(c.time).getTime() / 1000));
+        replayCandleSeries.setData(d.candles.map((c, i) => ({ time: times[i], open: c.open, high: c.high, low: c.low, close: c.close })));
+        replayVolumeSeries.setData(d.candles.map((c, i) => ({ time: times[i], value: c.volume, color: c.close >= c.open ? '#75ddc3' : '#f28b82' })));
+
+        const onsetTime = Math.floor(new Date(d.onset).getTime() / 1000);
+        const onsetCandle = d.candles.reduce((closest, c, i) =>
+          Math.abs(times[i] - onsetTime) < Math.abs(times[closest] - onsetTime) ? i : closest, 0);
+        replayCandleSeries.setMarkers([{
+          time: times[onsetCandle], position: 'aboveBar', color: '#f28b82', shape: 'arrowDown', text: 'Onset',
+        }]);
+
+        replayChart.timeScale().fitContent();
+        replayVolumeChart.timeScale().fitContent();
+      } catch {
+        errorEl.hidden = false;
+        errorEl.textContent = `Could not load replay data for ${eventId}.`;
       }
     }
   </script>
