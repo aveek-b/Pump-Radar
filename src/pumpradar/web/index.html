@@ -381,7 +381,7 @@
           kpi('Coins in training data', d.dataset.n_symbols),
           kpi('Live BTC pairs today', d.live_coin_universe_check.btc_quoted_pairs),
           kpi('Calibration', d.calibration === 'not_yet_run' ? 'Not yet run' : d.calibration),
-          kpi('Alert threshold', d.alert_threshold === 'not_yet_chosen' ? 'Not yet chosen' : d.alert_threshold),
+          kpi('Alert threshold (provisional)', d.alert_threshold === 'not_yet_chosen' ? 'Not yet chosen' : d.alert_threshold.toFixed(3)),
         );
         const apTable = document.querySelector('#honesty-ap-table'); apTable.replaceChildren();
         Object.entries(d.experiment_a_h10_full_feature_ap_by_model)
