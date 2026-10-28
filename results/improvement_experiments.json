@@ -1,0 +1,27 @@
+{
+  "clean": {
+    "rf_base": 0.12291726706714114,
+    "rf_weighted": 0.12010191432606838,
+    "lgbm_base": 0.10884535072533567,
+    "lgbm_weighted": 0.10922108535039196,
+    "lgbm_scale_pos_weight": 19.331095041322314
+  },
+  "full": {
+    "rf_base": 0.5623868475703823,
+    "rf_weighted": 0.5696712792677877,
+    "lgbm_base": 0.5580948065997235,
+    "lgbm_weighted": 0.5461210628142285,
+    "lgbm_scale_pos_weight": 19.331095041322314
+  },
+  "ensemble": {
+    "rf": 0.5623868475703823,
+    "lgbm": 0.5580948065997235,
+    "ensemble_avg": 0.5761828025583859
+  },
+  "time_of_day_check": {
+    "n_seen_events": 94,
+    "n_novel_events": 2,
+    "ap_seen": 0.5628584056657218,
+    "ap_novel": 0.6482993239677731
+  }
+}
