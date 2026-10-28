@@ -1,0 +1,91 @@
+{
+  "clean": [
+    {
+      "feature": "avg_volume",
+      "importance_mean": 0.041541210199674494,
+      "importance_std": 0.0022325015008648683
+    },
+    {
+      "feature": "avg_rush_order",
+      "importance_mean": 0.033830186975660544,
+      "importance_std": 0.0029785882521918767
+    },
+    {
+      "feature": "std_trades",
+      "importance_mean": 0.03295146685761432,
+      "importance_std": 0.0018155299495378014
+    },
+    {
+      "feature": "std_rush_order",
+      "importance_mean": 0.0038556667588928633,
+      "importance_std": 0.0016388135344541262
+    },
+    {
+      "feature": "std_volume",
+      "importance_mean": 0.003854045667728768,
+      "importance_std": 0.0012128749861402336
+    }
+  ],
+  "full": [
+    {
+      "feature": "minute_cos",
+      "importance_mean": 0.3808991870157314,
+      "importance_std": 0.007387791444969393
+    },
+    {
+      "feature": "minute_sin",
+      "importance_mean": 0.2994773742255103,
+      "importance_std": 0.0101848995161238
+    },
+    {
+      "feature": "hour_sin",
+      "importance_mean": 0.18599703949943386,
+      "importance_std": 0.010080916793991673
+    },
+    {
+      "feature": "avg_volume",
+      "importance_mean": 0.04869393062829863,
+      "importance_std": 0.003918393243140218
+    },
+    {
+      "feature": "hour_cos",
+      "importance_mean": 0.04433909101874587,
+      "importance_std": 0.009502284896884284
+    },
+    {
+      "feature": "avg_rush_order",
+      "importance_mean": 0.019833517653522086,
+      "importance_std": 0.002851363398963368
+    },
+    {
+      "feature": "std_trades",
+      "importance_mean": 0.012795143627711574,
+      "importance_std": 0.003610515769589148
+    },
+    {
+      "feature": "std_rush_order",
+      "importance_mean": 0.011522378891115367,
+      "importance_std": 0.003487923734960161
+    },
+    {
+      "feature": "std_volume",
+      "importance_mean": 0.0008962751035499335,
+      "importance_std": 0.0008414764657596401
+    },
+    {
+      "feature": "avg_price",
+      "importance_mean": 0.0007536710463050526,
+      "importance_std": 0.0037487160884483056
+    },
+    {
+      "feature": "avg_price_max",
+      "importance_mean": -0.0004121686589573496,
+      "importance_std": 0.004446299206676518
+    },
+    {
+      "feature": "std_price",
+      "importance_mean": -0.001863931745716992,
+      "importance_std": 0.0035718206038605205
+    }
+  ]
+}
