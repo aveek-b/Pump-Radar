@@ -112,19 +112,128 @@ shortcut that only helps when future coins can leak into training, and
 actively hurting generalization to coins/events not seen during training
 under the honest protocol.
 
-## 6.7 Interpretation
+## 6.7 Robustness: is the full-feature gap a training-size or boundary artifact?
 
-Taken together, these results support a specific, qualified claim: **the
-random-split protocol used by prior work does not meaningfully inflate
-performance when only rush-order/volume/trade-count features are used, but
-shows a real, capacity-correlated, directionally consistent -- though not
-yet statistically conclusive -- inflation pattern once price-level and
-time-of-day features are included.** We do not claim this proves price-level
-features cause leakage; an alternative explanation (cheap, illiquid coins
-being genuinely more pump-prone, a real tradeable signal rather than an
-artifact) remains possible and is not ruled out by this audit alone.
+Three checks, none of which were in the original audit pass:
 
-## 6.8 What is not yet included in this section
+- **Split-boundary sensitivity.** Re-running the honest split at train_frac in
+  {0.60, 0.65, 0.70, 0.75, 0.80} (LightGBM, h=10) gives AP(P2) in [0.098,
+  0.109] for clean features and [0.514, 0.556] for full features -- stable
+  across every boundary tried. The reported 70/30 split is not a cherry-picked
+  outlier.
+- **Random-split seed sensitivity.** Five seeds of split_random (same model,
+  horizon) give AP(P0) in [0.099, 0.112] for clean and [0.629, 0.659] for
+  full -- also stable. The P0 estimate is not noise from one unlucky shuffle.
+- **Training-size isolation.** Holding the protocol fixed (P0) and varying
+  only the train fraction (0.5 vs 0.7, i.e. 27,570 vs 38,598 training rows)
+  changes AP(P0) by only 0.007 for full features (0.637 to 0.629) and by
+  0.010 for clean. Since P0 and P2 already use matched 70/30 ratios (Section
+  6.2), and varying P0's own training size by this much barely moves its AP,
+  training-set size cannot explain more than a small fraction of the ~0.09
+  full-feature P0-P2 gap. The gap is attributable to the split *protocol*
+  (random vs. chronological/grouped), not to how much data each side has.
+
+## 6.8 Interpretability: what is the full-feature model actually using?
+
+Permutation importance (LightGBM, honest test set, h=10, 30 repeats,
+`sklearn.inspection.permutation_importance` scored on AP) revised our working
+hypothesis. We had suspected price-level columns (`avg_price`, `std_price`,
+`avg_price_max`) were driving the full-feature inflation, by acting as a
+coin-identity fingerprint. **The data does not support that**: permuting
+those three columns changes AP by between -0.002 and +0.001 -- effectively
+zero importance.
+
+Instead, the dominant features by a wide margin are the **time-of-day**
+encodings: `minute_cos` (+0.381), `minute_sin` (+0.300), and `hour_sin`
+(+0.186) -- together far larger than every volume/trade feature combined
+(`avg_volume` +0.049 is the next largest). On the clean feature set (no
+time-of-day available), importance is spread more evenly across
+`avg_volume` (+0.042), `avg_rush_order` (+0.034) and `std_trades` (+0.033).
+
+This changes the interpretation in Section 6.7's earlier draft, which
+speculated about price-level. We now have a mechanistic lead -- time-of-day
+-- but **two explanations remain open and this audit cannot distinguish
+them**: (a) pump organizers genuinely favor certain times of day, a real,
+legitimate predictive signal; or (b) with only 317 events, a small number of
+recurring hour/minute values in the training set let the model partially
+memorize "this time slot correlates with training-era pumps" in a way that
+still partly transfers to the chronologically later test events (since
+honest-split AP is still high, 0.544, this would have to be partial
+memorization that generalizes somewhat, not pure overfitting). Distinguishing
+these requires either more events spanning more distinct times of day, or a
+dedicated ablation (e.g. shuffling time-of-day values across events while
+holding everything else fixed) that has not been run.
+
+## 6.9 Interpretation
+
+Taken together: **the random-split protocol used by prior work does not
+meaningfully inflate performance when only rush-order/volume/trade-count
+features are used, and the clean-feature result is robust to split boundary
+and seed choice. With the full feature set, there is a real, protocol-driven
+(not training-size-driven) inflation gap, and permutation importance
+identifies time-of-day encoding -- not price level, contrary to our initial
+hypothesis -- as the feature group responsible for most of the full-feature
+model's performance.** Whether that time-of-day signal is genuine or a
+small-sample artifact is not resolved by this audit.
+
+## 6.10 Full comparison across all six horizons (honest split, tuned models)
+
+Average precision, honest (P2) split, tuned hyperparameters:
+
+**Clean feature set:**
+
+| Model | h=1 | h=3 | h=5 | h=10 | h=30 | h=60 |
+|---|---|---|---|---|---|---|
+| Random Forest | 0.142 | 0.094 | 0.096 | 0.121 | 0.217 | 0.326 |
+| LightGBM | 0.143 | 0.083 | 0.082 | 0.102 | 0.202 | 0.310 |
+| Logistic Regression | 0.107 | 0.077 | 0.079 | 0.108 | 0.202 | 0.314 |
+| Linear SVM | 0.099 | 0.076 | 0.078 | 0.107 | 0.202 | 0.314 |
+| KNN | 0.112 | 0.066 | 0.064 | 0.099 | 0.181 | 0.298 |
+| Decision Tree | 0.091 | 0.064 | 0.074 | 0.102 | 0.197 | 0.315 |
+| *base rate* | *0.006* | *0.019* | *0.031* | *0.057* | *0.146* | *0.262* |
+
+**Full feature set:**
+
+| Model | h=1 | h=3 | h=5 | h=10 | h=30 | h=60 |
+|---|---|---|---|---|---|---|
+| Random Forest | 0.356 | 0.524 | 0.567 | 0.574 | 0.547 | 0.544 |
+| LightGBM | 0.344 | 0.462 | 0.507 | 0.544 | 0.563 | 0.557 |
+| Decision Tree | 0.150 | 0.351 | 0.475 | 0.470 | 0.510 | 0.530 |
+| Linear SVM | 0.187 | 0.215 | 0.263 | 0.398 | 0.531 | 0.540 |
+| Logistic Regression | 0.188 | 0.207 | 0.253 | 0.391 | 0.531 | 0.540 |
+| KNN | 0.200 | 0.238 | 0.349 | 0.413 | 0.459 | 0.490 |
+
+Random Forest and LightGBM are consistently the top two models at every
+horizon on the full feature set; Random Forest leads at short horizons
+(1-10 min), LightGBM edges ahead at longer ones (30-60 min). Expressed as a
+multiple of the base rate, the best model's lift ranges from about **57x at
+h=1** down to **2.1x at h=60** -- early warning is relatively much stronger
+than near-onset detection in rank terms, even though absolute AP is lower at
+short horizons (because the base rate itself is far smaller there).
+
+## 6.11 Live deployment feasibility: the BTC-pair universe has shrunk
+
+A live check against Binance's public `exchangeInfo` endpoint (checked
+2026-10-28T13:54:59Z, no API key required) found **38 actively trading
+BTC-quoted spot pairs** on Binance right now, against 519 USDT-quoted pairs
+and 520 distinct base assets across all quote currencies combined. The
+Sapienza training data's 85 BTC-paired coins already exceeds today's live
+BTC universe by more than 2x.
+
+This confirms, with live data rather than assumption, the build guide's own
+warning: **the trained model (BTC-quote features) can produce real scores
+for at most 38 of today's live coins.** Reaching the platform's 130+-coin
+display target necessarily means showing live prices for many coins this
+model was never trained to score -- those must be marked "unavailable" for
+scoring, not silently extrapolated. Training a model on an expanded
+(BTC+USDT) quote-volume universe to score more of the live 130+ coins is
+additional, unscoped work -- it is not a configuration change, since
+quote-volume units differ and cross-sectional ranks cannot mix them without
+a defined conversion. This is relevant to the platform, not just the model,
+and should be confirmed with Aveek and Hannah before any UI commits to
+showing scores for all displayed coins.
+
+## 6.12 What is not yet included in this section
 
 Experiment B (cross-sectional "which coin, how early" scoring) is not yet
 run; it depends on a cross-sectional feature handoff from the data
@@ -145,3 +254,6 @@ This section will be revised once those results exist.
 | Inflation-by-horizon figures | `results/figures/inflation_by_horizon.png`, `results/figures/prevalence_by_horizon.png` |
 | Coin-identity canary | `results/metrics_A.json` (`canary_h10`) |
 | Per-row predictions (audit trail) | `results/predictions_A_tuned.parquet` |
+| Boundary/seed/training-size sensitivity | `results/sensitivity_checks.json` |
+| Permutation importance | `results/permutation_importance.json` |
+| Full across-horizon comparison tables | `results/metrics_A_tuned.json` (`records`, all `horizon_min`, `protocol=="honest_P2"`) |

@@ -224,8 +224,8 @@ def _cap_for_distance_models(X, y, max_negatives=MAX_NEGATIVES_FOR_DISTANCE_MODE
     keep = np.concatenate([pos_idx, neg_idx])
     rng.shuffle(keep)
     sample_info = {
-        "n_positives": int(len(pos_idx)),
-        "n_negatives_sampled": int(len(neg_idx)),
+        "n_positives": len(pos_idx),
+        "n_negatives_sampled": len(neg_idx),
         "n_negatives_total": int(n_negatives_total),
     }
     return X.iloc[keep], y.iloc[keep], sample_info
@@ -408,7 +408,7 @@ def run_experiment_a_sweep(
                         "ap": ap,
                         "fit_time_sec": fit_time_sec,
                         "inference_time_sec": inference_time_sec,
-                        "n_train_rows_used": int(len(fit_X)),
+                        "n_train_rows_used": len(fit_X),
                         "sample_info": sample_info,
                     })
 

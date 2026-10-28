@@ -1,0 +1,11 @@
+{
+  "checked_at_utc": "2026-10-28T13:54:59.399557+00:00",
+  "server_time_ms": 1793195692204,
+  "total_symbols": 3742,
+  "status_trading": 1385,
+  "spot_trading_allowed": 1385,
+  "btc_quoted_pairs": 38,
+  "usdt_quoted_pairs": 519,
+  "distinct_base_assets_any_quote": 520,
+  "distinct_base_assets_btc_quote": 38
+}

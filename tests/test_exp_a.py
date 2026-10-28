@@ -113,7 +113,7 @@ def test_cap_for_distance_models_respects_max_negatives():
 def test_cap_for_distance_models_keeps_all_when_under_cap():
     y = pd.Series([1] * 5 + [0] * 5)
     X = pd.DataFrame({"f": range(10)})
-    capped_X, capped_y, info = _cap_for_distance_models(X, y, max_negatives=20, seed=0)
+    capped_X, _capped_y, info = _cap_for_distance_models(X, y, max_negatives=20, seed=0)
     assert info["n_negatives_sampled"] == 5
     assert len(capped_X) == 10
 
