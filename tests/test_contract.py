@@ -32,7 +32,11 @@ def test_mock_contract_has_repeatable_ranked_coins_and_separate_markets(client):
     assert sum(m["scored"] for m in markets["markets"]) == 60
     coin = client.get("/coin/MOCK001BTC").json()
     assert coin["current"] == radar["rows"][0]
-    assert len(coin["bars"]) == 120 and len(coin["drivers"]) == 5
+    assert len(coin["bars"]) == 360 and len(coin["drivers"]) == 5
+    assert len(coin["risk_series"]) == 360
+    assert coin["risk_series"][-1]["risk"] == coin["current"]["risk"]
+    assert all(b["low"] <= min(b["open"], b["close"]) <= max(b["open"], b["close"]) <= b["high"]
+               for b in coin["bars"])
     assert coin["market"] == markets["markets"][0]
     assert client.get("/coin/UNKNOWNBTC").status_code == 404
     assert client.get("/alerts").json()["alerts"] == [coin["current"]["alert"]]

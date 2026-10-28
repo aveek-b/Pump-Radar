@@ -1,5 +1,6 @@
 """Deterministic UI fixtures, independent of Hannah's research/scoring engine."""
 
+import math
 import random
 import time
 from datetime import UTC, datetime, timedelta
@@ -78,20 +79,36 @@ class MockData:
         index = PAIRS.index(pair)
         price = (index + 1) * .00001
         end = (START + timedelta(seconds=sequence * 10)).replace(second=0)
-        return [Candle(time=end - timedelta(minutes=119 - i), open=price,
-                       high=price * 1.01, low=price * .99, close=price,
-                       volume_quote=10 + i % 7) for i in range(120)]
+        bars = []
+        for i in range(360):
+            minute = end - timedelta(minutes=359 - i)
+            phase = (minute - START).total_seconds() / 60
+            opening = price * (1 + .02 * math.sin((phase - 1) / 12))
+            close = price * (1 + .02 * math.sin(phase / 12))
+            bars.append(Candle(time=minute, open=opening,
+                               high=max(opening, close) * 1.003,
+                               low=min(opening, close) * .997, close=close,
+                               volume_quote=10 + i % 7))
+        return bars
 
     def coin(self, pair: str, sequence: int, price_sequence: int) -> CoinResponse:
         tick = self.tick(sequence)
         row = next(row for row in tick.rows if row.pair == pair)
+        history = []
+        for i in range(359, 0, -1):
+            timestamp = tick.as_of.replace(second=0) - timedelta(minutes=i)
+            rng = random.Random(42 + PAIRS.index(pair) + int(timestamp.timestamp()))
+            base = rng.uniform(.02, .7)
+            history.append(RiskPoint(time=timestamp, risk={
+                h: round(min(.99, base * (.6 + j * .1)), 4)
+                for j, h in enumerate(HORIZONS)
+            }))
+        history.append(RiskPoint(time=tick.as_of, risk=row.risk))
         return CoinResponse(
             **PROVENANCE, pair=pair,
             market=next(m for m in self.markets(price_sequence) if m.symbol == pair),
             current=row, bars=self.candles(pair, sequence),
-            risk_series=[RiskPoint(time=t.as_of, risk=next(
-                r.risk for r in t.rows if r.pair == pair))
-                for t in (self.tick(i) for i in range(max(0, sequence - 11), sequence + 1))],
+            risk_series=history,
             alerts=[row.alert] if row.alert else [],
             drivers=[Driver(label=f"Mock driver {i + 1} (synthetic, not a feature)",
                             value=round(.5 - i * .08, 2)) for i in range(5)],

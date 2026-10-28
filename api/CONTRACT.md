@@ -21,9 +21,11 @@ features, frozen models and threshold files are unchanged.
 - `/markets` returns 60 scored BTC fixtures and one unscored USDT fixture.
   `change_24h_pct` is percentage points; `volume_24h_quote` and candle `volume_quote`
   use the stated quote asset. All values are synthetic.
-- `/coin/{pair}` returns a scored fixture's market, risks, 120 synthetic minute
-  candles, up to 12 score points, current-frame alerts and five synthetic drivers.
-  Unknown/unscored pairs return 404. Six-hour charts and real explanations are later work.
+- `/coin/{pair}` returns a scored fixture's market, risks, 360 synthetic minute
+  candles, 360 score points, current-frame alerts and five synthetic drivers.
+  Unknown/unscored pairs return 404. Candle and risk history cover six hours;
+  historical synthetic risk points are illustrative, not a recorded tick history.
+  The final risk point matches the current frame. Real explanations remain later work.
 - Mock tiers cycle through low/medium/high. Mock levels use 10-minute risk and
   illustrative cutoffs 0.4 (Watch) and 0.8 (Alert), **not** Kaashvi's thresholds.
   One rotating synthetic alert per tick exercises transport; B3 entry detection
@@ -69,5 +71,12 @@ Confirm replay timestamps, frame resolution, index metadata, metric denominators
 and artifact formats before B4/F4/F5. These types propose an adapter boundary;
 they do not change Section 3.2 Parquet/model/replay handoffs or imply artifacts exist.
 
-Next Aveek milestone: F2 Radar/Markets UI with two tabs, horizon/search/tier
-controls, prices, ranking and alert feedback, still clearly labeled in mock mode.
+The frontend now renders Radar/Markets, Coin and Replay against these fixtures.
+Honesty displays missing metrics and Method describes the planned protocol. Browser
+requests use a local `/api` proxy prefix; backend paths and generated shapes are unchanged.
+Replay null lead values are displayed as unavailable, not inferred misses; aggregate
+catch rate needs an explicit evaluation/miss convention agreed with the researchers.
+The stream is shared across pages, suppresses snapshot notifications on reconnect,
+and tracks only bounded session alert history. Badges still use the 10-minute level,
+even when a different horizon determines sorting. The brief mock sparkline is labeled
+"Recent trend", not a measured two-hour series.

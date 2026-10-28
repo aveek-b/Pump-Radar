@@ -6,7 +6,8 @@ The 26 October compressed build guide is in `docs/build-guide-v2.pdf`. The code 
 
 - The repository is consolidated: `api/`, `web/`, `src/`, and this file share the Git root. There is no second nested project. `api/main.py` exposes the retained demo plus the B1 contract in `api/schemas.py`.
 - The demo handles manual closed bars, batches, replay input, radar, alerts, an event stream, and a health check. `src/pumpradar/live.py` is a Binance WebSocket demo feeder with minute coverage reporting.
-- `web/` is a React/Vite shell. Radar supports the demo API and 60 deterministic mock coins through REST/SSE; Coin, Replay, Honesty, and Method are labeled placeholders.
+- `web/` now includes Radar/Markets with URL filters, Coin charts, Replay playback,
+  Honesty availability states and a planned-Method page. Mock data remains labeled.
 - `api/engine/ingest.py`, `score.py`, and `prices.py` reserve Hannah's engine work; research features and frozen models have not been integrated. Deployment files are local starters, not public deployment.
 - B1 was implemented with 21 Python tests, generated OpenAPI/TypeScript, lint and a frontend build. Re-run checks after changes. `api/CONTRACT.md` documents provisional choices pending Hannah and Kaashvi's review.
 
@@ -19,12 +20,23 @@ The following was the B1 scope and remains its acceptance checklist. Read guide 
 3. Generate `api/openapi.json` and `web/src/api/types.ts` from the backend contract. Wire a small browser view to the new mock radar and stream so the contract can be inspected end to end; leave empirical performance, real model, and held-out replay claims absent until teammate artifacts arrive.
 4. Add focused endpoint/stream checks, run Python tests and lint, and run the frontend build. Show the exact commands and outcomes. Report remaining decisions and a suggested next Aveek milestone (Radar/Markets UI).
 
-## Next Aveek milestone: F2 Radar/Markets UI
+## Platform screens implemented; next milestone: real artifact integration
 
-Build Radar and All Markets tabs against the B1 contract. Add horizon selection,
-search and tier controls, prices, ranking and alert feedback. Keep every synthetic
-value clearly labeled and retain the original manual demo. Coordinate the pending
-contract choices before real-engine integration. Use the locked setup and checks
-in the root README; regenerate API artifacts together when schemas change.
+Radar/Markets controls, alert feedback, six-hour Coin charts and Replay playback
+are implemented against B1 fixtures. Browser tests live in `web/tests/`; run
+`cd web && npm run test:e2e` after installing Playwright Chromium. Local API requests
+use `/api` to avoid collisions with browser routes such as `/replay`.
+
+The fetched data branch `origin/feat/data-events` at `042e36f` has event preparation,
+archive downloads/validation and onset detection, but no shared features, frozen
+model, real engine or replay files. It was reviewed without merging research work.
+Preserve its documented zero-IQR/missing-data onset limitations when integrating.
+
+Agree the pending contract choices before real-engine integration, including
+model-ready provenance, evaluated Honesty status and the distinction between a
+missing replay metric and a measured miss. Complete the evaluated scoreboard,
+research figures and final paper link only after those artifacts exist. Public
+deployment, accessibility audit, motion/table polish and the demo video remain.
+Use the locked checks in README; regenerate API artifacts together when shapes change.
 
 Do not invent Hannah's feature calculation or Kaashvi's thresholds, deploy publicly, create another GitHub repository, or imply the mock risk is a trained prediction. Inspect and preserve existing local changes before editing.
