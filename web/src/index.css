@@ -86,6 +86,7 @@ figcaption { padding: 12px; font-size: .75rem; line-height: 1.7; color: #a1adbb;
 .onset-marker { pointer-events: none; position: absolute; top: 0; bottom: 28px; border-left: 2px dashed #f17878; z-index: 2; }
 .onset-marker span { background: #12151a; color: #ffb1b1; font-size: .75rem; padding: 4px; }
 .event-picker { margin-top: 24px; }
+.research-figure { display: block; max-width: 100%; height: auto; margin: 16px auto; border-radius: 8px; background: #fff; }
 .scrubber { position: relative; margin: 22px 0 32px; }
 .scrubber input { width: 100%; padding: 0; accent-color: var(--color-accent); }
 .scrubber-onset { position: absolute; top: 32px; border-left: 2px solid #f17878; padding-left: 5px; font-size: .75rem; pointer-events: none; }

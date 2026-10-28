@@ -70,6 +70,9 @@ def test_replay_and_honesty_do_not_claim_measured_results(client):
 
 def test_non_mock_routes_report_pending_integration(client, monkeypatch):
     monkeypatch.setenv("PUMPRADAR_MOCK", "0")
+    async def no_markets():
+        return []
+    monkeypatch.setattr(platform.live_universe, "get", no_markets)
     assert client.get("/radar").json()["scorer"] == "demo_stub"
     assert client.get("/markets").json()["markets"] == []
     assert client.get("/replay/events").json()["events"] == []

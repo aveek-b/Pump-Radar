@@ -14,7 +14,10 @@ export function openStream(): EventSource {
 
 async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
   const response = await fetch(`${base}${path}`, { signal })
-  if (!response.ok) throw new Error(`Request failed (${response.status}). ${response.status === 503 ? 'Real engine integration is pending.' : 'Please retry.'}`)
+  if (!response.ok) {
+    const body = await response.json().catch(() => null) as { detail?: string } | null
+    throw new Error(typeof body?.detail === 'string' ? body.detail : `Request failed (${response.status}). Please retry.`)
+  }
   return response.json() as Promise<T>
 }
 
@@ -24,3 +27,5 @@ export const getCoin = (pair: string, signal?: AbortSignal) => get<Schema['CoinR
 export const getReplayEvents = (signal?: AbortSignal) => get<Schema['ReplayEventsResponse']>('/replay/events', signal)
 export const getReplay = (id: string, signal?: AbortSignal) => get<Schema['ReplayDetailResponse']>(`/replay/${encodeURIComponent(id)}`, signal)
 export const getHonesty = (signal?: AbortSignal) => get<Schema['HonestyResponse']>('/honesty', signal)
+export const getExperimentA = (signal?: AbortSignal) => get<Schema['ExperimentAResponse']>('/research/experiment-a', signal)
+export const experimentAFigure = (name: 'inflation_by_horizon.png' | 'prevalence_by_horizon.png') => `${base}/research/experiment-a/figures/${name}`

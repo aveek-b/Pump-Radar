@@ -210,6 +210,59 @@
         }
       }
     },
+    "/research/experiment-a": {
+      "get": {
+        "summary": "Experiment A",
+        "operationId": "experiment_a_research_experiment_a_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentAResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/research/experiment-a/figures/{name}": {
+      "get": {
+        "summary": "Experiment A Figure",
+        "operationId": "experiment_a_figure_research_experiment_a_figures__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "description": "Unknown figure"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/coin/{pair}": {
       "get": {
         "summary": "Coin",
@@ -433,6 +486,102 @@
           "alerts"
         ],
         "title": "AlertsResponse"
+      },
+      "AuditPoint": {
+        "properties": {
+          "horizon_min": {
+            "type": "integer",
+            "title": "Horizon Min"
+          },
+          "feature_set": {
+            "type": "string",
+            "enum": [
+              "clean",
+              "full"
+            ],
+            "title": "Feature Set"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "random_ap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Random Ap"
+          },
+          "honest_ap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Honest Ap"
+          },
+          "inflation_ap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inflation Ap"
+          },
+          "honest_ci_low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Honest Ci Low"
+          },
+          "honest_ci_high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Honest Ci High"
+          },
+          "honest_prevalence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Honest Prevalence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "horizon_min",
+          "feature_set",
+          "model",
+          "random_ap",
+          "honest_ap",
+          "inflation_ap"
+        ],
+        "title": "AuditPoint"
       },
       "BarInput": {
         "properties": {
@@ -814,6 +963,94 @@
           "value"
         ],
         "title": "Driver"
+      },
+      "ExperimentAResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "historical_experiment_a",
+            "title": "Status",
+            "default": "historical_experiment_a"
+          },
+          "source_commit": {
+            "type": "string",
+            "title": "Source Commit"
+          },
+          "source_artifacts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Artifacts"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/AuditPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "importance_by_feature_set": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/FeatureImportance"
+              },
+              "type": "array"
+            },
+            "propertyNames": {
+              "enum": [
+                "clean",
+                "full"
+              ]
+            },
+            "type": "object",
+            "title": "Importance By Feature Set"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_commit",
+          "source_artifacts",
+          "notice",
+          "points",
+          "importance_by_feature_set",
+          "limitations"
+        ],
+        "title": "ExperimentAResponse"
+      },
+      "FeatureImportance": {
+        "properties": {
+          "feature": {
+            "type": "string",
+            "title": "Feature"
+          },
+          "importance_mean": {
+            "type": "number",
+            "title": "Importance Mean"
+          },
+          "importance_std": {
+            "type": "number",
+            "title": "Importance Std"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feature",
+          "importance_mean",
+          "importance_std"
+        ],
+        "title": "FeatureImportance"
       },
       "HTTPValidationError": {
         "properties": {

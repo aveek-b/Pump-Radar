@@ -8,7 +8,11 @@ The 26 October compressed build guide is in `docs/build-guide-v2.pdf`. The code 
 - The demo handles manual closed bars, batches, replay input, radar, alerts, an event stream, and a health check. `src/pumpradar/live.py` is a Binance WebSocket demo feeder with minute coverage reporting.
 - `web/` now includes Radar/Markets with URL filters, Coin charts, Replay playback,
   Honesty availability states and a planned-Method page. Mock data remains labeled.
-- `api/engine/ingest.py`, `score.py`, and `prices.py` reserve Hannah's engine work; research features and frozen models have not been integrated. Deployment files are local starters, not public deployment.
+- `api/engine/ingest.py`, `score.py`, and `prices.py` reserve Hannah's engine work;
+  research features and frozen models have not been integrated. Kaashvi's separate
+  `src/pumpradar/prices.py` supports unscored live market prices, and Experiment A
+  audit artifacts are displayed separately from live-model metrics. Deployment files
+  are local starters, not public deployment.
 - B1 was implemented with 21 Python tests, generated OpenAPI/TypeScript, lint and a frontend build. Re-run checks after changes. `api/CONTRACT.md` documents provisional choices pending Hannah and Kaashvi's review.
 
 ## Completed first task: B1
@@ -27,10 +31,16 @@ are implemented against B1 fixtures. Browser tests live in `web/tests/`; run
 `cd web && npm run test:e2e` after installing Playwright Chromium. Local API requests
 use `/api` to avoid collisions with browser routes such as `/replay`.
 
-The fetched data branch `origin/feat/data-events` at `042e36f` has event preparation,
-archive downloads/validation and onset detection, but no shared features, frozen
-model, real engine or replay files. It was reviewed without merging research work.
+The updated data branch is merged into `origin/main` and now includes shared
+`features.py` alongside event preparation, archive downloads/validation and onset
+detection. This platform branch has not merged the updated main; its real engine,
+frozen model and held-out replay files are still unavailable locally.
 Preserve its documented zero-IQR/missing-data onset limitations when integrating.
+
+Kaashvi's fetched branch at `a434e86` provides an Experiment A audit, committed
+results/figures and a live price-universe module. The platform now displays these
+in a separate historical audit and unscored All Markets feed. It does not supply
+Experiment B, frozen model/threshold/features, or held-out replay files.
 
 Agree the pending contract choices before real-engine integration, including
 model-ready provenance, evaluated Honesty status and the distinction between a

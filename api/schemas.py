@@ -125,6 +125,34 @@ class HonestyResponse(Provenance):
     limitations: list[str]
 
 
+class AuditPoint(BaseModel):
+    horizon_min: int
+    feature_set: Literal["clean", "full"]
+    model: str
+    random_ap: float | None
+    honest_ap: float | None
+    inflation_ap: float | None
+    honest_ci_low: float | None = None
+    honest_ci_high: float | None = None
+    honest_prevalence: float | None = None
+
+
+class FeatureImportance(BaseModel):
+    feature: str
+    importance_mean: float
+    importance_std: float
+
+
+class ExperimentAResponse(BaseModel):
+    status: Literal["historical_experiment_a"] = "historical_experiment_a"
+    source_commit: str
+    source_artifacts: list[str]
+    notice: str
+    points: list[AuditPoint]
+    importance_by_feature_set: dict[Literal["clean", "full"], list[FeatureImportance]]
+    limitations: list[str]
+
+
 class BarInput(BaseModel):
     symbol: str
     close_time: datetime

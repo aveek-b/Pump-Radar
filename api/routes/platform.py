@@ -1,15 +1,21 @@
 """B1 read contract and stream. Real engine integration remains a separate handoff."""
 
 import asyncio
+import json
 import os
+from datetime import datetime
+from functools import lru_cache
+from pathlib import Path
 
 from fastapi import APIRouter, FastAPI, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
+from httpx import HTTPError
 from pydantic.json_schema import models_json_schema
 
 from api.mock import PAIRS, PROVENANCE, mock_data
 from api.schemas import (
     CoinResponse,
+    ExperimentAResponse,
     HonestyResponse,
     MarketsResponse,
     PricesEvent,
@@ -17,8 +23,11 @@ from api.schemas import (
     ReplayDetailResponse,
     ReplayEventsResponse,
 )
+from pumpradar.prices import LiveUniverseCache
 
 router = APIRouter()
+live_universe = LiveUniverseCache()
+RESULTS = Path(__file__).resolve().parents[2] / "results"
 DEMO = {"scorer": "demo_stub", "mock": False,
         "notice": "Real market/model integration is pending; retained demo is available separately."}
 
@@ -28,11 +37,85 @@ def mock_enabled() -> bool:
 
 
 @router.get("/markets", response_model=MarketsResponse)
-def markets():
-    if not mock_enabled():
-        return MarketsResponse(**DEMO, as_of=None, markets=[])
-    prices = mock_data.prices(mock_data.price_sequence())
-    return MarketsResponse(**PROVENANCE, as_of=prices.as_of, markets=prices.markets)
+async def markets():
+    if mock_enabled():
+        prices = mock_data.prices(mock_data.price_sequence())
+        return MarketsResponse(**PROVENANCE, as_of=prices.as_of, markets=prices.markets)
+    try:
+        coins = await live_universe.get()
+    except (HTTPError, ValueError, KeyError) as exc:
+        raise HTTPException(503, "Public market prices are unavailable; retry later.") from exc
+    return MarketsResponse(
+        scorer="demo_stub", mock=False, model_version=None,
+        notice="Live public market prices. No research model is loaded; none is scored.",
+        as_of=datetime.fromisoformat(coins[0].price_as_of) if coins else None,
+        markets=[{
+            "symbol": coin.symbol, "price": coin.price,
+            "change_24h_pct": coin.change_24h_pct,
+            "volume_24h_quote": coin.quote_volume_24h,
+            "quote_asset": coin.quote_asset, "scored": False,
+        } for coin in coins],
+    )
+
+
+@lru_cache(maxsize=1)
+def experiment_a_data() -> ExperimentAResponse:
+    """Read Kaashvi's committed audit outputs without interpreting them as live scores."""
+    try:
+        records = json.loads((RESULTS / "metrics_A_tuned.json").read_text(encoding="utf-8"))["records"]
+        intervals = json.loads((RESULTS / "bootstrap_A_h10.json").read_text(encoding="utf-8"))
+        importance = json.loads((RESULTS / "permutation_importance.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError, KeyError) as exc:
+        raise HTTPException(503, "Experiment A artifacts are unavailable.") from exc
+    by_key = {(r["horizon_min"], r["feature_set"], r["model"], r["protocol"]): r
+              for r in records if r.get("model") is not None}
+    ci = {(r["feature_set"], r["model"]): r for r in intervals
+          if r["protocol"] == "honest_P2"}
+    points = []
+    for horizon, feature_set, model in sorted({key[:3] for key in by_key}):
+        random = by_key.get((horizon, feature_set, model, "random_P0"))
+        honest = by_key.get((horizon, feature_set, model, "honest_P2"))
+        if not random or not honest:
+            continue
+        random_ap, honest_ap = random.get("ap"), honest.get("ap")
+        interval = ci.get((feature_set, model)) if horizon == 10 else None
+        points.append({
+            "horizon_min": horizon, "feature_set": feature_set, "model": model,
+            "random_ap": random_ap, "honest_ap": honest_ap,
+            "inflation_ap": random_ap - honest_ap if random_ap is not None and honest_ap is not None else None,
+            "honest_ci_low": interval["ci_low"] if interval else None,
+            "honest_ci_high": interval["ci_high"] if interval else None,
+            "honest_prevalence": honest.get("prevalence"),
+        })
+    return ExperimentAResponse(
+        source_commit="a434e86",
+        source_artifacts=["results/metrics_A_tuned.json", "results/bootstrap_A_h10.json",
+                          "results/permutation_importance.json"],
+        notice="Historical Sapienza Experiment A: average precision (AP), not calibrated risk. This is a leakage audit, not the cross-sectional deployed model.",
+        points=points,
+        importance_by_feature_set=importance,
+        limitations=[
+            "Experiment B, Hit@5, alert-budget threshold and calibration have not been delivered.",
+            "The 25-second Sapienza feature set is not the live minute-bar feature contract.",
+            "Full-feature results depend strongly on time-of-day encoding; its generality is unresolved.",
+        ],
+    )
+
+
+@router.get("/research/experiment-a", response_model=ExperimentAResponse)
+def experiment_a():
+    return experiment_a_data()
+
+
+@router.get("/research/experiment-a/figures/{name}", response_class=FileResponse,
+            responses={404: {"description": "Unknown figure"}})
+def experiment_a_figure(name: str):
+    if name not in {"inflation_by_horizon.png", "prevalence_by_horizon.png"}:
+        raise HTTPException(404, "Unknown figure")
+    path = RESULTS / "figures" / name
+    if not path.is_file():
+        raise HTTPException(404, "Figure unavailable")
+    return FileResponse(path, media_type="image/png")
 
 
 @router.get("/coin/{pair}", response_model=CoinResponse,
@@ -64,7 +147,7 @@ def replay_event(event_id: str):
 @router.get("/honesty", response_model=HonestyResponse)
 def honesty():
     return HonestyResponse(**(PROVENANCE if mock_enabled() else DEMO), status="unavailable",
-                           limitations=["No frozen research model or evaluation artifacts loaded.",
+                           limitations=["No frozen cross-sectional model or deployment evaluation is loaded. Historical Experiment A is reported separately.",
                                         "Mock values and demo heuristics are not probabilities.",
                                         "Held-out replay and false-alert budgets are unmeasured."])
 

@@ -149,6 +149,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/research/experiment-a": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Experiment A */
+        get: operations["experiment_a_research_experiment_a_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/research/experiment-a/figures/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Experiment A Figure */
+        get: operations["experiment_a_figure_research_experiment_a_figures__name__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/coin/{pair}": {
         parameters: {
             query?: never;
@@ -274,6 +308,30 @@ export interface components {
              * @default Demo heuristic alerts; no measured false-alert guarantee.
              */
             notice: string;
+        };
+        /** AuditPoint */
+        AuditPoint: {
+            /** Horizon Min */
+            horizon_min: number;
+            /**
+             * Feature Set
+             * @enum {string}
+             */
+            feature_set: "clean" | "full";
+            /** Model */
+            model: string;
+            /** Random Ap */
+            random_ap: number | null;
+            /** Honest Ap */
+            honest_ap: number | null;
+            /** Inflation Ap */
+            inflation_ap: number | null;
+            /** Honest Ci Low */
+            honest_ci_low?: number | null;
+            /** Honest Ci High */
+            honest_ci_high?: number | null;
+            /** Honest Prevalence */
+            honest_prevalence?: number | null;
         };
         /** BarInput */
         BarInput: {
@@ -401,6 +459,38 @@ export interface components {
             label: string;
             /** Value */
             value: number;
+        };
+        /** ExperimentAResponse */
+        ExperimentAResponse: {
+            /**
+             * Status
+             * @default historical_experiment_a
+             * @constant
+             */
+            status: "historical_experiment_a";
+            /** Source Commit */
+            source_commit: string;
+            /** Source Artifacts */
+            source_artifacts: string[];
+            /** Notice */
+            notice: string;
+            /** Points */
+            points: components["schemas"]["AuditPoint"][];
+            /** Importance By Feature Set */
+            importance_by_feature_set: {
+                [key: string]: components["schemas"]["FeatureImportance"][];
+            };
+            /** Limitations */
+            limitations: string[];
+        };
+        /** FeatureImportance */
+        FeatureImportance: {
+            /** Feature */
+            feature: string;
+            /** Importance Mean */
+            importance_mean: number;
+            /** Importance Std */
+            importance_std: number;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -928,6 +1018,62 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MarketsResponse"];
+                };
+            };
+        };
+    };
+    experiment_a_research_experiment_a_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExperimentAResponse"];
+                };
+            };
+        };
+    };
+    experiment_a_figure_research_experiment_a_figures__name__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unknown figure */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

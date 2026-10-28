@@ -74,7 +74,7 @@ Open a **second PowerShell terminal**, then run:
 
 ```powershell
 Set-Location 'D:\FME Project\pumpradar\web'
-npm run dev -- --host localhost --port 5173 --strictPort
+npm run dev
 ```
 
 Leave this terminal running too. The frontend forwards `/api` requests to the
@@ -82,14 +82,17 @@ backend on port 8000; no `VITE_API_URL` setting is needed for this local setup.
 
 ### 5. Open and explore the dashboard
 
-Open **http://localhost:5173/** in your browser.
+Open **http://127.0.0.1:5173/** in your browser. Use this exact address:
+`localhost` can resolve to the IPv6 address `::1` and reach a different Vite
+server if another instance is running on the same port.
 
 - Radar shows 60 synthetic coins. Prices update about every 2 seconds and scores
   every 10 seconds. Use the horizon, search and tier controls or All Markets tab.
 - Click a scored pair to open its Coin chart and synthetic drivers.
 - Open Replay, choose the synthetic example, select **16×**, then click **Play**.
-- Honesty shows which evaluation results are unavailable; Method explains the
-  planned research protocol. Neither page claims measured model performance.
+- Honesty shows the measured historical Experiment A leakage audit alongside
+  unavailable live-model metrics; Method includes its two measured figures.
+  These audit results do not evaluate the dashboard's mock scores.
 
 The API docs are at http://127.0.0.1:8000/docs. Port **8000** serves the backend
 and older static demo; port **5173** is the new React dashboard.
@@ -115,7 +118,7 @@ steps 3–5 unless dependencies changed.
 | No coins, or `mock: False` | Stop the backend, set `$env:PUMPRADAR_MOCK = '1'` in its terminal, then restart it. |
 | API unavailable or feed reconnecting | Keep Terminal 1 running on port 8000; check `/health` and its terminal output. |
 | Port 8000 or 5173 is already in use | Stop the previous instance with Ctrl+C in its terminal, then rerun the corresponding startup command. |
-| `npm.ps1` cannot run because scripts are disabled | Use `npm.cmd ci` and `npm.cmd run dev -- --host localhost --port 5173 --strictPort` in PowerShell. |
+| `npm.ps1` cannot run because scripts are disabled | Use `npm.cmd ci` and `npm.cmd run dev` in PowerShell. |
 
 ## Clone and set up another checkout
 
@@ -152,7 +155,7 @@ cd web
 npm run dev
 ```
 
-Open `http://localhost:5173/` for React and `http://127.0.0.1:8000/docs` for the
+Open `http://127.0.0.1:5173/` for React and `http://127.0.0.1:8000/docs` for the
 API. Start both terminals from the project root. In this original local checkout,
 that is `D:\FME Project\pumpradar`, with no second nested `pumpradar` directory.
 
@@ -166,7 +169,7 @@ $env:PUMPRADAR_MOCK = '1'
 uv run --locked --extra dev python -m uvicorn api.main:app --reload
 ```
 
-In a second terminal, run `cd web` then `npm run dev`. Open `http://localhost:5173/`
+In a second terminal, run `cd web` then `npm run dev`. Open `http://127.0.0.1:5173/`
 to see 60 labeled synthetic coins, prices about every 2 seconds and scoring ticks
 every 10 seconds. The fixture timestamps are synthetic, not market time.
 Use `curl.exe -N http://127.0.0.1:8000/stream` to inspect SSE directly.
@@ -191,7 +194,8 @@ data and missing evaluation results explicit.
   Playback reveals only data through the cursor. The current example is synthetic;
   first-alert lead, rank-at-onset and catch-rate results remain unavailable.
 - Honesty and Method: unavailable metrics stay unavailable; the Method page describes
-  the planned protocol without presenting unmeasured figures or a nonexistent paper.
+  the planned protocol and displays Kaashvi's measured Experiment A audit and figures
+  with source provenance. There is still no Experiment B result or final paper link.
 - Responsive layout, light-theme toggle, keyboard focus and feed-down status are
   included. Alert counts describe this browser session only, not measured error rates.
 
@@ -200,6 +204,24 @@ This keeps API paths separate from browser routes such as `/replay`. In a separa
 hosted frontend, set `VITE_API_URL` to the backend origin **at build time**, configure
 backend CORS for that origin, and preserve SPA fallbacks (`web/public/_redirects`).
 Public hosting and production CORS configuration are still pending.
+
+With `PUMPRADAR_MOCK=0`, All Markets requests public Binance prices. Kaashvi's
+`LiveUniverseCache` refreshes the snapshot at most once every 30 seconds; this is
+separate from the 2-second synthetic stream. Every real market is marked **Not
+scored** until the cross-sectional model arrives. If Binance is unreachable, the
+page shows an explicit feed error. Radar also shows a **price-only watch** of the
+largest USDT markets by 24-hour USDT volume; it is not
+a pump-risk ranking. Honesty shows the count and timestamp of public priced markets
+separately from its still-unavailable model precision and alert-budget metrics.
+The retained demo heuristic appears only when manually ingested bars or the old
+feeder supplies them.
+
+To check a real-price session, restart the backend with `$env:PUMPRADAR_MOCK = '0'`
+and open `http://127.0.0.1:8000/markets`. Its `markets` list should contain
+real pairs with `mock: false` and `scored: false`. A 503 means the backend cannot
+reach Binance; check network access from the backend machine. If `/markets` has
+pairs but the browser does not, check that the frontend is running on port 5173,
+then open `http://127.0.0.1:5173/api/markets` to verify the Vite proxy.
 
 Browser checks run against their own mock backend on port 8765 and frontend on 5174:
 
@@ -213,21 +235,31 @@ The checks cover filters, Coin navigation, replay completion, direct links, 375p
 layouts, unscored markets and duplicate SSE alerts. They are local mock checks,
 not live-feed or public-deployment acceptance tests.
 
-## Teammate branch review (28 October 2026)
+## Teammate branch review (29 October 2026)
 
-`origin/feat/data-events` at `042e36f` contains event preparation, archive download
-and validation scripts, onset detection and two onset figures. Its README documents
+`origin/feat/data-events` is now merged into `origin/main` and contains event
+preparation, archive validation, onset detection and shared `features.py`. Its README documents
 zero-IQR and missing-data fallback timestamps; these must not be treated as confirmed
 market onsets. The labeled-feature CSV is stored through Git LFS.
 
-That branch does not yet provide `compute_features`, the real API engine, frozen
-models or held-out replay JSON. No separate model branch was visible in the fetched
-remote refs. The data branch has been inspected, not merged into the platform branch.
+The fetched main has `compute_features`, but this platform branch has not yet merged
+it. The real API engine and held-out replay JSON are still unavailable here.
 Its research work remains owned by Hannah.
 
+On 29 October, the fetched `origin/feat/kaashvi-models-notebook` branch at
+`a434e86` supplied a completed **Experiment A leakage audit**, its results JSON and
+two figures, plus a public Binance price-universe module. These exact artifacts and
+the price module were copied into this platform branch, and their source commit is
+reported by `/research/experiment-a`. Experiment A uses Sapienza 25-second chunks;
+its AP values are not live pump probabilities. The branch does not include the
+Experiment B cross-sectional model, frozen model dictionary, ordered live features,
+calibrated threshold, alert-budget validation or held-out replay files. Its older
+`src/pumpradar/api.py` routes were not merged because they use the retained demo
+heuristic and a different `/honesty` response shape.
+
 Next handoff: agree the real-engine adapter and replay/evaluation schemas, then load
-the frozen artifacts. Motion/table polish, a complete evaluated scoreboard, research
-figures, public deployment, accessibility audit, screenshots/video and final paper
+the frozen artifacts. Motion/table polish, a complete evaluated scoreboard, the
+cross-sectional result figures, public deployment, accessibility audit, screenshots/video and final paper
 contributions remain to be finished.
 
 ## Ownership and file handoffs
