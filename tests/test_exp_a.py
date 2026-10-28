@@ -1,3 +1,4 @@
+
 import numpy as np
 import pandas as pd
 
@@ -165,11 +166,31 @@ def test_tune_hyperparameters_picks_a_value_from_each_grid():
     for model_name, grid in HYPERPARAM_GRIDS.items():
         for param, values in grid.items():
             assert result["chosen"][model_name][param] in values
-            assert set(result["trials"][model_name][param].keys()) == set(values)
+        # trials covers the full Cartesian product of this model's grid
+        expected_n_combos = 1
+        for values in grid.values():
+            expected_n_combos *= len(values)
+        assert len(result["trials"][model_name]) == expected_n_combos
 
     assert result["horizon_min"] == 10
     assert result["n_train_events"] > 0
     assert result["n_val_events"] > 0
+
+
+def test_tune_hyperparameters_lightgbm_does_a_joint_not_coordinate_search():
+    """LightGBM is the only model with 2 tunable params -- this is the one
+    case where joint vs. coordinate search can disagree, so it's worth a
+    dedicated check that every (num_leaves, max_depth) pair was tried.
+    """
+    df = _synthetic_prepared(n_events=30, rows_per_event=30, seed=1)
+    result = tune_hyperparameters(df, CLEAN_FEATURE_COLUMNS, horizon=10, seed=0)
+    lgb_trials = result["trials"]["lightgbm"]
+    expected_combos = {
+        f"num_leaves={leaves}, max_depth={depth}"
+        for leaves in HYPERPARAM_GRIDS["lightgbm"]["num_leaves"]
+        for depth in HYPERPARAM_GRIDS["lightgbm"]["max_depth"]
+    }
+    assert set(lgb_trials.keys()) == expected_combos
 
 
 def test_run_experiment_a_sweep_accepts_tuned_overrides():

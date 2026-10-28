@@ -19,6 +19,7 @@ Two build-guide steps live here:
 """
 from __future__ import annotations
 
+import itertools
 import time
 from pathlib import Path
 
@@ -245,15 +246,20 @@ def tune_hyperparameters(
     using the honest three-way split -- train fits, validation selects,
     test is never touched here.
 
-    For each model, every value in HYPERPARAM_GRIDS is tried one at a time
-    (holding the other params at their build_models default -- this is a
-    coordinate search, not a full Cartesian grid, to keep runtime bounded),
-    and the value with the highest validation AP is kept. Ties keep the
-    first (simplest/smallest) value tried.
+    For each model, every combination in the Cartesian product of
+    HYPERPARAM_GRIDS's values is tried (not a coordinate search that holds
+    other params at their default while varying one -- that misses
+    parameter interactions, e.g. LightGBM's num_leaves and max_depth, which
+    only a joint search can find). The combination with the highest
+    validation AP is kept; ties keep the first (smallest-index) combination
+    tried. Grids are still small ("proposed small grids, not claims about
+    optimal settings," per the build guide) and the validation set is only
+    44 events, so more exhaustive tuning than this would risk overfitting
+    the validation set itself rather than finding a genuinely better model.
 
     Returns {model_name: {param: chosen_value}}, plus a parallel
-    {model_name: {param: {value: val_ap}}} trail under the "_trials" key so
-    the selection is auditable rather than a black box.
+    {model_name: "combo -> val_ap"} trail under "trials" so the selection is
+    auditable rather than a black box.
     """
     feature_cols = list(feature_cols)
     y_col = f"y_{horizon}"
@@ -278,25 +284,31 @@ def tune_hyperparameters(
     chosen: dict = {}
     trials: dict = {}
 
+    fit_X, fit_y = X_train, y_train
+    capped_fit_X, capped_fit_y, _ = _cap_for_distance_models(X_train, y_train, seed=seed)
+
     for model_name, grid in HYPERPARAM_GRIDS.items():
-        chosen[model_name] = {}
-        trials[model_name] = {}
-        for param, values in grid.items():
-            param_results = {}
-            for value in values:
-                fit_X, fit_y = X_train, y_train
-                if model_name in ("knn", "linear_svm"):
-                    fit_X, fit_y, _ = _cap_for_distance_models(X_train, y_train, seed=seed)
+        params = list(grid.keys())
+        value_lists = [grid[p] for p in params]
+        combo_results: dict[tuple, float] = {}
 
-                candidate_models = build_models(seed=seed, overrides={model_name: {param: value}})
-                model = candidate_models[model_name]
-                model.fit(fit_X, fit_y)
-                scores = _get_scores(model, X_val)
-                param_results[value] = metrics.average_precision(y_val, scores)
+        fit_X_use, fit_y_use = (
+            (capped_fit_X, capped_fit_y) if model_name in ("knn", "linear_svm") else (fit_X, fit_y)
+        )
 
-            best_value = max(param_results, key=param_results.get)
-            chosen[model_name][param] = best_value
-            trials[model_name][param] = param_results
+        for combo in itertools.product(*value_lists):
+            overrides = {model_name: dict(zip(params, combo))}
+            model = build_models(seed=seed, overrides=overrides)[model_name]
+            model.fit(fit_X_use, fit_y_use)
+            scores = _get_scores(model, X_val)
+            combo_results[combo] = metrics.average_precision(y_val, scores)
+
+        best_combo = max(combo_results, key=combo_results.get)
+        chosen[model_name] = dict(zip(params, best_combo))
+        trials[model_name] = {
+            ", ".join(f"{p}={v}" for p, v in zip(params, combo)): ap
+            for combo, ap in combo_results.items()
+        }
 
     return {"chosen": chosen, "trials": trials, "horizon_min": horizon,
             "n_train_events": train_df["pump_index"].nunique(),

@@ -1,6 +1,6 @@
 # PumpRadar
 
-## Project status (as of 2026-10-28, commit `7b6e606`)
+## Project status (as of 2026-10-28, commit `6980ba7`)
 
 Three deliverables: a deployed web platform, an executed research notebook, and a
 research-style report. This section summarizes what's real and working right now,
@@ -26,6 +26,13 @@ real:
 - Best model: Random Forest / LightGBM, full features, honest split -- AP from 0.36
   (h=1, 57x base rate) down to 0.56 (h=60, 2.1x base rate). **Not calibrated, no
   alert threshold chosen, not a deployed model yet.**
+- Hyperparameters were re-verified with a true joint (Cartesian) grid search rather
+  than a coordinate search, specifically to check LightGBM's two tunable parameters
+  for interaction effects a coordinate search could miss. Result: identical AP --
+  the original search had already found the genuinely best combination, not a
+  coordinate-search artifact. Confirms the tuning, doesn't improve on it; further
+  gains within this methodology are limited by the small validation set (44 events)
+  and small grids, not by search thoroughness.
 - Full writeup: `paper/sections/results_kaashvi.md` (claims ledger included).
   Executed notebook: `notebooks/KD_pumpradar_complete.ipynb` (0 errors, restart-and-run-all verified).
   Raw results: `results/*.json`.
@@ -53,17 +60,26 @@ real:
   pair were incorrectly marked `unavailable` because display-quote preference was
   conflated with scoring eligibility) was caught this way and fixed.
 
-**Data (Hannah, `origin/feat/data-events`, PR #1, open/unmerged as of this writing)**:
-event table and onset-detection scripts, with honestly-reported real limitations
-(318 events processed: 127 confirmed onset, 187 fallback-to-Telegram-time, 4 missing
-data), and the real Sapienza dataset via Git LFS.
+**Data (Hannah, `origin/feat/data-events`, PR #1)**: event table and onset-detection
+scripts, with honestly-reported real limitations (318 events processed: 127 confirmed
+onset, 187 fallback-to-Telegram-time, 4 missing data), and the real Sapienza dataset
+via Git LFS. `features.py` (the shared cross-sectional feature module) and
+`xsec.parquet` -- the piece Experiment B depends on -- **is being completed now, in
+progress as of this writing**: real `pump_telegram.csv` pulled from the public
+Sapienza repo, her `prepare_events.py` re-run verbatim (reproduced her exact 318-event
+count, confirming correctness), and a real ~42,500-file Binance kline download
+running to build the full universe history each event needs. `features.py` itself
+(robust z-scores, market-relative percentile ranks, quiet accumulation, per the
+guide's D4 formula) is written and unit-tested, including the guide's required
+no-lookahead regression test. Not yet pushed -- will land as new commits on
+`feat/data-events` and then on `main` once the download finishes and the real
+`xsec.parquet` is assembled and verified.
 
 ### What's not done / blocked
 
-- **Experiment B (cross-sectional "which coin, how early" scoring) has not started.**
-  It needs `features.py` / `xsec.parquet` from the data workstream, which is not yet
-  in the shared repo. This is the actual deployment-candidate model the build guide
-  specifies -- Experiment A is the leakage audit, not the final product.
+- **Experiment B (cross-sectional "which coin, how early" scoring) itself has not
+  started** -- `xsec.parquet` (above) is the prerequisite, not Experiment B's model
+  training, which is a separate next step once it lands.
 - **No calibration, no alert-budget threshold.** Needs a disjoint calibration slice
   and ordinary-period background market data, neither available yet.
 - **The live feed only covers the 38 live BTC pairs for scoring.** Reaching real
@@ -72,9 +88,10 @@ data), and the real Sapienza dataset via Git LFS.
   not been scoped or started.
 - **No live/production deployment.** Everything above runs and is verified locally;
   there is no public URL, VM, or hosting account set up from this session.
-- This status reflects what's in the **shared git repo** as of commit `7b6e606`
-  (2026-10-28). It may understate real progress if teammates have local,
-  not-yet-pushed work.
+- This status reflects what's in the **shared git repo** as of commit `6980ba7`
+  (2026-10-28), plus the in-progress `features.py`/`xsec.parquet` work described
+  above (not yet pushed at the time of this edit). It may understate real progress
+  if teammates have local, not-yet-pushed work of their own.
 
 ---
 
