@@ -5,6 +5,15 @@ export function utc(value?: string | number | null) {
 }
 export const percent = (value?: number | null) => value == null ? 'Unavailable' : `${(value * 100).toFixed(1)}%`
 export const number = (value?: number | null) => value == null ? 'Unavailable' : value.toLocaleString('en', { maximumFractionDigits: 8 })
+export function modelScoreLabel(market: { model_score?: number | null; model_status?: string | null }) {
+  if (market.model_score != null) return market.model_score.toFixed(4)
+  switch (market.model_status) {
+    case 'no_btc_pair': return 'No BTC model pair'
+    case 'warming_up': return 'Waiting for minute bars'
+    case 'model_unavailable': return 'Model not loaded'
+    default: return 'Not scored'
+  }
+}
 
 export function HorizonPicker({ value, onChange }: { value: Horizon; onChange: (h: Horizon) => void }) {
   return <label>Horizon <select aria-label="Horizon" value={value} onChange={e => onChange(e.target.value as Horizon)}>{horizons.map(h => <option key={h} value={h}>{h} min</option>)}</select></label>

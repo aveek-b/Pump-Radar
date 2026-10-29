@@ -32,6 +32,12 @@ Invoke-RestMethod -Method Post 'http://127.0.0.1:8000/scores/backfill'
 
 In a third terminal, run `Set-Location 'D:\FME Project\pumpradar\web'` and `npm run dev`, then open **http://127.0.0.1:5173/**. Check `/health` for `model_loaded: true` and `/scores/live` for `status: scored`. A pair needs sufficient real bar history and valid features before a score appears. Scores are raw linear SVM decision margins for ranking at 10 minutes; they are not probabilities. The committed alert threshold is provisional and its live false-alert rate is unvalidated. Backfill requires explicit `PUMPRADAR_ALLOW_BACKFILL=1`; restart the backend after changing environment variables.
 
+### Reading missing values
+
+- Radar and Coin distinguish **No BTC model pair**, **Waiting for minute bars**, and **Model not loaded**. A priced USDT market does not automatically have a BTC pair eligible for the research model.
+- Replay shows measured test-era price gains, declines and peak times where committed candles support them. Model warning lead and rank at onset remain **Not evaluated** because these replay files contain no model score frames.
+- Honesty shows historical research results, current model coverage and the provisional alert target. Live precision, recall and false-alert rate remain **Not measured** until labeled ordinary-market periods and evaluated alerts are available. The provisional 2-alerts/hour target is not a measured rate.
+
 ## Start the dashboard on Windows (PowerShell)
 
 These steps open the React dashboard with **synthetic preview data**.

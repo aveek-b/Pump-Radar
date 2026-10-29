@@ -1533,6 +1533,17 @@
             ],
             "title": "Threshold Status"
           },
+          "alert_target_per_hour": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alert Target Per Hour"
+          },
           "n_tracked_pairs": {
             "type": "integer",
             "title": "N Tracked Pairs"
@@ -1614,6 +1625,36 @@
             ],
             "default": null,
             "title": "Model Score"
+          },
+          "btc_pair": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Btc Pair"
+          },
+          "model_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "scored",
+                  "warming_up",
+                  "no_btc_pair",
+                  "model_unavailable"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Status"
           }
         },
         "required": [
@@ -1878,6 +1919,29 @@
             },
             "type": "array",
             "title": "Bars"
+          },
+          "decline_from_peak_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decline From Peak Pct"
+          },
+          "peak_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peak Time"
           }
         },
         "type": "object",
@@ -1947,6 +2011,17 @@
               }
             ],
             "title": "Rank At Onset"
+          },
+          "max_gain_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Gain Pct"
           }
         },
         "type": "object",

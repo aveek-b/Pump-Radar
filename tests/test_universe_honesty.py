@@ -41,11 +41,14 @@ def test_real_market_uses_btc_pair_model_margin_without_implying_probability(mon
                              threshold=1.2)
     monkeypatch.setattr(platform.live_universe, "get", fake_universe)
     monkeypatch.setattr(scoring_api, "b_scoring_engine", engine)
+    monkeypatch.setattr(scoring_api, "b_threshold_info", {"alerts_per_hour_target": 2})
     with TestClient(app) as client:
         market = client.get("/markets").json()["markets"][0]
         live = client.get("/scores/live").json()
 
     assert market["scored"] is True and market["model_score"] == 1.7
+    assert market["btc_pair"] == "LTCBTC" and market["model_status"] == "scored"
     assert live["status"] == "scored" and live["coins"][0]["pair"] == "LTCBTC"
     assert live["coins"][0]["score"] == 1.7
+    assert live["alert_target_per_hour"] == 2
     assert "not a probability" in live["score_type"]

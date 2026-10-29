@@ -692,6 +692,8 @@ export interface components {
             threshold: number | null;
             /** Threshold Status */
             threshold_status: string | null;
+            /** Alert Target Per Hour */
+            alert_target_per_hour?: number | null;
             /** N Tracked Pairs */
             n_tracked_pairs: number;
             /** Coins */
@@ -718,6 +720,16 @@ export interface components {
              * @default null
              */
             model_score: number | null;
+            /**
+             * Btc Pair
+             * @default null
+             */
+            btc_pair: string | null;
+            /**
+             * Model Status
+             * @default null
+             */
+            model_status: ("scored" | "warming_up" | "no_btc_pair" | "model_unavailable") | null;
         };
         /** MarketsResponse */
         MarketsResponse: {
@@ -811,6 +823,10 @@ export interface components {
             frames: components["schemas"]["RadarTick"][];
             /** Bars */
             bars: components["schemas"]["Candle"][];
+            /** Decline From Peak Pct */
+            decline_from_peak_pct?: number | null;
+            /** Peak Time */
+            peak_time?: string | null;
         };
         /** ReplayEvent */
         ReplayEvent: {
@@ -834,6 +850,8 @@ export interface components {
             first_alert_lead_minutes: number | null;
             /** Rank At Onset */
             rank_at_onset: number | null;
+            /** Max Gain Pct */
+            max_gain_pct?: number | null;
         };
         /** ReplayEventsResponse */
         ReplayEventsResponse: {

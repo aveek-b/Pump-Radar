@@ -27,6 +27,8 @@ class Market(BaseModel):
     quote_asset: str
     scored: bool
     model_score: float | None = None
+    btc_pair: str | None = None
+    model_status: Literal["scored", "warming_up", "no_btc_pair", "model_unavailable"] | None = None
 
 
 class MarketsResponse(Provenance):
@@ -103,6 +105,7 @@ class ReplayEvent(BaseModel):
     era: Literal["mock", "test"]
     first_alert_lead_minutes: float | None
     rank_at_onset: int | None
+    max_gain_pct: float | None = None
 
 
 class ReplayEventsResponse(Provenance):
@@ -113,6 +116,8 @@ class ReplayDetailResponse(Provenance):
     event: ReplayEvent
     frames: list[RadarTick]
     bars: list[Candle]
+    decline_from_peak_pct: float | None = None
+    peak_time: datetime | None = None
 
 
 class HonestyResponse(Provenance):
@@ -188,6 +193,7 @@ class LiveModelScoresResponse(BaseModel):
     score_type: str
     threshold: float | None
     threshold_status: str | None
+    alert_target_per_hour: float | None = None
     n_tracked_pairs: int
     coins: list[LiveModelCoin]
     notice: str

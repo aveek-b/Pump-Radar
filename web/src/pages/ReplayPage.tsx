@@ -6,7 +6,7 @@ import { PriceChart } from '../components/LazyPriceChart'
 
 function lead(event: Schema['ReplayEvent']) {
   if (event.era === 'mock') return 'Not evaluated'
-  return event.first_alert_lead_minutes == null ? 'Unavailable / not reported' : `${event.first_alert_lead_minutes.toFixed(1)} min`
+  return event.first_alert_lead_minutes == null ? 'Not evaluated' : `${event.first_alert_lead_minutes.toFixed(1)} min`
 }
 
 export function ReplayPage() {
@@ -17,8 +17,8 @@ export function ReplayPage() {
     {events.isPending ? <Loading /> : events.error ? <ErrorState error={events.error} retry={() => void events.refetch()} /> : events.data && <>
       <Notice mock={events.data.mock} notice={events.data.notice} />
       <section className="panel"><div className="panel-top"><strong>{events.data.mock ? 'Synthetic examples' : 'Test-era price windows'}</strong><span>{events.data.events.length} events</span></div>
-        <p className="state">{events.data.mock ? 'Catch rate and median lead are not evaluated for fixtures.' : 'These events have historical prices and onset markers, but no model risk frames. Missing alert metrics are not counted as misses.'}</p>
-        {events.data.events.length ? <div className="table-wrap"><table><thead><tr><th>Onset (UTC)</th><th>Pair</th><th>Era</th><th>Warning lead</th><th>Rank at onset</th><th>Playback</th></tr></thead><tbody>{events.data.events.map(event => <tr key={event.event_id}><td>{utc(event.t_onset)}</td><td>{event.pair}</td><td>{event.era}</td><td>{lead(event)}</td><td>{event.rank_at_onset ?? 'Unavailable'}</td><td><button onClick={() => setSelected(event.event_id)}>Open {event.event_id}</button></td></tr>)}</tbody></table></div> : <p className="state">No held-out replay files are available yet.</p>}
+        <p className="state">{events.data.mock ? 'Catch rate and median lead are not evaluated for fixtures.' : 'Observed price gains come from the committed test-era candles. Model warning lead and onset rank have not been evaluated; missing values are not counted as misses.'}</p>
+        {events.data.events.length ? <div className="table-wrap"><table><thead><tr><th>Onset (UTC)</th><th>Pair</th><th>Era</th><th>Observed gain</th><th>Warning lead</th><th>Rank at onset</th><th>Playback</th></tr></thead><tbody>{events.data.events.map(event => <tr key={event.event_id}><td>{utc(event.t_onset)}</td><td>{event.pair}</td><td>{event.era}</td><td>{event.max_gain_pct == null ? 'Not reported' : `+${event.max_gain_pct.toFixed(1)}%`}</td><td>{lead(event)}</td><td>{event.rank_at_onset ?? 'Not evaluated'}</td><td><button onClick={() => setSelected(event.event_id)}>Open {event.event_id}</button></td></tr>)}</tbody></table></div> : <p className="state">No held-out replay files are available yet.</p>}
       </section>
       {!!events.data.events.length && <><label className="event-picker">Event <select value={id} onChange={e => setSelected(e.target.value)}>{events.data.events.map(event => <option key={event.event_id} value={event.event_id}>{event.pair} · {utc(event.t_onset)} · {event.era}</option>)}</select></label><ReplayLoader key={id} id={id} /></>}
     </>}
@@ -42,6 +42,7 @@ function HistoricalPriceReplay({ data }: { data: Schema['ReplayDetailResponse'] 
     <h2>{data.event.pair} · historical price window</h2>
     <Notice mock={false} notice={data.notice} />
     <p>Onset: {utc(data.event.t_onset)}. These candles show what happened around the event; no research score, rank, or alert lead was calculated for this playback.</p>
+    <div className="summary"><div><span>Observed maximum gain after onset</span><strong>{data.event.max_gain_pct == null ? 'Not reported' : `+${data.event.max_gain_pct.toFixed(1)}%`}</strong></div><div><span>Observed decline from peak</span><strong>{data.decline_from_peak_pct == null ? 'Not reported' : `${data.decline_from_peak_pct.toFixed(1)}%`}</strong></div><div><span>Peak time</span><strong>{utc(data.peak_time)}</strong></div></div>
     <PriceChart bars={data.bars} risks={[]} alerts={[]} horizon="10" onset={data.event.t_onset} />
   </section>
 }
@@ -81,7 +82,7 @@ function ScoredReplayPlayer({ data }: { data: Schema['ReplayDetailResponse'] }) 
     <div className="controls"><button disabled={frames.length < 2} onClick={() => { if (index === frames.length - 1) setIndex(0); setPlaying(!playing) }}>{playing ? 'Pause' : index === frames.length - 1 ? 'Restart' : 'Play'}</button><label>Speed <select aria-label="Speed" value={speed} onChange={e => setSpeed(Number(e.target.value))}>{[1, 4, 16].map(s => <option key={s} value={s}>{s}×</option>)}</select></label><HorizonPicker value={horizon} onChange={setHorizon} /><output aria-live="polite">Frame {index + 1} / {frames.length}{index === frames.length - 1 ? ' · Playback complete' : ''}</output></div>
     <div className="scrubber"><input aria-label="Replay time" type="range" min={0} max={frames.length - 1} value={index} onChange={e => { setPlaying(false); setIndex(Number(e.target.value)) }} />{onset >= 0 && onset <= 100 && <span className="scrubber-onset" style={{ left: `${onset}%` }}>Onset</span>}</div>
     <p>{utc(frame.as_of)} · Onset: {utc(data.event.t_onset)}</p>
-    <div className="summary"><div><span>Current rank · {horizon} min</span><strong>{rank ? `${rank} of ${ranking.length}` : 'Not scored'}</strong></div><div><span>Reported first-alert lead</span><strong>{lead(data.event)}</strong></div><div><span>Reported rank at onset</span><strong>{data.event.rank_at_onset ?? 'Unavailable'}</strong></div></div>
+    <div className="summary"><div><span>Current rank · {horizon} min</span><strong>{rank ? `${rank} of ${ranking.length}` : 'Not scored'}</strong></div><div><span>Reported first-alert lead</span><strong>{lead(data.event)}</strong></div><div><span>Reported rank at onset</span><strong>{data.event.rank_at_onset ?? 'Not evaluated'}</strong></div></div>
     <PriceChart bars={history.bars} risks={history.risks} alerts={history.alerts} horizon={horizon} onset={data.event.t_onset} />
     <div className="table-wrap"><table><thead><tr><th>Rank</th><th>Pair</th><th>Risk · {horizon} min</th><th>Level · 10 min</th></tr></thead><tbody>{ranking.map((row, i) => <tr key={row.pair} className={row.pair === data.event.pair ? 'highlight' : ''}><td>{i + 1}</td><td>{row.pair}{row.pair === data.event.pair ? ' · event coin' : ''}</td><td>{percent(row.risk[horizon])}</td><td><Badge level={row.level} /></td></tr>)}</tbody></table></div>
   </section>

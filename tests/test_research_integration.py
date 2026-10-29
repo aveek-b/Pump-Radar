@@ -55,7 +55,9 @@ def test_live_market_prices_are_real_snapshot_and_all_scores_remain_unavailable(
     assert body["mock"] is False
     assert body["markets"] == [{"symbol": "LTCUSDT", "price": 57.0,
                                  "change_24h_pct": .5, "volume_24h_quote": 2000.0,
-                                 "quote_asset": "USDT", "scored": False, "model_score": None}]
+                                 "quote_asset": "USDT", "scored": False, "model_score": None,
+                                 "btc_pair": "LTCBTC",
+                                 "model_status": "warming_up" if body["model_version"] else "model_unavailable"}]
     assert body["as_of"] == "2026-10-28T13:54:59Z"
 
 
@@ -143,10 +145,13 @@ def test_test_era_replay_is_price_only_and_path_safe(monkeypatch):
     assert events.status_code == 200
     assert len(listed) == 36 and all(event["era"] == "test" for event in listed)
     assert all(event["first_alert_lead_minutes"] is None for event in listed)
+    assert all(event["max_gain_pct"] is not None for event in listed)
     assert detail.status_code == 200
     payload = detail.json()
     assert payload["mock"] is False and payload["frames"] == []
     assert len(payload["bars"]) > 100
     assert payload["bars"][0]["open"] is not None
     assert payload["bars"][0]["volume_quote"] is None
+    assert payload["event"]["max_gain_pct"] == listed[0]["max_gain_pct"]
+    assert payload["decline_from_peak_pct"] is not None and payload["peak_time"] is not None
     assert missing.status_code == 404 and traversal.status_code in (404, 422)

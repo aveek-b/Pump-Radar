@@ -92,13 +92,14 @@ test('real price snapshots appear in Radar and Honesty without inventing risk sc
   await expect(page.getByText('Public price history · month')).toBeVisible()
   await page.getByRole('link', { name: 'Honesty', exact: true }).click()
   await expect(page.getByText('Public markets with prices')).toBeVisible()
-  await expect(page.getByText('Real prices and raw SVM ranking margins', { exact: false })).toBeVisible()
+  await expect(page.getByText('Prices cover more markets than the BTC-pair model universe', { exact: false })).toBeVisible()
   await expect(page.getByText('Not measured yet.', { exact: false })).toBeVisible()
 })
 
 test('test-era replay shows prices and onset without inventing score frames', async ({ page }) => {
   const event = { event_id: 'event_1', pair: 'PUMPBTC', t_onset: '2021-01-01T00:02:00Z',
-    t_telegram: null, era: 'test', first_alert_lead_minutes: null, rank_at_onset: null }
+    t_telegram: null, era: 'test', first_alert_lead_minutes: null, rank_at_onset: null,
+    max_gain_pct: 20 }
   await page.route('**/api/replay/events', route => route.fulfill({ json: {
     scorer: 'demo_stub', mock: false, model_version: null,
     notice: 'Historical test-era price windows only.', events: [event],
@@ -106,6 +107,7 @@ test('test-era replay shows prices and onset without inventing score frames', as
   await page.route('**/api/replay/event_1', route => route.fulfill({ json: {
     scorer: 'demo_stub', mock: false, model_version: null,
     notice: 'No risk frames or model alerts are available.', event, frames: [],
+    decline_from_peak_pct: -5, peak_time: '2021-01-01T00:03:00Z',
     bars: [
       { time: '2021-01-01T00:00:00Z', open: 1, high: 1.1, low: 0.9, close: 1, volume_quote: null },
       { time: '2021-01-01T00:01:00Z', open: 1, high: 1.2, low: 0.9, close: 1.1, volume_quote: null },
@@ -114,6 +116,8 @@ test('test-era replay shows prices and onset without inventing score frames', as
   await page.goto('/replay')
   await expect(page.getByRole('heading', { name: 'PUMPBTC · historical price window' })).toBeVisible()
   await expect(page.getByText('2 bars,', { exact: false })).toBeVisible()
+  await expect(page.getByText('+20.0%').first()).toBeVisible()
+  await expect(page.getByText('-5.0%')).toBeVisible()
   await expect(page.getByText('no research score, rank, or alert lead', { exact: false })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Play', exact: true })).toHaveCount(0)
 })

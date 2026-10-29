@@ -41,6 +41,16 @@ def mock_enabled() -> bool:
     return os.getenv("PUMPRADAR_MOCK", "0") == "1"
 
 
+def model_status(btc_pair: str | None, scores: dict, model_loaded: bool) -> str:
+    """Explain model coverage without implying an unscored market has a zero risk."""
+    if btc_pair is None:
+        return "no_btc_pair"
+    if not model_loaded:
+        return "model_unavailable"
+    row = scores.get(btc_pair)
+    return "scored" if row is not None and row.score is not None else "warming_up"
+
+
 @router.get("/markets", response_model=MarketsResponse)
 async def markets():
     if mock_enabled():
@@ -65,6 +75,8 @@ async def markets():
             "quote_asset": coin.quote_asset,
             "scored": coin.btc_symbol in live_scores and live_scores[coin.btc_symbol].score is not None,
             "model_score": live_scores[coin.btc_symbol].score if coin.btc_symbol in live_scores else None,
+            "btc_pair": coin.btc_symbol,
+            "model_status": model_status(coin.btc_symbol, live_scores, b_scoring_engine is not None),
         } for coin in coins],
     )
 
@@ -184,6 +196,7 @@ def live_scores():
         score_type="10-minute linear SVM decision margin; larger is higher-ranked, not a probability",
         threshold=b_scoring_engine.threshold,
         threshold_status=b_threshold_info.get("status") if b_threshold_info else None,
+        alert_target_per_hour=b_threshold_info.get("alerts_per_hour_target") if b_threshold_info else None,
         n_tracked_pairs=len(b_scoring_engine.history),
         coins=[{
             "pair": coin.pair, "score": coin.score,
@@ -257,7 +270,13 @@ async def coin(pair: str, range: str = "week"):
                     "volume_24h_quote": market.quote_volume_24h,
                     "quote_asset": market.quote_asset,
                     "scored": score_row is not None and score_row.score is not None,
-                    "model_score": score_row.score if score_row else None},
+                    "model_score": score_row.score if score_row else None,
+                    "btc_pair": market.btc_symbol,
+                    "model_status": model_status(
+                        market.btc_symbol,
+                        b_scoring_engine.latest_scores if b_scoring_engine else {},
+                        b_scoring_engine is not None,
+                    )},
             current=None,
             bars=[{"time": candle.open_time, "open": candle.open, "high": candle.high,
                    "low": candle.low, "close": candle.close,
@@ -282,10 +301,11 @@ def replay_events():
         "event_id": row["event_id"], "pair": row["pair"],
         "t_onset": row["onset"], "t_telegram": None, "era": "test",
         "first_alert_lead_minutes": None, "rank_at_onset": None,
+        "max_gain_pct": row.get("max_gain_pct"),
     } for row in records if row.get("era") == "test" and row.get("available") is True]
     return ReplayEventsResponse(
         scorer="demo_stub", mock=False, model_version=None,
-        notice="Historical test-era price windows with onset markers. No model score frames or evaluated alert metrics are available.",
+        notice="Historical test-era prices, onset markers, and measured price gains. Model alert lead and ranks have not been evaluated.",
         events=events,
     )
 
@@ -308,8 +328,10 @@ def replay_event(event_id: str):
         raise HTTPException(503, "Historical replay file does not match its index.")
     return ReplayDetailResponse(
         scorer="demo_stub", mock=False, model_version=None,
-        notice="Historical test-era Binance OHLC only. No risk frames, model alerts, or measured warning lead are available.",
+        notice="Historical test-era Binance OHLC with measured price gain and decline. No model alert frames or evaluated warning lead are available.",
         event=listed, frames=[],
+        decline_from_peak_pct=payload.get("decline_from_peak_pct"),
+        peak_time=payload.get("peak_time"),
         bars=[{
             "time": row["time"], "open": row["open"], "high": row["high"],
             "low": row["low"], "close": row["close"], "volume_quote": None,
