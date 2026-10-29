@@ -11,6 +11,8 @@ dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "httpx>=0.27,<1", "webs
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff>=0.8,<1"]
+model = ["joblib>=1.4,<2", "lightgbm>=4,<5", "numpy>=2,<3", "pandas>=2,<4", "scikit-learn>=1.5,<2"]
+research = ["joblib>=1.4,<2", "lightgbm>=4,<5", "matplotlib>=3.9,<4", "numpy>=2,<3", "pandas>=2,<4", "pyarrow>=18,<27", "scikit-learn>=1.5,<2"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pumpradar", "api"]

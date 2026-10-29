@@ -4,9 +4,11 @@ import asyncio
 import json
 import os
 from datetime import datetime
+from importlib.util import find_spec
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, StreamingResponse
 
 from api.mock import NOTICE, mock_data
@@ -30,6 +32,25 @@ radar = Radar()
 store = AlertStore(os.getenv("PUMPRADAR_DB", "alerts.sqlite3"))
 subscribers: set[asyncio.Queue] = set()
 
+# The dashboard and its mock preview also run with the small platform-only
+# dependency set. Real research scoring is enabled when the model extra and
+# frozen bundle are present; its raw SVM margin is never a probability.
+b_scoring_engine = None
+b_threshold_info = None
+model_load_error = "Install the model extra and restart the API."
+if all(find_spec(name) is not None for name in ("pandas", "joblib", "lightgbm", "sklearn")):
+    try:
+        from pumpradar.live_scoring import CrossSectionalScoringEngine, load_frozen_bundle
+
+        b_model, b_features, b_threshold_info = load_frozen_bundle()
+        b_scoring_engine = CrossSectionalScoringEngine(
+            b_model, b_features, threshold=b_threshold_info["threshold"],
+            cooldown_minutes=b_threshold_info.get("cooldown_minutes", 30),
+        )
+        model_load_error = ""
+    except (ImportError, FileNotFoundError, OSError, ValueError, KeyError) as exc:
+        model_load_error = f"Research model could not load: {exc}"
+
 
 @app.get("/", include_in_schema=False)
 def dashboard() -> FileResponse:
@@ -51,7 +72,9 @@ def health() -> dict:
     if mock_enabled():
         return {"status": "ok", "scorer": "mock", "mock": True, "market_feed": "mock",
                 "score_interval_seconds": 10}
-    return {"status": "ok", "scorer": "demo_stub"}
+    return {"status": "ok", "scorer": "research_ranker" if b_scoring_engine else "demo_stub",
+            "model_loaded": b_scoring_engine is not None,
+            "score_interval_seconds": 60 if b_scoring_engine else None}
 
 
 @app.post("/bars", response_model=DemoScore)
@@ -81,6 +104,9 @@ async def ingest_batch(payload: BatchInput) -> dict:
         if any(radar.history[b.symbol] and b.close_time <= radar.history[b.symbol][-1].close_time for b in bars):
             raise ValueError("bars for each symbol must arrive in increasing time order")
         scores = [score_and_publish(bar) for bar in sorted(bars, key=lambda b: b.symbol)]
+        if b_scoring_engine is not None:
+            b_scoring_engine.ingest_batch(bars)  # idempotent: ingest_bar drops out-of-order/duplicate bars
+            await run_in_threadpool(b_scoring_engine.score_latest)
         return {"minute": minute.isoformat(), "coins": sorted(
             scores, key=lambda row: (row["score"] is None, -(row["score"] or 0), row["symbol"])
         )}

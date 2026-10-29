@@ -1,13 +1,41 @@
-# PumpRadar
+# PumpRadar: Leakage-Honest Early Warning and Cross-Sectional Ranking for Cryptocurrency Pump-and-Dump Events
 
-Team scaffold for the **26 October 2026 compressed build guide (v2)**. It keeps the earlier working API demo while giving Kaashvi, Hannah and Aveek separate folders for the three-day research and platform work. The guide's React + FastAPI product is still in progress; the current five-bar volume heuristic is a wiring test, not the evaluated model.
+Team implementation of the **26 October 2026 compressed build guide (v2)**. The React dashboard includes synthetic preview mode, real Binance prices, and a frozen Experiment B live ranking model. The five-bar volume heuristic remains a separate demo. Live alert performance and a calibrated threshold have not been established.
+
+## Run the real research ranking locally
+
+Close any running project backend before syncing Python dependencies. In PowerShell:
+
+```powershell
+Set-Location 'D:\FME Project\pumpradar'
+uv sync --locked --extra dev --extra model
+Set-Location web
+npm ci
+```
+
+Start the API in one terminal:
+
+```powershell
+Set-Location 'D:\FME Project\pumpradar'
+$env:PUMPRADAR_MOCK = '0'
+$env:PUMPRADAR_ALLOW_BACKFILL = '1'
+.\.venv\Scripts\python.exe -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+```
+
+In a second terminal, request recent closed 1-minute Binance bars to warm the model, then start the feeder:
+
+```powershell
+Set-Location 'D:\FME Project\pumpradar'
+Invoke-RestMethod -Method Post 'http://127.0.0.1:8000/scores/backfill'
+.\.venv\Scripts\python.exe -m pumpradar.live --all-btc
+```
+
+In a third terminal, run `Set-Location 'D:\FME Project\pumpradar\web'` and `npm run dev`, then open **http://127.0.0.1:5173/**. Check `/health` for `model_loaded: true` and `/scores/live` for `status: scored`. A pair needs sufficient real bar history and valid features before a score appears. Scores are raw linear SVM decision margins for ranking at 10 minutes; they are not probabilities. The committed alert threshold is provisional and its live false-alert rate is unvalidated. Backfill requires explicit `PUMPRADAR_ALLOW_BACKFILL=1`; restart the backend after changing environment variables.
 
 ## Start the dashboard on Windows (PowerShell)
 
-These steps open the current React dashboard with **synthetic preview data**.
-Radar, All Markets, Coin, Replay, Honesty and Method are available; the trained
-live model and its deployment evaluation are still awaiting team handoffs.
-No market-data download or live feeder is needed for this preview.
+These steps open the React dashboard with **synthetic preview data**.
+Radar, All Markets, Coin, Replay, Honesty and Method are available. For real model ranking, follow the section above. No market-data download or live feeder is needed for this preview.
 
 ### 1. Check the prerequisites
 
@@ -104,7 +132,7 @@ Invoke-RestMethod 'http://127.0.0.1:8000/health'
 ```
 
 For this preview, expect `status: ok`, `mock: True`, and `scorer: mock`.
-`model_loaded: False` is expected until the research model is integrated.
+Mock mode hides model ranking even if the model extra is installed.
 
 Press **Ctrl+C in both server terminals** to stop. On later visits, repeat only
 steps 3–5 unless dependencies changed.
@@ -196,7 +224,7 @@ data and missing evaluation results explicit.
   first-alert lead, rank-at-onset and catch-rate results remain unavailable.
 - Honesty and Method: live metrics stay unavailable; both pages display Kaashvi's
   measured historical Experiments A and B with source provenance. Method also shows
-  Experiment A figures. There is still no frozen live model or final paper link.
+  Experiment A figures. The live model provides raw ranking margins; there is no final paper link.
 - Responsive layout, light-theme toggle, keyboard focus and feed-down status are
   included. Alert counts describe this browser session only, not measured error rates.
 
@@ -208,8 +236,8 @@ Public hosting and production CORS configuration are still pending.
 
 With `PUMPRADAR_MOCK=0`, All Markets requests public Binance prices. Kaashvi's
 `LiveUniverseCache` refreshes the snapshot at most once every 30 seconds; this is
-separate from the 2-second synthetic stream. Every real market is marked **Not
-scored** until the cross-sectional model arrives. If Binance is unreachable, the
+separate from the 2-second synthetic stream. Real markets are marked scored when
+their BTC pairs have sufficient model-ready minute bars. If Binance is unreachable, the
 page shows an explicit feed error. Radar also shows a **price-only watch** of the
 largest USDT markets by 24-hour USDT volume; it is not
 a pump-risk ranking. Honesty shows the count and timestamp of public priced markets
@@ -222,11 +250,11 @@ range selector offers week (hourly), month (4-hour), and year (daily) history.
 These charts contain prices only; they do not imply a model score or alert.
 The Honesty and Method pages also show held-out Experiment B research AP and
 Hit@5 from `origin/main` commit `389fe61`, separate from the unavailable live
-model metrics. The research candidate is not a deployable frozen model.
+model metrics. The frozen research candidate provides local rankings, with an unvalidated live alert budget.
 
 To check a real-price session, restart the backend with `$env:PUMPRADAR_MOCK = '0'`
 and open `http://127.0.0.1:8000/markets`. Its `markets` list should contain
-real pairs with `mock: false` and `scored: false`. A 503 means the backend cannot
+real pairs with `mock: false`. A 503 means the backend cannot
 reach Binance; check network access from the backend machine. If `/markets` has
 pairs but the browser does not, check that the frontend is running on port 5173,
 then open `http://127.0.0.1:5173/api/markets` to verify the Vite proxy.
@@ -243,49 +271,13 @@ The checks cover filters, Coin navigation, replay completion, direct links, 375p
 layouts, unscored markets and duplicate SSE alerts. They are local mock checks,
 not live-feed or public-deployment acceptance tests.
 
-## Teammate branch review (29 October 2026)
+## Integrated branch status (29 October 2026)
 
-`origin/feat/data-events` is now merged into `origin/main` and contains event
-preparation, archive validation, onset detection and shared `features.py`. Its README documents
-zero-IQR and missing-data fallback timestamps; these must not be treated as confirmed
-market onsets. The labeled-feature CSV is stored through Git LFS.
+This branch contains the latest fetched `origin/main` through `c13d187` and Hannah's `feat/feature-engineering` branch. Main supplies historical Experiments A and B, a frozen Experiment B linear SVM, a provisional threshold, price-only historical replay, and the minute-bar feature contract. Hannah's newer cross-sectional builder is retained as `features_v2.py` and `build_xsec.py`; its feature names differ from the frozen model's and it is not substituted into live inference.
 
-The fetched main has `compute_features`, but this platform branch has not merged
-it. Hannah's newer `feat/feature-engineering` branch adds a cross-sectional build
-script and tests; it is not merged into main. The React API still has no frozen
-model or validated live feature/scoring adapter. Research work remains owned by
-Hannah and Kaashvi.
+The model ranks real BTC-pair minute bars after backfill or feeder history. `/scores/live` reports raw decision margins and coverage; `/honesty` keeps live precision, recall, warning lead and false-alert rate unavailable until measured. Price-only replay does not provide evaluated model alert frames. The threshold's live alert budget is unvalidated. Public deployment, final paper, and demonstration materials still require team work.
 
-On 29 October, the fetched `origin/feat/kaashvi-models-notebook` branch at
-`a434e86` supplied a completed **Experiment A leakage audit**, its results JSON and
-two figures, plus a public Binance price-universe module. These exact artifacts and
-the price module were copied into this platform branch, and their source commit is
-reported by `/research/experiment-a`. Experiment A uses Sapienza 25-second chunks;
-its AP values are not live pump probabilities. Newer `origin/main` includes
-Experiment B result JSON and a validation-selected research candidate; this
-platform branch displays those historical results separately. Neither source
-includes a frozen live model, calibrated alert threshold or validated live
-feature/scoring adapter. Main also has past-event price-only replay data, but it
-does not supply evaluated per-minute risk frames for the React replay contract. Its older
-`src/pumpradar/api.py` routes were not merged because they use the retained demo
-heuristic and a different `/honesty` response shape.
-
-Next handoff: agree the real-engine adapter and replay/evaluation schemas, then load
-the frozen artifacts. Motion/table polish, a complete evaluated scoreboard, the
-cross-sectional result figures, public deployment, accessibility audit, screenshots/video and final paper
-contributions remain to be finished.
-
-## Ownership and file handoffs
-
-| Owner | Paths | Next handoff |
-| --- | --- | --- |
-| Hannah | `src/pumpradar/events.py`, `download.py`, `features.py`; `api/engine/` | Event table, archive bars, shared `compute_features`, REST ingestor and real scorer |
-| Kaashvi | `src/pumpradar/splits.py`, `metrics.py`, `exp_a.py`, `exp_b.py`; `models/`, `results/` | Grouped evaluation, model dictionary, threshold and ordered features |
-| Aveek | `api/main.py`, `api/schemas.py`, `api/routes/`, `web/`, `deploy/` | Final API contract, frontend routes and deployment |
-
-`data/raw/` and `data/processed/` are excluded from Git. `replay/` awaits Hannah's held-out JSON files; `paper/` and `notebooks/` are ready for team work. Do not commit raw archives, Parquet, SQLite state or frozen model binaries.
-
-The Pydantic shapes are in `api/schemas.py`; `api/main.py` exposes both B1 and the retained demo. After contract changes, run `python -m api.export_openapi` and `cd web && npm run typegen` to refresh `api/openapi.json` and `web/src/api/types.ts`. Confirm the provisional choices in `api/CONTRACT.md` with Hannah and Kaashvi before real-engine integration. The React Radar consumes both the mock REST/SSE contract and the original demo ranking.
+`data/raw/` and `data/processed/` remain excluded from Git. Do not commit raw archives, Parquet, or SQLite state. The small frozen model artifact is already tracked in upstream main. After API contract changes, regenerate `api/openapi.json` and `web/src/api/types.ts` with `python -m api.export_openapi` and `cd web; npm run typegen`.
 
 ## Existing demo, retained for integration
 
@@ -294,7 +286,7 @@ The Pydantic shapes are in `api/schemas.py`; `api/main.py` exposes both B1 and t
 - `src/pumpradar/live.py` is the earlier public Binance **WebSocket kline** feeder. Run `python -m pumpradar.live --symbols ETHBTC,BNBBTC` for a small demo or `--all-btc --verify-minutes 3` for strict minute coverage. The compressed guide assigns Hannah a **REST polling** ingestor in `api/engine/ingest.py`; do not treat the demo feeder as that deliverable.
 - SQLite alert records persist in `alerts.sqlite3` (or `PUMPRADAR_DB`); scores and bar history remain in one process's memory. Replay receives bars in the request and stays separate from live state until `replay/index.json` and event files arrive.
 
-The fixed demo threshold of 0.8 has no measured false-alert guarantee. Do not label any current score a calibrated probability or paper result. The final scorer must call the same `pumpradar.features.compute_features` function used offline, load Kaashvi's frozen model and threshold, and report model provenance.
+The fixed demo threshold of 0.8 has no measured false-alert guarantee. The live Experiment B scorer loads the committed frozen model, ordered features and provisional threshold. Do not label either score a calibrated probability or a measured live alert result.
 
 ## Collaboration and deployment
 

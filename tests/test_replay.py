@@ -6,6 +6,7 @@ import pytest
 
 from pumpradar.replay import (
     build_replay_files,
+    compute_window_stats,
     extract_replay_window,
     load_pair_day_ohlcv,
 )
@@ -107,3 +108,44 @@ def test_build_replay_files_writes_json_for_confirmed_events_only(tmp_path):
 def test_build_replay_files_requires_expected_columns():
     with pytest.raises(ValueError):
         build_replay_files(pd.DataFrame({"event_id": [1]}), kline_dir=None)
+
+
+def _synthetic_candles(prices: list[float], start: str = "2024-01-01 00:00") -> pd.DataFrame:
+    base = pd.Timestamp(start, tz="UTC")
+    return pd.DataFrame({
+        "minute": [base + pd.Timedelta(minutes=i) for i in range(len(prices))],
+        "open": prices, "high": prices, "low": prices, "close": prices,
+        "volume": [1.0] * len(prices),
+    })
+
+
+def test_compute_window_stats_finds_the_real_peak_after_onset():
+    # minutes 0-4 pre-onset (flat at 1.0), onset at minute 5, price rises to
+    # a real peak of 2.0 at minute 8, then declines to 1.5 by the window end.
+    prices = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.4, 1.8, 2.0, 1.7, 1.5]
+    candles = _synthetic_candles(prices)
+    onset = candles.iloc[5]["minute"]
+
+    stats = compute_window_stats(candles, onset)
+    assert stats["onset_price"] == pytest.approx(1.0)
+    assert stats["peak_price"] == pytest.approx(2.0)
+    assert stats["peak_time"] == candles.iloc[8]["minute"].isoformat()
+    assert stats["max_gain_pct"] == pytest.approx(100.0)  # 1.0 -> 2.0
+    assert stats["window_end_price"] == pytest.approx(1.5)
+    assert stats["decline_from_peak_pct"] == pytest.approx(-25.0)  # 2.0 -> 1.5
+
+
+def test_compute_window_stats_empty_post_onset_window():
+    candles = _synthetic_candles([1.0, 1.0, 1.0])
+    onset = candles.iloc[-1]["minute"] + pd.Timedelta(minutes=10)  # onset after every candle
+    assert compute_window_stats(candles, onset) == {}
+
+
+def test_compute_window_stats_no_decline_in_captured_window():
+    # price only rises through the end of the window -- no decline visible.
+    prices = [1.0, 1.0, 1.2, 1.5, 2.0]
+    candles = _synthetic_candles(prices)
+    onset = candles.iloc[1]["minute"]
+    stats = compute_window_stats(candles, onset)
+    assert stats["peak_price"] == stats["window_end_price"]
+    assert stats["decline_from_peak_pct"] == pytest.approx(0.0)

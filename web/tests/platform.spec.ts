@@ -83,7 +83,7 @@ test('real price snapshots appear in Radar and Honesty without inventing risk sc
   await expect(page.getByText('Public price watch', { exact: false })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'BTCUSDT' })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'Not scored' }).first()).toBeVisible()
-  await expect(page.locator('.feed-banner')).toContainText('research risk model is not loaded')
+  await expect(page.locator('.feed-banner')).toContainText('Live alert performance has not been measured')
   await page.getByRole('button', { name: 'All markets' }).click()
   await expect(page.getByRole('cell', { name: 'ETHUSDT' })).toBeVisible()
   await page.getByRole('link', { name: 'ETHUSDT' }).click()
@@ -92,7 +92,7 @@ test('real price snapshots appear in Radar and Honesty without inventing risk sc
   await expect(page.getByText('Public price history · month')).toBeVisible()
   await page.getByRole('link', { name: 'Honesty', exact: true }).click()
   await expect(page.getByText('Public markets with prices')).toBeVisible()
-  await expect(page.getByText('Real prices and 24-hour market statistics', { exact: false })).toBeVisible()
+  await expect(page.getByText('Real prices and raw SVM ranking margins', { exact: false })).toBeVisible()
   await expect(page.getByText('Not measured yet.', { exact: false })).toBeVisible()
 })
 

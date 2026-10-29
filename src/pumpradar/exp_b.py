@@ -332,3 +332,53 @@ def hit_at_k_snapshot(predictions: pd.DataFrame, horizon: int, k: int, model: st
     result["k"] = k
     result["horizon_min"] = horizon
     return result
+
+
+def freeze_deployment_model(
+    xsec: pd.DataFrame,
+    model_name: str,
+    model_overrides: dict,
+    horizon: int = 10,
+    seed: int = 42,
+) -> dict:
+    """Fit the final deployment artifact on ALL available labeled rows
+    (train + validation + test eras combined) using the already-selected
+    model and hyperparameters.
+
+    This is standard practice ONLY because model/hyperparameter selection
+    is already finalized (by validation AP, in select_deployment_candidate
+    and tune_hyperparameters_b) -- no further comparison or tuning happens
+    after this point. The held-out test AP/Hit@k numbers already reported
+    remain the honest measure of out-of-sample performance; this function
+    does not change or re-measure them, it just uses the extra data (test
+    rows the evaluation already consumed its one honest look at) for the
+    artifact that will actually run live, which is standard once no more
+    evaluation is planned on that split.
+
+    Returns {"model": fitted estimator, "feature_columns": [...],
+    "model_name", "horizon_min", "n_rows_trained_on", "n_events_trained_on"}.
+    """
+    feature_cols = feature_columns_in(xsec)
+    labeled = add_horizon_labels(xsec, horizons=(horizon,))
+    y_col = f"y_{horizon}"
+
+    X_all, y_all = labeled[feature_cols], labeled[y_col]
+    if y_all.sum() == 0:
+        raise ValueError(f"no positives anywhere in the dataset for horizon {horizon}")
+
+    fit_X, fit_y, sample_info = _cap_for_distance_models(
+        X_all, y_all, max_negatives=MAX_TRAIN_NEGATIVES, seed=seed
+    )
+    model = build_models(seed=seed, overrides=model_overrides)[model_name]
+    model.fit(fit_X, fit_y)
+
+    return {
+        "model": model,
+        "feature_columns": feature_cols,
+        "model_name": model_name,
+        "horizon_min": horizon,
+        "n_rows_trained_on": len(fit_X),
+        "n_events_trained_on": int(labeled["event_id"].nunique()),
+        "train_sample_info": sample_info,
+        "hyperparameters": model_overrides.get(model_name, {}),
+    }

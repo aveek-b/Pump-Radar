@@ -33,7 +33,7 @@ function Layout() {
       </nav><div className="sidebar-note">Research tool. Not financial advice. No trades are placed.</div>
     </aside>
     <div className="body"><header className="topbar"><span><span className={`status-dot ${connected ? 'connected' : ''}`} />{feedStatus}</span><button aria-pressed={light} onClick={() => setLight(!light)}>Light theme</button></header>
-      {realMode ? <div className="feed-banner" role="status">{markets.error ? 'Public market prices are unavailable. Check the backend and Binance connection.' : 'Public prices refresh about every 30 seconds. The research risk model is not loaded; Radar and Honesty cannot show live risk or measured alert performance yet.'}</div> : !connected && <div className="feed-banner" role="status">{live.status}. Last price event received: {utc(live.lastReceived)}. Connection status does not imply a research model is loaded.</div>}
+      {realMode ? <div className="feed-banner" role="status">{markets.error ? 'Public market prices are unavailable. Check the backend and Binance connection.' : 'Public prices refresh about every 30 seconds. Radar shows raw research model margins after enough closed minute bars arrive. Live alert performance has not been measured.'}</div> : !connected && <div className="feed-banner" role="status">{live.status}. Last price event received: {utc(live.lastReceived)}. Connection status does not imply a research model is loaded.</div>}
       <main id="main"><Outlet /><footer className="disclaimer">Research tool. Not financial advice. No trades are placed.</footer></main>
     </div><Toaster theme={light ? 'light' : 'dark'} richColors closeButton />
   </div>

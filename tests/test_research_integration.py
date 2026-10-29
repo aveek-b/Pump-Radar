@@ -52,10 +52,10 @@ def test_live_market_prices_are_real_snapshot_and_all_scores_remain_unavailable(
         result = client.get("/markets")
     assert result.status_code == 200
     body = result.json()
-    assert body["mock"] is False and body["model_version"] is None
+    assert body["mock"] is False
     assert body["markets"] == [{"symbol": "LTCUSDT", "price": 57.0,
                                  "change_24h_pct": .5, "volume_24h_quote": 2000.0,
-                                 "quote_asset": "USDT", "scored": False}]
+                                 "quote_asset": "USDT", "scored": False, "model_score": None}]
     assert body["as_of"] == "2026-10-28T13:54:59Z"
 
 

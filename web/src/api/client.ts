@@ -29,4 +29,5 @@ export const getReplay = (id: string, signal?: AbortSignal) => get<Schema['Repla
 export const getHonesty = (signal?: AbortSignal) => get<Schema['HonestyResponse']>('/honesty', signal)
 export const getExperimentA = (signal?: AbortSignal) => get<Schema['ExperimentAResponse']>('/research/experiment-a', signal)
 export const getExperimentB = (signal?: AbortSignal) => get<Schema['ExperimentBResponse']>('/research/experiment-b', signal)
+export const getLiveScores = (signal?: AbortSignal) => get<Schema['LiveModelScoresResponse']>('/scores/live', signal)
 export const experimentAFigure = (name: 'inflation_by_horizon.png' | 'prevalence_by_horizon.png') => `${base}/research/experiment-a/figures/${name}`

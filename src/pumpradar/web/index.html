@@ -47,6 +47,10 @@
     .stale-banner.show { display: block; }
     .skeleton { opacity: .4; }
     footer.disclaimer { margin: 28px 0 10px; color: #6e7f9c; font-size: .78rem; border-top: 1px solid #26344e; padding-top: 14px; }
+    #toast-stack { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 1000; }
+    .toast { background: #1d2941; border-left: 3px solid #f28b82; color: #edf3ff; padding: 12px 16px; border-radius: 8px; font-size: .85rem; box-shadow: 0 4px 16px rgba(0,0,0,.4); max-width: 340px; animation: toast-in .2s ease-out; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    tr.alert-row { background: #2a1818; }
     #universe-rows tr { cursor: pointer; } #universe-rows tr:hover { background: #17213a; }
     .coin-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
     .coin-header h2 { margin: 0; } .coin-price { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -89,9 +93,12 @@
       <h2>Live Binance coin universe</h2>
       <div class="summary-strip" id="universe-summary">
         <div><b id="us-total">—</b>coins live right now</div>
-        <div><b id="us-scored">—</b>have a trained-model score</div>
+        <div><b id="us-scored">—</b>have a real trained-model score</div>
         <div><b id="us-asof">—</b>prices as of</div>
       </div>
+      <p class="meta">Score = Experiment B's real linear_svm decision_function value (a ranking score, not a
+        calibrated probability). Alert threshold is provisional, not yet validated against real background data
+        -- see Honesty &amp; Method.</p>
       <div class="toolbar">
         <input type="text" id="universe-search" placeholder="Search coin (e.g. ETH)" aria-label="Search coins">
         <select id="universe-filter" aria-label="Filter by scoring status">
@@ -119,16 +126,30 @@
     <section class="card">
       <h2>Past Events (held-out replay)</h2>
       <p class="meta">Real historical pumps from the labeled 2018-2021 dataset, never seen by the models during
-        training. Onset marked where real volume actually spiked. No risk score is shown yet -- the model is not
-        calibrated, so there is no honest score to attach.</p>
+        training. The shaded region is the real pump window: onset (confirmed volume spike) to the real post-onset
+        price peak. No risk score is shown here yet -- the model is not calibrated, so there is no honest score to
+        attach.</p>
       <div class="toolbar">
         <input type="text" id="replay-search" placeholder="Search coin (e.g. PPT)" aria-label="Search events">
         <select id="replay-select" aria-label="Choose an event" style="flex:1"></select>
+        <select id="replay-sort" aria-label="Sort events">
+          <option value="gain_desc">Sort: biggest real gain first</option>
+          <option value="date_asc">Sort: chronological</option>
+        </select>
+      </div>
+      <div class="coin-header" id="replay-stats" hidden>
+        <div>
+          <h2 id="replay-symbol">—</h2>
+          <div class="meta" id="replay-meta"></div>
+        </div>
+        <div class="coin-price" id="replay-gain">—</div>
       </div>
       <div id="replay-chart-container"></div>
       <div id="replay-volume-container"></div>
       <div class="legend">
         <div><span class="swatch" style="background:#f28b82"></span>Onset (confirmed real volume spike)</div>
+        <div><span class="swatch" style="background:#f1bf5f"></span>Pump window (onset &rarr; real price peak)</div>
+        <div><span class="swatch" style="background:#4C72B0"></span>Peak (real local maximum price)</div>
       </div>
       <p class="empty" id="replay-loading">Loading real historical events…</p>
       <p class="empty" id="replay-error" hidden></p>
@@ -177,12 +198,22 @@
     </section>
   </section>
 
+  <div id="toast-stack"></div>
   <footer class="disclaimer">Research tool. Not financial advice. No trades are placed. Developer API: <a href="/docs">/docs</a>.</footer>
   <script>
     const coins = document.querySelector('#coins');
     const alerts = document.querySelector('#alerts');
     const seen = new Set();
     const time = value => value ? new Date(value).toLocaleString() : 'Waiting for bars';
+    function showToast(message) {
+      const stack = document.querySelector('#toast-stack');
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = message;
+      stack.append(el);
+      setTimeout(() => el.remove(), 8000);
+      while (stack.children.length > 5) stack.firstChild.remove();
+    }
     function cell(row, text, className = '') {
       const td = row.insertCell(); td.textContent = text; td.className = className; return td;
     }
@@ -243,7 +274,7 @@
       const sort = document.querySelector('#universe-sort').value;
       let rows = universeCoins.filter(c =>
         (!search || c.base_asset.includes(search) || c.symbol.includes(search)) &&
-        (filter === 'all' || c.scoring_status === filter)
+        (filter === 'all' || c.real_status === filter)
       );
       if (sort === 'price_desc') rows = rows.slice().sort((a, b) => b.price - a.price);
       else if (sort === 'change_desc') rows = rows.slice().sort((a, b) => b.change_24h_pct - a.change_24h_pct);
@@ -252,27 +283,70 @@
       const tbody = document.querySelector('#universe-rows'); tbody.replaceChildren();
       rows.forEach(c => {
         const row = tbody.insertRow();
+        if (c.is_alert) row.classList.add('alert-row');
         cell(row, c.base_asset);
         cell(row, c.quote_asset, 'muted');
         cell(row, fmtPrice(c.price), 'num');
-        const changeCell = cell(row, `${c.change_24h_pct >= 0 ? '+' : ''}${c.change_24h_pct.toFixed(2)}%`, `num ${c.change_24h_pct >= 0 ? 'change-up' : 'change-down'}`);
-        cell(row, c.score === null ? '—' : c.score.toFixed(3), 'num score');
+        cell(row, `${c.change_24h_pct >= 0 ? '+' : ''}${c.change_24h_pct.toFixed(2)}%`, `num ${c.change_24h_pct >= 0 ? 'change-up' : 'change-down'}`);
+        cell(row, c.real_score === null ? '—' : c.real_score.toFixed(3), 'num score');
         const statusCell = row.insertCell();
-        const badge = document.createElement('span'); badge.className = `badge ${c.scoring_status}`;
-        badge.textContent = { scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[c.scoring_status] || c.scoring_status;
+        const badge = document.createElement('span'); badge.className = `badge ${c.real_status}`;
+        badge.textContent = { scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[c.real_status] || c.real_status;
+        if (c.is_alert) {
+          const alertBadge = document.createElement('span'); alertBadge.className = 'badge warming_up';
+          alertBadge.style.marginLeft = '6px'; alertBadge.style.background = '#3a1f1f'; alertBadge.style.color = '#f28b82';
+          alertBadge.textContent = 'ALERT';
+          statusCell.append(alertBadge);
+        }
         statusCell.append(badge);
         row.addEventListener('click', () => openCoinView(c));
       });
       document.querySelector('#universe-empty').hidden = rows.length > 0;
     }
+    let seenAlertKeys = new Set();
     async function loadUniverse() {
       document.querySelector('#universe-loading').hidden = false;
       try {
-        const r = await fetch('/universe'); if (!r.ok) throw Error(r.status);
-        const d = await r.json();
-        universeCoins = d.coins; universeLoaded = true;
+        const [universeRes, scoresRes] = await Promise.all([
+          fetch('/universe'),
+          fetch('/scores/live').catch(() => null),  // real B-model scores -- optional, degrade gracefully if unavailable
+        ]);
+        if (!universeRes.ok) throw Error(universeRes.status);
+        const d = await universeRes.json();
+
+        let liveByPair = {}, nScoredReal = 0, threshold = null;
+        if (scoresRes && scoresRes.ok) {
+          const scoreData = await scoresRes.json();
+          threshold = scoreData.threshold;
+          scoreData.coins.forEach(c => { liveByPair[c.pair] = c; });
+          nScoredReal = scoreData.coins.filter(c => c.scoring_status === 'scored').length;
+          scoreData.recent_alerts.forEach(a => {
+            const key = `${a.pair}:${a.close_time}`;
+            if (!seenAlertKeys.has(key)) {
+              seenAlertKeys.add(key);
+              showToast(`Alert: ${a.pair} real risk score ${a.score.toFixed(3)} crossed the provisional alert threshold`);
+            }
+          });
+        }
+
+        // Merge the real Experiment B score onto each /universe row, replacing
+        // the old demo-heuristic score/status -- this is the actual trained
+        // model's output, not a placeholder.
+        universeCoins = d.coins.map(c => {
+          const live = c.btc_symbol ? liveByPair[c.btc_symbol] : undefined;
+          if (!live) {
+            return { ...c, real_score: null, real_status: c.btc_symbol ? 'warming_up' : 'unavailable', is_alert: false };
+          }
+          return {
+            ...c,
+            real_score: live.score,
+            real_status: live.scoring_status === 'scored' ? 'scored' : 'warming_up',
+            is_alert: live.is_alert,
+          };
+        });
+        universeLoaded = true;
         document.querySelector('#us-total').textContent = d.n_coins;
-        document.querySelector('#us-scored').textContent = d.n_scored;
+        document.querySelector('#us-scored').textContent = threshold !== null ? nScoredReal : d.n_scored;
         document.querySelector('#us-asof').textContent = time(d.price_as_of);
         document.querySelector('#universe-loading').hidden = true;
         document.querySelector('#universe-stale').classList.remove('show');
@@ -307,7 +381,7 @@
           kpi('Coins in training data', d.dataset.n_symbols),
           kpi('Live BTC pairs today', d.live_coin_universe_check.btc_quoted_pairs),
           kpi('Calibration', d.calibration === 'not_yet_run' ? 'Not yet run' : d.calibration),
-          kpi('Alert threshold', d.alert_threshold === 'not_yet_chosen' ? 'Not yet chosen' : d.alert_threshold),
+          kpi('Alert threshold (provisional)', d.alert_threshold === 'not_yet_chosen' ? 'Not yet chosen' : d.alert_threshold.toFixed(3)),
         );
         const apTable = document.querySelector('#honesty-ap-table'); apTable.replaceChildren();
         Object.entries(d.experiment_a_h10_full_feature_ap_by_model)
@@ -376,10 +450,12 @@
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.querySelector('#view-coin').classList.add('active');
 
+      const statusLabel = { scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[coin.real_status] || coin.real_status;
+      const scoreText = coin.real_score === null ? '' : ` · risk score ${coin.real_score.toFixed(3)}${coin.is_alert ? ' (ALERT)' : ''}`;
       document.querySelector('#coin-symbol').textContent = `${coin.base_asset} / ${coin.quote_asset}`;
       document.querySelector('#coin-price').textContent = fmtPrice(coin.price);
       document.querySelector('#coin-status').textContent =
-        `${{ scored: 'Scored', warming_up: 'Warming up', unavailable: 'Unavailable' }[coin.scoring_status]} · 24h ${coin.change_24h_pct >= 0 ? '+' : ''}${coin.change_24h_pct.toFixed(2)}%`;
+        `${statusLabel}${scoreText} · 24h ${coin.change_24h_pct >= 0 ? '+' : ''}${coin.change_24h_pct.toFixed(2)}%`;
 
       document.querySelectorAll('.range-tabs button').forEach(b => b.classList.toggle('active', b.dataset.range === 'week'));
       ensureCharts();
@@ -446,13 +522,20 @@
 
     function renderReplaySelect() {
       const search = document.querySelector('#replay-search').value.trim().toUpperCase();
+      const sortMode = document.querySelector('#replay-sort').value;
       const select = document.querySelector('#replay-select');
-      const filtered = replayEvents.filter(e => !search || e.symbol.toUpperCase().includes(search));
+      let filtered = replayEvents.filter(e => !search || e.symbol.toUpperCase().includes(search));
+      if (sortMode === 'gain_desc') {
+        filtered = filtered.slice().sort((a, b) => (b.max_gain_pct ?? -Infinity) - (a.max_gain_pct ?? -Infinity));
+      } else {
+        filtered = filtered.slice().sort((a, b) => new Date(a.onset) - new Date(b.onset));
+      }
       select.replaceChildren();
       filtered.forEach(e => {
         const opt = document.createElement('option');
         opt.value = e.event_id;
-        opt.textContent = `${e.symbol} · ${time(e.onset)} · ${e.era}-era`;
+        const gainText = e.max_gain_pct !== null && e.max_gain_pct !== undefined ? ` (+${e.max_gain_pct.toFixed(0)}%)` : '';
+        opt.textContent = `${e.symbol} · ${time(e.onset)} · ${e.era}-era${gainText}`;
         select.append(opt);
       });
       if (filtered.length) loadReplayEvent(filtered[0].event_id);
@@ -474,6 +557,7 @@
       }
     }
     document.querySelector('#replay-search').addEventListener('input', renderReplaySelect);
+    document.querySelector('#replay-sort').addEventListener('change', renderReplaySelect);
     document.querySelector('#replay-select').addEventListener('change', e => loadReplayEvent(e.target.value));
 
     async function loadReplayEvent(eventId) {
@@ -484,21 +568,51 @@
         const d = await r.json();
 
         const times = d.candles.map(c => Math.floor(new Date(c.time).getTime() / 1000));
-        replayCandleSeries.setData(d.candles.map((c, i) => ({ time: times[i], open: c.open, high: c.high, low: c.low, close: c.close })));
-        replayVolumeSeries.setData(d.candles.map((c, i) => ({ time: times[i], value: c.volume, color: c.close >= c.open ? '#75ddc3' : '#f28b82' })));
-
         const onsetTime = Math.floor(new Date(d.onset).getTime() / 1000);
-        const onsetCandle = d.candles.reduce((closest, c, i) =>
-          Math.abs(times[i] - onsetTime) < Math.abs(times[closest] - onsetTime) ? i : closest, 0);
-        replayCandleSeries.setMarkers([{
-          time: times[onsetCandle], position: 'aboveBar', color: '#f28b82', shape: 'arrowDown', text: 'Onset',
-        }]);
+        const peakTime = d.peak_time ? Math.floor(new Date(d.peak_time).getTime() / 1000) : null;
+
+        // Highlight the real pump window (onset -> real peak) by recoloring
+        // just those candles, rather than the default up/down palette --
+        // this is per-bar data lightweight-charts natively supports, not a
+        // drawn overlay, so it stays correct even if the chart is resized.
+        replayCandleSeries.setData(d.candles.map((c, i) => {
+          const inPumpWindow = peakTime !== null && times[i] >= onsetTime && times[i] <= peakTime;
+          const base = { time: times[i], open: c.open, high: c.high, low: c.low, close: c.close };
+          if (!inPumpWindow) return base;
+          return { ...base, color: '#f1bf5f', wickColor: '#f1bf5f', borderColor: '#d9a53e' };
+        }));
+        replayVolumeSeries.setData(d.candles.map((c, i) => ({
+          time: times[i], value: c.volume,
+          color: peakTime !== null && times[i] >= onsetTime && times[i] <= peakTime
+            ? '#f1bf5f' : (c.close >= c.open ? '#75ddc3' : '#f28b82'),
+        })));
+
+        const markers = [{ time: onsetTime, position: 'belowBar', color: '#f28b82', shape: 'arrowUp', text: 'Onset' }];
+        if (peakTime !== null) {
+          markers.push({ time: peakTime, position: 'aboveBar', color: '#4C72B0', shape: 'arrowDown', text: 'Peak' });
+        }
+        replayCandleSeries.setMarkers(markers);
 
         replayChart.timeScale().fitContent();
         replayVolumeChart.timeScale().fitContent();
+
+        const statsEl = document.querySelector('#replay-stats');
+        if (d.max_gain_pct !== undefined && d.max_gain_pct !== null) {
+          statsEl.hidden = false;
+          document.querySelector('#replay-symbol').textContent = `${d.symbol} (${d.pair})`;
+          const declineText = d.decline_from_peak_pct !== null && d.decline_from_peak_pct < -1
+            ? `, then fell ${Math.abs(d.decline_from_peak_pct).toFixed(1)}% from peak by window end (the "dump")`
+            : '';
+          document.querySelector('#replay-meta').textContent =
+            `Onset ${time(d.onset)} · peak ${time(d.peak_time)}${declineText}`;
+          document.querySelector('#replay-gain').textContent = `+${d.max_gain_pct.toFixed(1)}%`;
+        } else {
+          statsEl.hidden = true;
+        }
       } catch {
         errorEl.hidden = false;
         errorEl.textContent = `Could not load replay data for ${eventId}.`;
+        document.querySelector('#replay-stats').hidden = true;
       }
     }
   </script>

@@ -183,6 +183,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/scores/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Live Scores
+         * @description Frozen Experiment B SVM margins, separate from mock risk percentages.
+         */
+        get: operations["live_scores_scores_live_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scores/backfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Backfill Scores
+         * @description Operator-triggered real history warmup; never fetch on app startup.
+         */
+        post: operations["backfill_scores_scores_backfill_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/research/experiment-a/figures/{name}": {
         parameters: {
             query?: never;
@@ -312,7 +352,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /** Alerts */
             alerts: (components["schemas"]["AlertRecord"] | components["schemas"]["RiskAlert"])[];
             /**
@@ -407,7 +447,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /** Mock */
             mock: boolean;
             /** Model Version */
@@ -563,7 +603,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /**
              * Mock
              * @default false
@@ -594,7 +634,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /** Mock */
             mock: boolean;
             /** Model Version */
@@ -621,6 +661,44 @@ export interface components {
             /** Limitations */
             limitations: string[];
         };
+        /** LiveModelCoin */
+        LiveModelCoin: {
+            /** Pair */
+            pair: string;
+            /** Score */
+            score: number | null;
+            /**
+             * Scoring Status
+             * @enum {string}
+             */
+            scoring_status: "scored" | "insufficient_history";
+            /** As Of */
+            as_of: string | null;
+            /** Is Alert */
+            is_alert: boolean;
+        };
+        /** LiveModelScoresResponse */
+        LiveModelScoresResponse: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "unavailable" | "warming_up" | "scored";
+            /** Model Version */
+            model_version: string | null;
+            /** Score Type */
+            score_type: string;
+            /** Threshold */
+            threshold: number | null;
+            /** Threshold Status */
+            threshold_status: string | null;
+            /** N Tracked Pairs */
+            n_tracked_pairs: number;
+            /** Coins */
+            coins: components["schemas"]["LiveModelCoin"][];
+            /** Notice */
+            notice: string;
+        };
         /** Market */
         Market: {
             /** Symbol */
@@ -635,6 +713,11 @@ export interface components {
             quote_asset: string;
             /** Scored */
             scored: boolean;
+            /**
+             * Model Score
+             * @default null
+             */
+            model_score: number | null;
         };
         /** MarketsResponse */
         MarketsResponse: {
@@ -642,7 +725,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /** Mock */
             mock: boolean;
             /** Model Version */
@@ -660,7 +743,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /** Minute */
             minute: string | null;
             /** Coins */
@@ -688,7 +771,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /** Mock */
             mock: boolean;
             /**
@@ -716,7 +799,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /** Mock */
             mock: boolean;
             /** Model Version */
@@ -758,7 +841,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /** Mock */
             mock: boolean;
             /** Model Version */
@@ -849,7 +932,7 @@ export interface components {
              * Scorer
              * @enum {string}
              */
-            scorer: "demo_stub" | "mock";
+            scorer: "demo_stub" | "mock" | "research_ranker";
             /** Mock */
             mock: boolean;
             /**
@@ -1113,6 +1196,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExperimentBResponse"];
+                };
+            };
+        };
+    };
+    live_scores_scores_live_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveModelScoresResponse"];
+                };
+            };
+        };
+    };
+    backfill_scores_scores_backfill_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };

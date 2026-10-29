@@ -1,4 +1,4 @@
-"""B1 read contract and stream. Real engine integration remains a separate handoff."""
+"""Platform read contract, research artifacts, and live model ranking."""
 
 import asyncio
 import json
@@ -7,7 +7,9 @@ from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 
+import httpx
 from fastapi import APIRouter, FastAPI, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, StreamingResponse
 from httpx import HTTPError
 from pydantic.json_schema import models_json_schema
@@ -18,6 +20,7 @@ from api.schemas import (
     ExperimentAResponse,
     ExperimentBResponse,
     HonestyResponse,
+    LiveModelScoresResponse,
     MarketsResponse,
     PricesEvent,
     RadarTick,
@@ -30,8 +33,8 @@ router = APIRouter()
 live_universe = LiveUniverseCache()
 RESULTS = Path(__file__).resolve().parents[2] / "results"
 REPLAY_DIR = Path(__file__).resolve().parents[2] / "data" / "replay"
-DEMO = {"scorer": "demo_stub", "mock": False,
-        "notice": "Real market/model integration is pending; retained demo is available separately."}
+DEMO = {"scorer": "research_ranker", "mock": False,
+        "notice": "Live model margins are raw rankings; deployment evaluation remains unavailable."}
 
 
 def mock_enabled() -> bool:
@@ -47,15 +50,21 @@ async def markets():
         coins = await live_universe.get()
     except (HTTPError, ValueError, KeyError) as exc:
         raise HTTPException(503, "Public market prices are unavailable; retry later.") from exc
+    from pumpradar.api import b_scoring_engine
+
+    live_scores = b_scoring_engine.latest_scores if b_scoring_engine else {}
     return MarketsResponse(
-        scorer="demo_stub", mock=False, model_version=None,
-        notice="Live public market prices. No research model is loaded; none is scored.",
+        scorer="research_ranker" if b_scoring_engine else "demo_stub", mock=False,
+        model_version="exp_b_linear_svm_h10_v1" if b_scoring_engine else None,
+        notice="Live public prices. Model scores, when present, are raw SVM ranking margins, not probabilities; the alert threshold is provisional.",
         as_of=datetime.fromisoformat(coins[0].price_as_of) if coins else None,
         markets=[{
             "symbol": coin.symbol, "price": coin.price,
             "change_24h_pct": coin.change_24h_pct,
             "volume_24h_quote": coin.quote_volume_24h,
-            "quote_asset": coin.quote_asset, "scored": False,
+            "quote_asset": coin.quote_asset,
+            "scored": coin.btc_symbol in live_scores and live_scores[coin.btc_symbol].score is not None,
+            "model_score": live_scores[coin.btc_symbol].score if coin.btc_symbol in live_scores else None,
         } for coin in coins],
     )
 
@@ -139,7 +148,7 @@ def experiment_b_data() -> ExperimentBResponse:
         selection_horizon_min=candidate["horizon_min"],
         points=points,
         limitations=[
-            "The selected model is a research candidate; no frozen model or live inference pipeline is loaded.",
+            "The frozen research candidate produces raw live ranking margins when model dependencies and minute-bar history are available.",
             "Hit@5 is an event ranking measure, not the current dashboard's alert catch rate.",
             "No calibrated live alert threshold, false-alert budget, or measured live latency is available.",
         ],
@@ -149,6 +158,64 @@ def experiment_b_data() -> ExperimentBResponse:
 @router.get("/research/experiment-b", response_model=ExperimentBResponse)
 def experiment_b():
     return experiment_b_data()
+
+
+@router.get("/scores/live", response_model=LiveModelScoresResponse)
+def live_scores():
+    """Frozen Experiment B SVM margins, separate from mock risk percentages."""
+    from pumpradar.api import b_scoring_engine, b_threshold_info, model_load_error
+
+    if mock_enabled():
+        return LiveModelScoresResponse(
+            status="unavailable", model_version=None, score_type="SVM decision margin",
+            threshold=None, threshold_status=None, n_tracked_pairs=0, coins=[],
+            notice="Synthetic preview mode; real model scores are hidden.",
+        )
+    if b_scoring_engine is None:
+        return LiveModelScoresResponse(
+            status="unavailable", model_version=None, score_type="SVM decision margin",
+            threshold=None, threshold_status=None, n_tracked_pairs=0, coins=[],
+            notice=model_load_error,
+        )
+    coins = list(b_scoring_engine.latest_scores.values())
+    return LiveModelScoresResponse(
+        status="scored" if any(coin.score is not None for coin in coins) else "warming_up",
+        model_version="exp_b_linear_svm_h10_v1",
+        score_type="10-minute linear SVM decision margin; larger is higher-ranked, not a probability",
+        threshold=b_scoring_engine.threshold,
+        threshold_status=b_threshold_info.get("status") if b_threshold_info else None,
+        n_tracked_pairs=len(b_scoring_engine.history),
+        coins=[{
+            "pair": coin.pair, "score": coin.score,
+            "scoring_status": coin.scoring_status, "as_of": coin.as_of,
+            "is_alert": coin.is_alert,
+        } for coin in coins],
+        notice="Real Binance minute bars and frozen Experiment B model. The threshold is provisional; its live false-alert rate is unvalidated.",
+    )
+
+
+@router.post("/scores/backfill")
+async def backfill_scores():
+    """Operator-triggered real history warmup; never fetch on app startup."""
+    if mock_enabled() or os.getenv("PUMPRADAR_ALLOW_BACKFILL") != "1":
+        raise HTTPException(403, "Set PUMPRADAR_ALLOW_BACKFILL=1 on the local API to permit backfill.")
+    from pumpradar.api import b_scoring_engine
+
+    if b_scoring_engine is None:
+        raise HTTPException(503, "Research model runtime is unavailable.")
+    from pumpradar.live import discover_symbols
+    from pumpradar.live_scoring import backfill_engine
+
+    async with httpx.AsyncClient() as client:
+        pairs = await discover_symbols(client)
+    counts = await backfill_engine(b_scoring_engine, pairs)
+    await run_in_threadpool(b_scoring_engine.score_latest)
+    return {
+        "n_pairs_requested": len(pairs), "n_bars_loaded": counts,
+        "n_pairs_with_full_history": sum(
+            1 for n in counts.values() if n >= b_scoring_engine.history_minutes * 0.9
+        ),
+    }
 
 
 @router.get("/research/experiment-a/figures/{name}", response_class=FileResponse,
@@ -177,14 +244,20 @@ async def coin(pair: str, range: str = "week"):
             candles = await fetch_candles(pair, range)
         except (HTTPError, ValueError, KeyError) as exc:
             raise HTTPException(503, "Public coin history is unavailable; retry later.") from exc
+        from pumpradar.api import b_scoring_engine
+
+        score_row = b_scoring_engine.latest_scores.get(market.btc_symbol) if b_scoring_engine and market.btc_symbol else None
         return CoinResponse(
-            scorer="demo_stub", mock=False, model_version=None,
-            notice="Public Binance price history. The research risk model is not loaded; no scores or alerts are shown.",
+            scorer="research_ranker" if b_scoring_engine else "demo_stub", mock=False,
+            model_version="exp_b_linear_svm_h10_v1" if b_scoring_engine else None,
+            notice="Public Binance price history. Any raw SVM margin shown is a ranking score, not a calibrated probability.",
             pair=pair,
             market={"symbol": market.symbol, "price": market.price,
                     "change_24h_pct": market.change_24h_pct,
                     "volume_24h_quote": market.quote_volume_24h,
-                    "quote_asset": market.quote_asset, "scored": False},
+                    "quote_asset": market.quote_asset,
+                    "scored": score_row is not None and score_row.score is not None,
+                    "model_score": score_row.score if score_row else None},
             current=None,
             bars=[{"time": candle.open_time, "open": candle.open, "high": candle.high,
                    "low": candle.low, "close": candle.close,
@@ -246,10 +319,16 @@ def replay_event(event_id: str):
 
 @router.get("/honesty", response_model=HonestyResponse)
 def honesty():
-    return HonestyResponse(**(PROVENANCE if mock_enabled() else DEMO), status="unavailable",
-                           limitations=["No frozen cross-sectional model or live deployment evaluation is loaded. Historical Experiments A and B are reported separately.",
+    from pumpradar.api import b_scoring_engine
+
+    provenance = PROVENANCE if mock_enabled() else {
+        **DEMO, "scorer": "research_ranker" if b_scoring_engine else "demo_stub",
+        "model_version": "exp_b_linear_svm_h10_v1" if b_scoring_engine else None,
+    }
+    return HonestyResponse(**provenance, status="unavailable",
+                           limitations=["Live deployment precision, recall, warning lead, and false-alert rate have not been measured. Historical Experiments A and B are reported separately.",
                                         "Mock values and demo heuristics are not probabilities.",
-                                        "Held-out replay and false-alert budgets are unmeasured."])
+                                        "The live threshold is provisional; held-out replay and false-alert budgets are unmeasured."])
 
 
 async def stream_events(request: Request):

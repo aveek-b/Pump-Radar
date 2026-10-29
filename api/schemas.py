@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 from pumpradar.engine import Bar
 
-Mode = Literal["demo_stub", "mock"]
+Mode = Literal["demo_stub", "mock", "research_ranker"]
 Horizon = Literal["1", "3", "5", "10", "30", "60"]
 Risk = Annotated[float, Field(ge=0, le=1)]
 
@@ -26,6 +26,7 @@ class Market(BaseModel):
     volume_24h_quote: float | None
     quote_asset: str
     scored: bool
+    model_score: float | None = None
 
 
 class MarketsResponse(Provenance):
@@ -171,6 +172,25 @@ class ExperimentBResponse(BaseModel):
     selection_horizon_min: int
     points: list[ExperimentBPoint]
     limitations: list[str]
+
+
+class LiveModelCoin(BaseModel):
+    pair: str
+    score: float | None
+    scoring_status: Literal["scored", "insufficient_history"]
+    as_of: datetime | None
+    is_alert: bool
+
+
+class LiveModelScoresResponse(BaseModel):
+    status: Literal["unavailable", "warming_up", "scored"]
+    model_version: str | None
+    score_type: str
+    threshold: float | None
+    threshold_status: str | None
+    n_tracked_pairs: int
+    coins: list[LiveModelCoin]
+    notice: str
 
 
 class BarInput(BaseModel):

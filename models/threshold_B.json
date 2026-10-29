@@ -1,0 +1,10 @@
+{
+  "horizon_min": 10,
+  "threshold": 1.2180395592498685,
+  "alerts_per_hour_target": 2,
+  "n_coins_assumed": 38,
+  "score_type": "linear_svm decision_function (ranking score, NOT a calibrated probability)",
+  "computed_from": "validation-era xsec rows (19 events), NOT a real ordinary-market-period background stream",
+  "status": "PROVISIONAL -- live false-alert rate is unvalidated per the build guide K11 requirement",
+  "cooldown_minutes": 30
+}

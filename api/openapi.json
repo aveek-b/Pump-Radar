@@ -246,6 +246,42 @@
         }
       }
     },
+    "/scores/live": {
+      "get": {
+        "summary": "Live Scores",
+        "description": "Frozen Experiment B SVM margins, separate from mock risk percentages.",
+        "operationId": "live_scores_scores_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveModelScoresResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scores/backfill": {
+      "post": {
+        "summary": "Backfill Scores",
+        "description": "Operator-triggered real history warmup; never fetch on app startup.",
+        "operationId": "backfill_scores_scores_backfill_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/research/experiment-a/figures/{name}": {
       "get": {
         "summary": "Experiment A Figure",
@@ -479,7 +515,8 @@
             "type": "string",
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer"
           },
@@ -766,7 +803,8 @@
             "type": "string",
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer"
           },
@@ -1228,7 +1266,8 @@
             "type": "string",
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer"
           },
@@ -1281,7 +1320,8 @@
             "type": "string",
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer"
           },
@@ -1393,6 +1433,135 @@
         ],
         "title": "HonestyResponse"
       },
+      "LiveModelCoin": {
+        "properties": {
+          "pair": {
+            "type": "string",
+            "title": "Pair"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "scoring_status": {
+            "type": "string",
+            "enum": [
+              "scored",
+              "insufficient_history"
+            ],
+            "title": "Scoring Status"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "is_alert": {
+            "type": "boolean",
+            "title": "Is Alert"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pair",
+          "score",
+          "scoring_status",
+          "as_of",
+          "is_alert"
+        ],
+        "title": "LiveModelCoin"
+      },
+      "LiveModelScoresResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "unavailable",
+              "warming_up",
+              "scored"
+            ],
+            "title": "Status"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "score_type": {
+            "type": "string",
+            "title": "Score Type"
+          },
+          "threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold"
+          },
+          "threshold_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Status"
+          },
+          "n_tracked_pairs": {
+            "type": "integer",
+            "title": "N Tracked Pairs"
+          },
+          "coins": {
+            "items": {
+              "$ref": "#/components/schemas/LiveModelCoin"
+            },
+            "type": "array",
+            "title": "Coins"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "model_version",
+          "score_type",
+          "threshold",
+          "threshold_status",
+          "n_tracked_pairs",
+          "coins",
+          "notice"
+        ],
+        "title": "LiveModelScoresResponse"
+      },
       "Market": {
         "properties": {
           "symbol": {
@@ -1433,6 +1602,18 @@
           "scored": {
             "title": "Scored",
             "type": "boolean"
+          },
+          "model_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Score"
           }
         },
         "required": [
@@ -1452,7 +1633,8 @@
             "type": "string",
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer"
           },
@@ -1511,7 +1693,8 @@
             "type": "string",
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer"
           },
@@ -1587,7 +1770,8 @@
           "scorer": {
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer",
             "type": "string"
@@ -1654,7 +1838,8 @@
             "type": "string",
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer"
           },
@@ -1782,7 +1967,8 @@
             "type": "string",
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer"
           },
@@ -2046,7 +2232,8 @@
           "scorer": {
             "enum": [
               "demo_stub",
-              "mock"
+              "mock",
+              "research_ranker"
             ],
             "title": "Scorer",
             "type": "string"
