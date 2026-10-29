@@ -121,7 +121,9 @@ def get_radar() -> dict:
         return {"scorer": "mock", "mock": True, "minute": tick.as_of,
                 "coins": [], "rows": tick.rows, "notice": NOTICE, "sequence": tick.sequence}
     coins = radar.ranking()
-    return {"scorer": "demo_stub", "minute": coins[0]["close_time"] if coins else None, "coins": coins}
+    return {"scorer": "demo_stub", "minute": coins[0]["close_time"] if coins else None,
+            "coins": coins,
+            "notice": "Legacy five-bar demo heuristic. Frozen Experiment B rankings are at /scores/live."}
 
 
 @app.get("/alerts", response_model=AlertsResponse)

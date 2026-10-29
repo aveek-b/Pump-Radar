@@ -3,7 +3,7 @@ import { Activity, Clock3, FlaskConical, Radar, ShieldCheck } from 'lucide-react
 import { Link, Outlet, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
 import { Toaster } from 'sonner'
 import { useQuery } from '@tanstack/react-query'
-import { getMarkets, getRadar, horizons, type Horizon } from './api/client'
+import { getHealth, getMarkets, getRadar, horizons, type Horizon } from './api/client'
 import { LiveProvider, useLiveTicks } from './api/useLiveTicks'
 import { utc } from './components/ui'
 import { RadarPage, defaultSearch, type RadarSearch } from './pages/RadarPage'
@@ -15,6 +15,7 @@ function Shell() { return <LiveProvider><Layout /></LiveProvider> }
 function Layout() {
   const live = useLiveTicks()
   const radar = useQuery({ queryKey: ['radar'], queryFn: ({ signal }) => getRadar(signal) })
+  const health = useQuery({ queryKey: ['health'], queryFn: ({ signal }) => getHealth(signal), refetchInterval: 30_000 })
   const markets = useQuery({ queryKey: ['markets'], queryFn: ({ signal }) => getMarkets(signal), refetchInterval: 30_000 })
   const [light, setLight] = useState(false)
   const realMode = radar.data?.mock === false
@@ -33,7 +34,7 @@ function Layout() {
       </nav><div className="sidebar-note">Research tool. Not financial advice. No trades are placed.</div>
     </aside>
     <div className="body"><header className="topbar"><span><span className={`status-dot ${connected ? 'connected' : ''}`} />{feedStatus}</span><button aria-pressed={light} onClick={() => setLight(!light)}>Light theme</button></header>
-      {realMode ? <div className="feed-banner" role="status">{markets.error ? 'Public market prices are unavailable. Check the backend and Binance connection.' : 'Public prices refresh about every 30 seconds. Radar shows raw research model margins after enough closed minute bars arrive. Live alert performance has not been measured.'}</div> : !connected && <div className="feed-banner" role="status">{live.status}. Last price event received: {utc(live.lastReceived)}. Connection status does not imply a research model is loaded.</div>}
+      {realMode ? <div className="feed-banner" role="status">{health.error ? 'Backend unavailable. Check the API server and frontend proxy port.' : health.data?.model_loaded ? 'Experiment B model loaded. Radar shows raw SVM ranking margins after closed minute bars arrive; live alert performance has not been measured.' : health.isPending ? 'Checking research model status…' : 'Research model unavailable on this backend. Restart the API with the model extra and check the frontend proxy port.'} {markets.error ? 'Public market prices are unavailable; check the Binance connection.' : ''}</div> : !connected && <div className="feed-banner" role="status">{live.status}. Last price event received: {utc(live.lastReceived)}. Connection status does not imply a research model is loaded.</div>}
       <main id="main"><Outlet /><footer className="disclaimer">Research tool. Not financial advice. No trades are placed.</footer></main>
     </div><Toaster theme={light ? 'light' : 'dark'} richColors closeButton />
   </div>

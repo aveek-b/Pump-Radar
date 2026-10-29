@@ -65,7 +65,7 @@ def test_batch_scores_same_minute_for_multiple_symbols():
 def test_dashboard_is_served():
     response = TestClient(app).get("/")
     assert response.status_code == 200
-    assert "Current minute ranking" in response.text
+    assert "Five-bar demo heuristic" in response.text
 
 
 def test_guide_entrypoint_exposes_typed_demo_contract():

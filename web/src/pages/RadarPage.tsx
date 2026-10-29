@@ -31,12 +31,12 @@ export function RadarPage({ filters, change }: { filters: RadarSearch; change: (
   return <>
     <div className="eyebrow">MARKET WATCH</div><h1>Radar</h1>
     <p className="intro">Follow unusual activity across coins. {data?.mock ? 'Choose a horizon to compare synthetic scores.' : 'Live research rankings use a fixed 10-minute horizon.'}</p>
-    {data && <Notice mock={data.mock ?? false} notice={data.notice ?? ''} />}
+    {data?.mock && <Notice mock notice={data.notice ?? ''} />}
     <div className="summary">
       <div><span>Coins with radar scores</span><strong>{data?.mock ? rows.length : scoredModels.length}</strong></div>
       <div><span>Markets with prices</span><strong>{markets.data?.markets.length ?? '—'}</strong><small>{markets.data?.mock ? 'Synthetic fixtures' : 'Public Binance snapshot, refreshed about every 30 seconds'}</small></div>
       <div><span>Alerts observed this session, last hour</span><strong>{recentAlerts.length}</strong><small>Budget unavailable · not an evaluated alert rate</small></div>
-      <div><span>{data?.mock ? 'Synthetic scoring time' : 'Last closed minute'}</span><strong className="timestamp">{utc(data?.minute)}</strong></div>
+      <div><span>{data?.mock ? 'Synthetic scoring time' : 'Last model-scored minute'}</span><strong className="timestamp">{utc(data?.mock ? data.minute : scoredModels[0]?.as_of)}</strong></div>
     </div>
     <div className="controls">
       <div className="tabs" aria-label="Market views"><button aria-pressed={filters.tab === 'radar'} onClick={() => change({ tab: 'radar' })}>Pump radar</button><button aria-pressed={filters.tab === 'markets'} onClick={() => change({ tab: 'markets' })}>All markets</button></div>
@@ -60,11 +60,8 @@ export function RadarPage({ filters, change }: { filters: RadarSearch; change: (
           <p className="state">{modelScores.data.notice} {modelScores.data.threshold_status}</p>
           {scoredModels.length ? <div className="table-wrap"><table><thead><tr><th>Rank</th><th>BTC pair</th><th>Raw SVM margin</th><th>As of (UTC)</th><th>Provisional alert</th></tr></thead><tbody>{scoredModels.filter(coin => coin.pair.toLowerCase().includes(filters.q.toLowerCase())).map((coin, index) => <tr key={coin.pair}><td>{index + 1}</td><td>{coin.pair}</td><td>{coin.score?.toFixed(4)}</td><td>{utc(coin.as_of)}</td><td>{coin.is_alert ? 'Threshold crossed' : 'No'}</td></tr>)}</tbody></table></div> : <p className="state">{modelScores.data.status === 'unavailable' ? 'Research model unavailable.' : `Waiting for closed minute bars and baseline history across ${modelScores.data.n_tracked_pairs} BTC pairs.`}</p>}
         </>}
-        <div className="panel-top"><strong>Manual / feeder demo</strong><span>Five-earlier-bar volume heuristic</span></div>
-        {!data?.coins.length ? <p className="state">No demo bars have been ingested. The manual feeder can supply a separate five-bar heuristic.</p> : <div className="table-wrap"><table><thead><tr><th>Pair</th><th>Volume vs median</th><th>Buy share</th><th>Demo score</th></tr></thead><tbody>{data.coins.filter(c => c.symbol.toLowerCase().includes(filters.q.toLowerCase())).map(c => <tr key={c.symbol}><td>{c.symbol}</td><td>{c.relative_volume == null ? 'Warming up' : `${c.relative_volume.toFixed(2)}×`}</td><td>{percent(c.buy_share)}</td><td>{c.score?.toFixed(3) ?? 'Warming up'}</td></tr>)}</tbody></table></div>}
         <div className="panel-top"><strong>Public price watch · largest USDT markets by quote volume</strong><span>Prices only, no risk ranking</span></div>
         {markets.isPending ? <Loading /> : markets.error ? <ErrorState error={markets.error} retry={() => void markets.refetch()} /> : !priceWatch.length ? <p className="state">No USDT markets match this search. Try All Markets.</p> : <div className="table-wrap"><table><thead><tr><th>Pair</th><th>Price (USDT)</th><th>24h change</th><th>24h volume (USDT)</th><th>Raw SVM margin · 10 min</th></tr></thead><tbody>{priceWatch.map(m => <tr key={m.symbol}><td><Link to="/coin/$pair" params={{ pair: m.symbol }}>{m.symbol}</Link></td><td>{number(m.price)}</td><td>{m.change_24h_pct == null ? 'Unavailable' : `${m.change_24h_pct.toFixed(2)}%`}</td><td>{number(m.volume_24h_quote)}</td><td>{m.model_score == null ? 'Not scored' : m.model_score.toFixed(4)}</td></tr>)}</tbody></table></div>}
-        <p className="state">Horizon, tier and risk sort apply to model-shaped rows only. Demo scores are not probabilities.</p>
       </>}
     </div>
     {!!recentAlerts.length && <section className="panel"><div className="panel-top"><strong>Recent observed alerts</strong><span>Session history only</span></div><ul className="alert-list">{recentAlerts.slice(0, 5).map(a => <li key={a.id}><Link to="/coin/$pair" params={{ pair: a.pair }}>{a.pair}</Link> · {utc(a.time)}<p>{a.reasons.join(' ')}</p></li>)}</ul></section>}

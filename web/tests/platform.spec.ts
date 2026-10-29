@@ -83,7 +83,7 @@ test('real price snapshots appear in Radar and Honesty without inventing risk sc
   await expect(page.getByText('Public price watch', { exact: false })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'BTCUSDT' })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'Not scored' }).first()).toBeVisible()
-  await expect(page.locator('.feed-banner')).toContainText('Live alert performance has not been measured')
+  await expect(page.locator('.feed-banner')).toContainText('Research model unavailable on this backend')
   await page.getByRole('button', { name: 'All markets' }).click()
   await expect(page.getByRole('cell', { name: 'ETHUSDT' })).toBeVisible()
   await page.getByRole('link', { name: 'ETHUSDT' }).click()

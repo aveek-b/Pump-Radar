@@ -22,6 +22,7 @@ async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export const getRadar = (signal?: AbortSignal) => get<RadarResponse>('/radar', signal)
+export const getHealth = (signal?: AbortSignal) => get<Schema['HealthResponse']>('/health', signal)
 export const getMarkets = (signal?: AbortSignal) => get<Schema['MarketsResponse']>('/markets', signal)
 export const getCoin = (pair: string, range: 'week' | 'month' | 'year' = 'week', signal?: AbortSignal) => get<Schema['CoinResponse']>(`/coin/${encodeURIComponent(pair)}?range=${range}`, signal)
 export const getReplayEvents = (signal?: AbortSignal) => get<Schema['ReplayEventsResponse']>('/replay/events', signal)

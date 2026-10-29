@@ -1736,7 +1736,7 @@
           "notice": {
             "type": "string",
             "title": "Notice",
-            "default": "Demo heuristic only; no trained risk model is loaded."
+            "default": "Legacy five-bar demo heuristic. Frozen Experiment B rankings are at /scores/live."
           },
           "rows": {
             "items": {

@@ -245,7 +245,7 @@ class RadarResponse(BaseModel):
     coins: list[DemoScore]
     mock: bool = False
     model_version: str | None = None
-    notice: str = "Demo heuristic only; no trained risk model is loaded."
+    notice: str = "Legacy five-bar demo heuristic. Frozen Experiment B rankings are at /scores/live."
     rows: list[CoinRisk] = Field(default_factory=list)
     sequence: int | None = None
 

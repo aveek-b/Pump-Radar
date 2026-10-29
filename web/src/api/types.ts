@@ -757,7 +757,7 @@ export interface components {
             model_version?: string | null;
             /**
              * Notice
-             * @default Demo heuristic only; no trained risk model is loaded.
+             * @default Legacy five-bar demo heuristic. Frozen Experiment B rankings are at /scores/live.
              */
             notice: string;
             /** Rows */

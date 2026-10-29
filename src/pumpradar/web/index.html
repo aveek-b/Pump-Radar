@@ -66,10 +66,10 @@
 </head>
 <body>
   <header><div><h1>PumpRadar</h1><p>Live Binance coin universe · leakage-audited research model</p></div><span class="tag">RESEARCH TOOL</span></header>
-  <div class="notice">Scores are a volume heuristic for the platform demo path, not the trained model's output. The trained model (Experiment A, see Method) is leakage-audited but not yet calibrated into a probability or a committed alert threshold. Nothing here is a trading signal.</div>
+  <div class="notice">This is the legacy API demo. Its Radar table uses a five-bar heuristic. Open the <a href="http://127.0.0.1:5173/">React dashboard</a> for the frozen Experiment B model ranking, and check that its backend reports <code>model_loaded: true</code>. Model margins are not calibrated probabilities or trading signals.</div>
 
   <nav class="tabs" role="tablist">
-    <button class="active" data-view="radar" role="tab" aria-selected="true">Radar</button>
+    <button class="active" data-view="radar" role="tab" aria-selected="true">Legacy demo</button>
     <button data-view="universe" role="tab" aria-selected="false">Live Universe</button>
     <button data-view="replay" role="tab" aria-selected="false">Past Events</button>
     <button data-view="method" role="tab" aria-selected="false">Honesty &amp; Method</button>
@@ -77,7 +77,7 @@
 
   <section id="view-radar" class="view active">
     <main class="grid">
-      <section class="card"><h2>Current minute ranking</h2><div class="meta" id="minute">Waiting for bars</div>
+      <section class="card"><h2>Five-bar demo heuristic</h2><div class="meta" id="minute">Waiting for bars</div>
         <table><thead><tr><th>Rank</th><th>Coin</th><th>Volume vs median</th><th>Buy share</th><th>Demo score</th></tr></thead><tbody id="coins"></tbody></table>
         <p class="empty" id="no-coins">No bars yet. Use the API or start the live feeder.</p>
       </section>
