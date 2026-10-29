@@ -75,7 +75,7 @@ def test_non_mock_routes_report_pending_integration(client, monkeypatch):
     monkeypatch.setattr(platform.live_universe, "get", no_markets)
     assert client.get("/radar").json()["scorer"] == "demo_stub"
     assert client.get("/markets").json()["markets"] == []
-    assert client.get("/replay/events").json()["events"] == []
+    assert len(client.get("/replay/events").json()["events"]) == 36
     assert client.get("/replay/mock-example").status_code == 404
     assert client.get("/coin/MOCK001BTC").status_code == 404
     assert not client.get("/health").json()["mock"]

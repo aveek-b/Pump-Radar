@@ -5,15 +5,15 @@ This writes xsec_v2.parquet because its feature names differ from the dataset
 used for the committed Experiment B results. Requires pandas and pyarrow.
 """
 
+import zipfile
 from collections import Counter
 from pathlib import Path
-import zipfile
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from pumpradar.features_v2 import compute_features, WINDOWS
+from pumpradar.features_v2 import WINDOWS, compute_features
 
 ROOT = Path(__file__).resolve().parents[2]
 EVENTS_FILE = ROOT / "data" / "processed" / "events.parquet"

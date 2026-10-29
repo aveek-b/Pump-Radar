@@ -6,24 +6,13 @@ Fulfills Step D1 and D3 of the build guide:
 - Saves clean contract hand-off table to data/processed/events.parquet.
 """
 
-from pathlib import Path
 import pandas as pd
 
-from pumpradar.prepare_events import (
-    INPUT_FILE as TELEGRAM_CSV,
-    MERGE_WINDOW,
-    PROJECT_ROOT,
-    TEST_START,
-    prepare_events,
-)
 from pumpradar.detect_onsets import (
     EVENTS_FILE,
-    FIGURE_FILE,
-    OUTPUT_FILE as ONSET_RESULTS_FILE,
-    detect_event_onset,
-    load_pair_bars,
-    plot_offsets,
-    robust_threshold,
+)
+from pumpradar.prepare_events import (
+    prepare_events,
 )
 
 CONTRACT_COLUMNS = ["event_id", "pair", "t_telegram", "t_onset", "era"]
@@ -40,7 +29,7 @@ def get_contract_events(events_df: pd.DataFrame) -> pd.DataFrame:
 def run_pipeline() -> pd.DataFrame:
     """Run full event preparation and onset detection pipeline."""
     print("=== Step D1: Preparing event table ===")
-    events = prepare_events()
+    prepare_events()
 
     print("\n=== Step D3: Detecting market onsets ===")
     from pumpradar.detect_onsets import main as run_detect_onsets

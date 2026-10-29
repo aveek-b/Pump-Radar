@@ -176,7 +176,7 @@ class Candle:
     low: float
     close: float
     volume: float
-    quote_volume: float
+    quote_volume: float | None = None
 
 
 async def fetch_candles(symbol: str, range_key: str, client: httpx.AsyncClient | None = None) -> list[Candle]:

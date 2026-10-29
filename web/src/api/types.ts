@@ -399,7 +399,7 @@ export interface components {
             /** Close */
             close: number;
             /** Volume Quote */
-            volume_quote: number;
+            volume_quote: number | null;
         };
         /** CoinResponse */
         CoinResponse: {

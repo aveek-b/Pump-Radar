@@ -16,8 +16,8 @@ export function ReplayPage() {
   return <><div className="eyebrow">HISTORICAL PLAYBACK</div><h1>Replay</h1><p className="intro">Watch the ranking unfold through time. Synthetic examples are separate from held-out evaluation.</p>
     {events.isPending ? <Loading /> : events.error ? <ErrorState error={events.error} retry={() => void events.refetch()} /> : events.data && <>
       <Notice mock={events.data.mock} notice={events.data.notice} />
-      <section className="panel"><div className="panel-top"><strong>{events.data.mock ? 'Synthetic examples' : 'Held-out event scoreboard'}</strong><span>{events.data.events.length} events</span></div>
-        <p className="state">{events.data.mock ? 'Catch rate and median lead are not evaluated for fixtures.' : 'Aggregate catch rate requires an explicit evaluated/missed status from the research handoff. Missing metrics are not counted as misses.'}</p>
+      <section className="panel"><div className="panel-top"><strong>{events.data.mock ? 'Synthetic examples' : 'Test-era price windows'}</strong><span>{events.data.events.length} events</span></div>
+        <p className="state">{events.data.mock ? 'Catch rate and median lead are not evaluated for fixtures.' : 'These events have historical prices and onset markers, but no model risk frames. Missing alert metrics are not counted as misses.'}</p>
         {events.data.events.length ? <div className="table-wrap"><table><thead><tr><th>Onset (UTC)</th><th>Pair</th><th>Era</th><th>Warning lead</th><th>Rank at onset</th><th>Playback</th></tr></thead><tbody>{events.data.events.map(event => <tr key={event.event_id}><td>{utc(event.t_onset)}</td><td>{event.pair}</td><td>{event.era}</td><td>{lead(event)}</td><td>{event.rank_at_onset ?? 'Unavailable'}</td><td><button onClick={() => setSelected(event.event_id)}>Open {event.event_id}</button></td></tr>)}</tbody></table></div> : <p className="state">No held-out replay files are available yet.</p>}
       </section>
       {!!events.data.events.length && <><label className="event-picker">Event <select value={id} onChange={e => setSelected(e.target.value)}>{events.data.events.map(event => <option key={event.event_id} value={event.event_id}>{event.pair} · {utc(event.t_onset)} · {event.era}</option>)}</select></label><ReplayLoader key={id} id={id} /></>}
@@ -33,6 +33,20 @@ function ReplayLoader({ id }: { id: string }) {
 }
 
 function ReplayPlayer({ data }: { data: Schema['ReplayDetailResponse'] }) {
+  if (!data.mock && data.frames.length === 0) return <HistoricalPriceReplay data={data} />
+  return <ScoredReplayPlayer data={data} />
+}
+
+function HistoricalPriceReplay({ data }: { data: Schema['ReplayDetailResponse'] }) {
+  return <section className="panel padded">
+    <h2>{data.event.pair} · historical price window</h2>
+    <Notice mock={false} notice={data.notice} />
+    <p>Onset: {utc(data.event.t_onset)}. These candles show what happened around the event; no research score, rank, or alert lead was calculated for this playback.</p>
+    <PriceChart bars={data.bars} risks={[]} alerts={[]} horizon="10" onset={data.event.t_onset} />
+  </section>
+}
+
+function ScoredReplayPlayer({ data }: { data: Schema['ReplayDetailResponse'] }) {
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(1)

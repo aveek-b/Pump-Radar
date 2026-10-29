@@ -5,7 +5,6 @@ from urllib.request import Request, urlopen
 
 import pandas as pd
 
-
 BASE_URL = "https://data.binance.vision/data/spot/daily/klines"
 WORKERS = 8
 

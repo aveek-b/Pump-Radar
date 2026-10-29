@@ -29,6 +29,7 @@ from pumpradar.prices import LiveUniverseCache, fetch_candles
 router = APIRouter()
 live_universe = LiveUniverseCache()
 RESULTS = Path(__file__).resolve().parents[2] / "results"
+REPLAY_DIR = Path(__file__).resolve().parents[2] / "data" / "replay"
 DEMO = {"scorer": "demo_stub", "mock": False,
         "notice": "Real market/model integration is pending; retained demo is available separately."}
 
@@ -198,16 +199,49 @@ async def coin(pair: str, range: str = "week"):
 
 @router.get("/replay/events", response_model=ReplayEventsResponse)
 def replay_events():
-    return ReplayEventsResponse(**(PROVENANCE if mock_enabled() else DEMO),
-                                events=[mock_data.replay_event()] if mock_enabled() else [])
+    if mock_enabled():
+        return ReplayEventsResponse(**PROVENANCE, events=[mock_data.replay_event()])
+    try:
+        records = json.loads((REPLAY_DIR / "index.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise HTTPException(503, "Historical replay index is unavailable.") from exc
+    events = [{
+        "event_id": row["event_id"], "pair": row["pair"],
+        "t_onset": row["onset"], "t_telegram": None, "era": "test",
+        "first_alert_lead_minutes": None, "rank_at_onset": None,
+    } for row in records if row.get("era") == "test" and row.get("available") is True]
+    return ReplayEventsResponse(
+        scorer="demo_stub", mock=False, model_version=None,
+        notice="Historical test-era price windows with onset markers. No model score frames or evaluated alert metrics are available.",
+        events=events,
+    )
 
 
 @router.get("/replay/{event_id}", response_model=ReplayDetailResponse,
             responses={404: {"description": "Unknown or unavailable event"}})
 def replay_event(event_id: str):
-    if not mock_enabled() or event_id != "mock-example":
-        raise HTTPException(404, "Replay event unavailable; held-out files are pending.")
-    return mock_data.replay()
+    if mock_enabled():
+        if event_id != "mock-example":
+            raise HTTPException(404, "Unknown synthetic replay event")
+        return mock_data.replay()
+    listed = next((row for row in replay_events().events if row.event_id == event_id), None)
+    if listed is None:
+        raise HTTPException(404, "Unknown or unavailable test-era event")
+    try:
+        payload = json.loads((REPLAY_DIR / f"{event_id}.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise HTTPException(503, "Historical replay file is unavailable.") from exc
+    if payload.get("event_id") != event_id or payload.get("pair") != listed.pair:
+        raise HTTPException(503, "Historical replay file does not match its index.")
+    return ReplayDetailResponse(
+        scorer="demo_stub", mock=False, model_version=None,
+        notice="Historical test-era Binance OHLC only. No risk frames, model alerts, or measured warning lead are available.",
+        event=listed, frames=[],
+        bars=[{
+            "time": row["time"], "open": row["open"], "high": row["high"],
+            "low": row["low"], "close": row["close"], "volume_quote": None,
+        } for row in payload["candles"]],
+    )
 
 
 @router.get("/honesty", response_model=HonestyResponse)

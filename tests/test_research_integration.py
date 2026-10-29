@@ -130,3 +130,23 @@ def test_binance_candle_adapter_uses_exact_quote_volume():
     candles = asyncio.run(load())
     assert candles[0].volume == 100
     assert candles[0].quote_volume == 6123.45
+
+
+def test_test_era_replay_is_price_only_and_path_safe(monkeypatch):
+    monkeypatch.setenv("PUMPRADAR_MOCK", "0")
+    with TestClient(app) as client:
+        events = client.get("/replay/events")
+        listed = events.json()["events"]
+        detail = client.get(f"/replay/{listed[0]['event_id']}")
+        missing = client.get("/replay/event_9999")
+        traversal = client.get("/replay/..%2F..%2Fsecrets")
+    assert events.status_code == 200
+    assert len(listed) == 36 and all(event["era"] == "test" for event in listed)
+    assert all(event["first_alert_lead_minutes"] is None for event in listed)
+    assert detail.status_code == 200
+    payload = detail.json()
+    assert payload["mock"] is False and payload["frames"] == []
+    assert len(payload["bars"]) > 100
+    assert payload["bars"][0]["open"] is not None
+    assert payload["bars"][0]["volume_quote"] is None
+    assert missing.status_code == 404 and traversal.status_code in (404, 422)

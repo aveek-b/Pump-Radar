@@ -4,7 +4,6 @@ from zipfile import BadZipFile, ZipFile
 
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[2]
 EVENTS_FILE = ROOT / "data" / "processed" / "events.parquet"
 MANIFEST_FILE = ROOT / "data" / "processed" / "kline_manifest.csv"

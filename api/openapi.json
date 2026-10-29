@@ -738,7 +738,14 @@
             "title": "Close"
           },
           "volume_quote": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Volume Quote"
           }
         },

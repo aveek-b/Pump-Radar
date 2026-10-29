@@ -1,13 +1,12 @@
 
+import time
+import zipfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
-import time
-import zipfile
 
 import pandas as pd
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -81,13 +80,12 @@ def download_one(pair, date):
                 headers={"User-Agent": "PumpRadar-Research/1.0"},
             )
 
-            with urlopen(request, timeout=TIMEOUT_SECONDS) as response:
-                with open(temporary, "wb") as output:
-                    while True:
-                        chunk = response.read(1024 * 1024)
-                        if not chunk:
-                            break
-                        output.write(chunk)
+            with urlopen(request, timeout=TIMEOUT_SECONDS) as response, open(temporary, "wb") as output:
+                while True:
+                    chunk = response.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    output.write(chunk)
 
             if not zipfile.is_zipfile(temporary):
                 raise ValueError("Downloaded file is not a valid ZIP")
@@ -177,7 +175,7 @@ def main():
 
                 try:
                     result = future.result()
-                except Exception as exc:
+                except Exception as exc:  # noqa: BLE001 - record each worker failure and continue the batch
                     result = {
                         "pair": pair, "date": date, "status": "error",
                         "path": "",

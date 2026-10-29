@@ -65,9 +65,7 @@ def test_future_volume_changes_do_not_change_past_features():
     feature_columns = [
         column
         for column in original.columns
-        if column.startswith("z_")
-        or column.startswith("quiet_accumulation_")
-        or column == "buy_share"
+        if column.startswith(("z_", "quiet_accumulation_")) or column == "buy_share"
     ]
 
     pd.testing.assert_frame_equal(

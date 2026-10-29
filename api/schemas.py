@@ -58,7 +58,7 @@ class Candle(BaseModel):
     high: float | None
     low: float | None
     close: float
-    volume_quote: float
+    volume_quote: float | None
 
 
 class RiskPoint(BaseModel):
