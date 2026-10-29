@@ -53,7 +53,7 @@ def test_verification_requires_api_ack_for_every_pair(monkeypatch):
             pass
 
         def json(self):
-            return {"minute": "2020-01-01T00:01:00+00:00", "coins": [
+            return {"minute": "2020-01-01T00:01:00Z", "coins": [
                 {"symbol": "BARBTC"}, {"symbol": "FOOBTC"}
             ]}
 

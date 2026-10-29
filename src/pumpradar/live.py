@@ -102,7 +102,7 @@ async def post_batch(client: httpx.AsyncClient, api_url: str, bars: list[Bar]) -
     )
     response.raise_for_status()
     returned = response.json()
-    if returned["minute"] != bars[0].close_time.isoformat() or (
+    if datetime.fromisoformat(returned["minute"]) != bars[0].close_time or (
         {row["symbol"] for row in returned["coins"]} != {bar.symbol for bar in bars}
     ):
         raise ValueError("API did not acknowledge every submitted coin")
